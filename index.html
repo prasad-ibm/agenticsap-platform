@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgenticSAP — The SAP Agentic Transformation Platform</title>
+  <link rel="stylesheet" href="/bpo-theme.css"/>
+  <style>
+    :root {
+      --sap-blue:   #0070C0;
+      --sap-blue-d: #003366;
+      --sap-blue-l: #1e8fd8;
+      --sap-gold:   #E89C00;
+      --sap-gold-l: #FFB84D;
+      --ibm-blue:   #0f62fe;
+    }
+
+    /* NAV DROPDOWN (inline override) */
+    .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+    .c-nav-dropdown>a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+    .c-nav-dropdown:hover>a::after{opacity:.85}
+    .c-nav-dropdown-menu{position:absolute!important;top:48px!important;left:0;display:flex!important;flex-direction:column;visibility:hidden!important;opacity:0!important;pointer-events:none!important;background:#ffffff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:160px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:opacity .12s ease}
+    .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+    .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+    .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+    .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+    .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+
+    /* HERO */
+    .hero {
+      background: radial-gradient(1400px 500px at 85% -10%, rgba(0,112,192,0.12), transparent),
+                  linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+      padding: 6rem 0 5rem;
+      border-bottom: 1px solid #e0e0e0;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--sap-blue), var(--sap-gold));
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      background: rgba(0,112,192,0.1);
+      color: var(--sap-blue);
+      font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase;
+      border: 1px solid rgba(0,112,192,0.25);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 4.5vw, 3.5rem);
+      font-weight: 700;
+      color: var(--sap-blue-d);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--sap-blue);
+      background: linear-gradient(180deg, transparent 60%, rgba(232,156,0,0.35) 60%);
+      padding: 0 4px;
+    }
+    .hero-sub {
+      font-size: 1.125rem;
+      color: #525252;
+      line-height: 1.65;
+      max-width: 680px;
+      margin-bottom: 2rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .btn-sap-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      background: var(--sap-blue); color: #fff;
+      font-size: 0.9375rem; font-weight: 600;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-sap-primary:hover { background: var(--sap-blue-d); color: #fff; text-decoration: none; }
+    .btn-sap-ghost {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      background: transparent; color: var(--sap-blue);
+      font-size: 0.9375rem; font-weight: 600;
+      border: 1.5px solid var(--sap-blue); cursor: pointer; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-sap-ghost:hover { background: rgba(0,112,192,0.07); color: var(--sap-blue-d); text-decoration: none; }
+
+    .hero-stat-row {
+      display: flex; gap: 3rem; flex-wrap: wrap;
+      padding-top: 2rem;
+      border-top: 1px solid #e0e0e0;
+    }
+    .hero-stat .val {
+      font-size: 2rem; font-weight: 700;
+      color: var(--sap-blue);
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1;
+    }
+    .hero-stat .lbl {
+      font-size: 12px; color: #6f6f6f;
+      margin-top: 0.4rem;
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+
+    /* 3-PHASE JOURNEY */
+    .journey {
+      background: #f4f4f4;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 3.5rem 0;
+    }
+    .journey-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase;
+      color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .journey-track {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 0;
+      align-items: stretch;
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-top: 3px solid var(--sap-blue);
+    }
+    .journey-phase {
+      padding: 2rem 2rem 1.75rem;
+      position: relative;
+    }
+    .jp-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 3rem; font-weight: 700;
+      color: var(--sap-blue);
+      opacity: 0.12;
+      line-height: 1;
+      position: absolute;
+      top: 1.25rem; right: 1.25rem;
+    }
+    .jp-badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+      padding: 3px 10px;
+      background: var(--sap-blue); color: #fff;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 0.75rem;
+    }
+    .jp-title {
+      font-size: 1.25rem; font-weight: 700; color: #161616;
+      margin-bottom: 0.35rem;
+    }
+    .jp-subtitle {
+      font-size: 0.8125rem; color: var(--sap-blue);
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.6px; margin-bottom: 0.875rem;
+    }
+    .jp-desc {
+      font-size: 0.875rem; color: #525252; line-height: 1.6;
+    }
+    .jp-outputs {
+      margin-top: 1rem;
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .jp-output {
+      font-size: 12px; color: #525252;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .jp-output::before { content: '▪'; color: var(--sap-blue); flex-shrink: 0; }
+    .journey-arrow {
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 1rem;
+      color: var(--sap-gold);
+      font-size: 1.75rem;
+      border-left: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+    }
+    @media (max-width: 860px) {
+      .journey-track { grid-template-columns: 1fr; }
+      .journey-arrow { border: none; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; padding: 0.75rem; transform: rotate(90deg); }
+    }
+
+    /* MODULES GRID */
+    .modules { padding: 5rem 0; }
+    .section-head { max-width: 720px; margin: 0 auto 3rem; text-align: center; }
+    .section-head .eyebrow {
+      display: inline-block;
+      color: var(--sap-blue);
+      font-size: 11px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 0.75rem;
+    }
+    .section-head h2 {
+      font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+      font-weight: 700; margin: 0 0 0.75rem;
+      color: #161616; letter-spacing: -0.02em;
+    }
+    .section-head p { font-size: 1rem; color: #525252; line-height: 1.65; }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 960px) { .modules-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .modules-grid { grid-template-columns: 1fr; } }
+
+    .module-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-top: 4px solid var(--sap-blue);
+      padding: 1.75rem;
+      display: flex; flex-direction: column; gap: 0.875rem;
+      transition: box-shadow 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .module-card:hover { box-shadow: 0 4px 16px rgba(0,112,192,0.1); border-color: var(--sap-blue); }
+    .module-card.phase2 { border-top-color: #8a8a8a; opacity: 0.75; }
+    .module-card.phase2:hover { border-top-color: var(--sap-gold); opacity: 1; }
+    .module-card.gold { border-top-color: var(--sap-gold); }
+
+    .mod-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase;
+      color: var(--sap-blue); margin-bottom: 0.25rem;
+    }
+    .module-card.gold .mod-num { color: var(--sap-gold); }
+    .module-card.phase2 .mod-num { color: #8a8a8a; }
+
+    .mod-icon {
+      width: 44px; height: 44px;
+      background: rgba(0,112,192,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .module-card.gold .mod-icon { background: rgba(232,156,0,0.12); }
+    .module-card.phase2 .mod-icon { background: #f4f4f4; }
+
+    .mod-title {
+      font-size: 1.0625rem; font-weight: 700; color: #161616; line-height: 1.25;
+    }
+    .mod-desc { font-size: 0.875rem; color: #525252; line-height: 1.6; flex: 1; }
+    .mod-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.25rem; }
+    .mod-tag {
+      font-size: 10.5px; font-weight: 600;
+      color: var(--sap-blue);
+      background: rgba(0,112,192,0.08);
+      padding: 3px 9px; border-radius: 2px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .module-card.gold .mod-tag { color: #8a5e00; background: rgba(232,156,0,0.12); }
+    .module-card.phase2 .mod-tag { color: #6f6f6f; background: #f4f4f4; }
+
+    .mod-cta {
+      font-size: 0.8125rem; font-weight: 600; color: var(--sap-blue);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 0.375rem;
+      padding-top: 0.75rem; border-top: 1px solid #e0e0e0;
+      transition: color 0.15s;
+    }
+    .mod-cta:hover { color: var(--sap-blue-d); text-decoration: none; }
+    .mod-cta::after { content: '→'; }
+    .mod-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      padding: 2px 8px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .mod-badge.live { background: #defbe6; color: #0e6027; }
+    .mod-badge.q3 { background: #fff8e1; color: #8a5e00; }
+    .mod-badge.phase2 { background: #f4f4f4; color: #6f6f6f; }
+
+    /* PERSONAS */
+    .personas-section { padding: 5rem 0; background: #f4f4f4; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; }
+    .persona-tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 960px) { .persona-tabs { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .persona-tabs { grid-template-columns: 1fr; } }
+
+    .ptab {
+      background: #fff; border: 1px solid #e0e0e0;
+      padding: 1.25rem 1rem;
+      cursor: pointer; text-align: left;
+      display: flex; flex-direction: column; gap: 0.5rem;
+      transition: 0.2s; position: relative;
+    }
+    .ptab:hover { border-color: var(--sap-blue); }
+    .ptab.active {
+      border-color: var(--sap-blue);
+      background: linear-gradient(180deg, #f0f7fd, #ffffff);
+      box-shadow: 0 0 0 3px rgba(0,112,192,0.08);
+    }
+    .ptab.active::after {
+      content: '';
+      position: absolute; bottom: -17px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 10px solid transparent; border-right: 10px solid transparent;
+      border-top: 10px solid var(--sap-blue);
+    }
+    .ptab-ico {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0; color: #fff; font-weight: 700;
+      background: var(--sap-blue);
+    }
+    .ptab[data-p="cio"] .ptab-ico { background: #003366; }
+    .ptab[data-p="coe"] .ptab-ico { background: #0070C0; }
+    .ptab[data-p="lob"] .ptab-ico { background: #198038; }
+    .ptab[data-p="arch"] .ptab-ico { background: #6929c4; }
+    .ptab[data-p="si"] .ptab-ico { background: #E89C00; color: #fff; }
+    .ptab .tname { font-size: 13px; font-weight: 700; color: #161616; }
+    .ptab .trole { font-size: 11px; color: #6f6f6f; }
+
+    .persona-panel { display: none; background: #fff; border: 1px solid var(--sap-blue); padding: 2rem; }
+    .persona-panel.active { display: grid; grid-template-columns: 1fr 1.25fr; gap: 2.5rem; }
+    @media (max-width: 860px) { .persona-panel.active { grid-template-columns: 1fr; } }
+
+    .pp-left h3 { margin: 0 0 0.25rem; font-size: 1.35rem; color: #161616; font-weight: 700; }
+    .pp-left .ptag { font-size: 11px; color: var(--sap-blue); letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; margin-bottom: 1rem; }
+    .pp-left h4 { margin: 1.5rem 0 0.6rem; font-size: 11px; color: #6f6f6f; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 600; }
+    .pp-jobs { list-style: none; padding: 0; margin: 0; }
+    .pp-jobs li { padding: 5px 0; font-size: 13.5px; color: #393939; display: flex; gap: 10px; }
+    .pp-jobs li::before { content: '→'; color: var(--sap-blue); font-weight: 700; flex-shrink: 0; }
+    .pp-skills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pp-skill {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+      padding: 4px 10px;
+      background: rgba(232,156,0,0.12); border: 1px solid rgba(232,156,0,0.35);
+      color: #8a5e00; font-weight: 600;
+    }
+
+    .pp-right {
+      background: #0F1F33; color: #e0e0e0;
+      padding: 1.5rem; font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px; line-height: 1.7;
+      overflow: auto; border-radius: 2px; position: relative;
+    }
+    .pp-right::before {
+      content: '▸ example interaction';
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: 8px 1.5rem;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    .pp-right .convo { margin-top: 2.25rem; }
+    .pp-right .u { color: #7dd3fc; }
+    .pp-right .u::before { content: '👤 '; }
+    .pp-right .a { color: var(--sap-gold-l); margin-top: 0.75rem; display: block; }
+    .pp-right .a::before { content: '🤖 '; }
+    .pp-right .out {
+      background: rgba(255,255,255,0.04);
+      padding: 10px 14px; margin: 0.75rem 0;
+      border-left: 2px solid var(--sap-gold);
+      color: #e2e8f0; white-space: pre-wrap; font-size: 12px;
+    }
+
+    /* MESH ARCHITECTURE */
+    .arch-section { padding: 5rem 0; }
+    .mesh {
+      background: #0F1F33; color: #fff;
+      padding: 3rem 2rem;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .mesh::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(800px 200px at 50% 0, rgba(0,112,192,0.25), transparent);
+      pointer-events: none;
+    }
+    .mesh-row {
+      display: flex; justify-content: center; gap: 1rem;
+      margin-bottom: 2rem; flex-wrap: wrap; position: relative; z-index: 1;
+    }
+    .mesh-node {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.9rem 1.25rem; min-width: 150px; backdrop-filter: blur(10px);
+    }
+    .mesh-node .nm { font-size: 11px; color: rgba(255,255,255,0.55); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px; }
+    .mesh-node .lbl { font-size: 14px; font-weight: 600; color: #fff; }
+    .mesh-node.persona { border-color: var(--sap-blue); background: rgba(0,112,192,0.15); }
+    .mesh-node.router { border-color: var(--sap-gold); background: rgba(232,156,0,0.15); min-width: 240px; }
+    .mesh-node.module { border-color: rgba(255,255,255,0.25); font-family: 'IBM Plex Mono', monospace; }
+    .mesh-node.platform { border-color: rgba(125,211,252,0.4); background: rgba(125,211,252,0.08); }
+    .mesh-arrow { text-align: center; color: rgba(255,255,255,0.4); font-size: 1.4rem; margin: 0.25rem 0; line-height: 1; position: relative; z-index: 1; }
+    .mesh-lbl { font-size: 10.5px; letter-spacing: 1.4px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 0.75rem; text-align: left; padding-left: 0.5rem; }
+
+    /* CTA STRIP */
+    .cta-section {
+      background: linear-gradient(135deg, var(--sap-blue-d), var(--sap-blue));
+      color: #fff; padding: 4.5rem 0; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(600px 300px at 30% 50%, rgba(232,156,0,0.15), transparent);
+      pointer-events: none;
+    }
+    .cta-section h2 { color: #fff; font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; margin-bottom: 0.75rem; }
+    .cta-section p { color: rgba(255,255,255,0.8); font-size: 1.0625rem; max-width: 640px; margin: 0 auto 2rem; line-height: 1.65; }
+    .btn-cta-white {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      background: #fff; color: var(--sap-blue-d);
+      font-size: 0.9375rem; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-cta-white:hover { background: #f0f7fd; color: var(--sap-blue-d); text-decoration: none; }
+    .btn-cta-ghost-white {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      background: transparent; color: #fff;
+      font-size: 0.9375rem; font-weight: 600;
+      border: 1.5px solid rgba(255,255,255,0.6); cursor: pointer; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-cta-ghost-white:hover { background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; }
+    .cta-btns { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+    section { padding: 5rem 0; }
+    section.alt { background: #f4f4f4; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; }
+  </style>
+</head>
+<body>
+
+<!-- ══════ NAV ══════ -->
+<nav class="c-nav">
+  <div class="container">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" fill="#0070C0"/>
+        <text x="4" y="22" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="white">SAP</text>
+      </svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/" class="active"><span>Home</span></a>
+      <div class="c-nav-dropdown">
+        <a href="#modules"><span>Platform</span></a>
+        <div class="c-nav-dropdown-menu">
+          <a href="#assess"><span>Maturity Compass</span></a>
+          <a href="#atlas"><span>Agent Atlas</span></a>
+          <a href="#fit"><span>Platform Fit</span></a>
+          <a href="#roi"><span>ROI Builder</span></a>
+          <a href="#skills"><span>Skill Studio</span></a>
+        </div>
+      </div>
+      <a href="#personas"><span>Personas</span></a>
+      <a href="#architecture"><span>Architecture</span></a>
+      <a href="#roadmap"><span>Roadmap</span></a>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <a href="#contact" class="btn-sap-primary" style="height:36px;padding:0 1.25rem;font-size:0.8125rem;">Request Demo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════ HERO ══════ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect width="14" height="14" rx="2" fill="#0070C0" opacity="0.6"/><text x="3" y="11" font-size="9" font-weight="700" fill="white" font-family="monospace">S</text></svg>
+      SAP Agentic Transformation Platform
+    </div>
+    <h1>
+      From maturity assessment<br>
+      to <em>platform fit</em>, one playbook<br>
+      for every SAP module.
+    </h1>
+    <p class="hero-sub">
+      AgenticSAP gives every SAP CIO and CoE Lead a defensible, module-level agentic AI strategy — scored maturity, catalogued agent opportunities, and a weighted platform recommendation — not generic AI advice.
+    </p>
+    <div class="hero-actions">
+      <a href="#assess" class="btn-sap-primary">Start Maturity Compass →</a>
+      <a href="#atlas" class="btn-sap-ghost">Browse Agent Atlas</a>
+    </div>
+    <div class="hero-stat-row">
+      <div class="hero-stat">
+        <div class="val">30+</div>
+        <div class="lbl">SAP modules covered</div>
+      </div>
+      <div class="hero-stat">
+        <div class="val">8</div>
+        <div class="lbl">Maturity axes per module</div>
+      </div>
+      <div class="hero-stat">
+        <div class="val">9</div>
+        <div class="lbl">Platform runtimes compared</div>
+      </div>
+      <div class="hero-stat">
+        <div class="val">200+</div>
+        <div class="lbl">Agent archetypes catalogued</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ 3-PHASE JOURNEY ══════ -->
+<div class="journey" id="journey">
+  <div class="container">
+    <div class="journey-label">The AgenticSAP Playbook — Three Phases, One Deliverable</div>
+    <div class="journey-track">
+
+      <div class="journey-phase">
+        <div class="jp-num">01</div>
+        <div class="jp-badge" style="background:var(--sap-blue);">Phase 1 — Assess</div>
+        <div class="jp-title">SAP Maturity Compass</div>
+        <div class="jp-subtitle">maturity_score.radar</div>
+        <p class="jp-desc">Multi-axis maturity score across every SAP module in flight — from platform footprint to AI readiness. Identifies agent-ready modules vs. ones blocked by data quality or process variance.</p>
+        <div class="jp-outputs">
+          <div class="jp-output">Radar chart per module + enterprise rollup</div>
+          <div class="jp-output">8-axis scoring: platform, data, integration, AI readiness</div>
+          <div class="jp-output">Board-ready maturity narrative (Claude-generated)</div>
+        </div>
+      </div>
+
+      <div class="journey-arrow">→</div>
+
+      <div class="journey-phase">
+        <div class="jp-num">02</div>
+        <div class="jp-badge" style="background:var(--sap-gold);color:#333;">Phase 2 — Ideate</div>
+        <div class="jp-title">Agent Opportunity Atlas</div>
+        <div class="jp-subtitle">agent_atlas.catalogue</div>
+        <p class="jp-desc">Module-indexed catalogue of 200+ agent archetypes. Each entry: pain point, business outcome, target persona, integration touch-points, data dependencies, effort tier — and a YAML skill spec stub.</p>
+        <div class="jp-outputs">
+          <div class="jp-output">FI/CO, MM/Ariba, SD/CS, PP/QM, HCM, WM/EWM</div>
+          <div class="jp-output">Effort tier + integration object mapping</div>
+          <div class="jp-output">Cross-cutting: master data, SoD, IDoc, transport</div>
+        </div>
+      </div>
+
+      <div class="journey-arrow">→</div>
+
+      <div class="journey-phase">
+        <div class="jp-num">03</div>
+        <div class="jp-badge" style="background:#198038;">Phase 3 — Fit</div>
+        <div class="jp-title">Technical Fit Recommender</div>
+        <div class="jp-subtitle">platform_fit.decision</div>
+        <p class="jp-desc">After selecting use cases, a weighted decision matrix recommends the right agentic runtime per use case — Joule, BTP AI Core, Google Agentspace, Copilot Studio, Bedrock, Claude API, and more.</p>
+        <div class="jp-outputs">
+          <div class="jp-output">Ranked recommendation + structured rationale</div>
+          <div class="jp-output">ROI &amp; phased roadmap (Wave 1/2/3)</div>
+          <div class="jp-output">Skill spec stubs for Wave 1 agents</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 6-MODULE GRID ══════ -->
+<section id="modules">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Platform Modules</div>
+      <h2>Six modules. One coherent playbook.</h2>
+      <p>Every module is designed to produce a board-ready, auditable artefact — not a slide deck, not a workshop output.</p>
+    </div>
+    <div class="modules-grid">
+
+      <!-- Module 1 -->
+      <div class="module-card" id="assess">
+        <span class="mod-badge live">Live Q2 2026</span>
+        <div class="mod-num">Module 01</div>
+        <div class="mod-icon">🧭</div>
+        <div class="mod-title">SAP Maturity Compass</div>
+        <p class="mod-desc">Multi-axis assessment scored 0–5 per axis, per SAP module. Eight axes from platform footprint to compliance posture. Outputs a radar chart and enterprise rollup with board-ready narrative.</p>
+        <div class="mod-tags">
+          <span class="mod-tag">Radar Chart</span>
+          <span class="mod-tag">8 Axes</span>
+          <span class="mod-tag">All Modules</span>
+        </div>
+        <a href="#" class="mod-cta">Explore Compass</a>
+      </div>
+
+      <!-- Module 2 -->
+      <div class="module-card" id="atlas">
+        <span class="mod-badge live">Live Q2 2026</span>
+        <div class="mod-num">Module 02</div>
+        <div class="mod-icon">🗺️</div>
+        <div class="mod-title">Agent Opportunity Atlas</div>
+        <p class="mod-desc">Module-indexed catalogue of agent archetypes. Each entry includes pain point, business outcome, target persona, integration touch-points, data dependencies, effort tier, and a YAML skill spec stub.</p>
+        <div class="mod-tags">
+          <span class="mod-tag">200+ Agents</span>
+          <span class="mod-tag">FI CO MM SD HCM</span>
+          <span class="mod-tag">YAML Stubs</span>
+        </div>
+        <a href="#" class="mod-cta">Browse Atlas</a>
+      </div>
+
+      <!-- Module 3 -->
+      <div class="module-card gold" id="fit">
+        <span class="mod-badge q3">Q3 2026</span>
+        <div class="mod-num">Module 03</div>
+        <div class="mod-icon">⚖️</div>
+        <div class="mod-title">Technical Fit Recommender</div>
+        <p class="mod-desc">The differentiator. After use-case selection, a weighted decision matrix recommends the right agentic runtime per use case — Joule, BTP AI Core, Google Agentspace, Copilot Studio, Bedrock, or Claude API direct.</p>
+        <div class="mod-tags">
+          <span class="mod-tag">9 Platforms</span>
+          <span class="mod-tag">8 Decision Dims</span>
+          <span class="mod-tag">Ranked Output</span>
+        </div>
+        <a href="#" class="mod-cta">See Recommender</a>
+      </div>
+
+      <!-- Module 4 -->
+      <div class="module-card gold" id="roi">
+        <span class="mod-badge q3">Q3 2026</span>
+        <div class="mod-num">Module 04</div>
+        <div class="mod-icon">📊</div>
+        <div class="mod-title">ROI &amp; Roadmap Builder</div>
+        <p class="mod-desc">Use-case-level business case: time saved × loaded cost × volume, minus run cost. Phased rollout (Wave 1/2/3) with sequencing logic. Exports to PDF and PPTX for investment committee presentation.</p>
+        <div class="mod-tags">
+          <span class="mod-tag">Wave Sequencing</span>
+          <span class="mod-tag">PDF Export</span>
+          <span class="mod-tag">PPTX Export</span>
+        </div>
+        <a href="#" class="mod-cta">Build Case</a>
+      </div>
+
+      <!-- Module 5 -->
+      <div class="module-card" id="skills">
+        <span class="mod-badge q3">Q4 2026</span>
+        <div class="mod-num">Module 05</div>
+        <div class="mod-icon">✏️</div>
+        <div class="mod-title">Skill Authoring Studio</div>
+        <p class="mod-desc">Turns Atlas entries into versioned, executable skills. YAML-fronted Markdown templates, integration manifests, skill-diff view, and skill-lineage graph. Module-aware — every template references real T-codes and IMG paths.</p>
+        <div class="mod-tags">
+          <span class="mod-tag">YAML+MD</span>
+          <span class="mod-tag">Versioned</span>
+          <span class="mod-tag">T-Code Aware</span>
+        </div>
+        <a href="#" class="mod-cta">Open Studio</a>
+      </div>
+
+      <!-- Module 6 — Phase 2 -->
+      <div class="module-card phase2" id="sandbox">
+        <span class="mod-badge phase2">Phase 2</span>
+        <div class="mod-num">Module 06</div>
+        <div class="mod-icon">🧪</div>
+        <div class="mod-title">Pilot Sandbox</div>
+        <p class="mod-desc">Two-week harness: selected agent + selected platform → runnable thin-slice with sample SAP data, mocked endpoints, Slack/Teams entry point, and evaluation rubric. Coming Q4 2026.</p>
+        <div class="mod-tags">
+          <span class="mod-tag">2-Week Sprint</span>
+          <span class="mod-tag">Sample Data</span>
+          <span class="mod-tag">Eval Rubric</span>
+        </div>
+        <a href="#" class="mod-cta">Join Waitlist</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════ PERSONAS ══════ -->
+<section class="personas-section" id="personas">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Built for every seat at the table</div>
+      <h2>Five personas. One platform.</h2>
+      <p>AgenticSAP is opinionated about who uses what. Each persona enters the platform differently and gets a different artefact out.</p>
+    </div>
+
+    <div class="persona-tabs">
+      <div class="ptab active" data-p="cio" onclick="switchPersona('cio')">
+        <div class="ptab-ico">C</div>
+        <div>
+          <div class="tname">CIO / Programme Director</div>
+          <div class="trole">Board maturity score &amp; investment case</div>
+        </div>
+      </div>
+      <div class="ptab" data-p="coe" onclick="switchPersona('coe')">
+        <div class="ptab-ico">SA</div>
+        <div>
+          <div class="tname">SAP CoE Lead / Solution Architect</div>
+          <div class="trole">Module deep-dive &amp; agent backlog</div>
+        </div>
+      </div>
+      <div class="ptab" data-p="lob" onclick="switchPersona('lob')">
+        <div class="ptab-ico">PO</div>
+        <div>
+          <div class="tname">LoB Process Owner</div>
+          <div class="trole">Module-specific agent catalogue</div>
+        </div>
+      </div>
+      <div class="ptab" data-p="arch" onclick="switchPersona('arch')">
+        <div class="ptab-ico">EA</div>
+        <div>
+          <div class="tname">Enterprise / AI Architect</div>
+          <div class="trole">Platform-fit decision tree</div>
+        </div>
+      </div>
+      <div class="ptab" data-p="si" onclick="switchPersona('si')">
+        <div class="ptab-ico">SI</div>
+        <div>
+          <div class="tname">SI Partner / Practice Lead</div>
+          <div class="trole">Pre-sales asset for RFP responses</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CIO Panel -->
+    <div class="persona-panel active" id="panel-cio">
+      <div class="pp-left">
+        <h3>CIO / SAP Programme Director</h3>
+        <div class="ptag">Board-ready artefact focus</div>
+        <h4>Jobs to be done</h4>
+        <ul class="pp-jobs">
+          <li>Get a defensible maturity score across the 30+ SAP modules in flight</li>
+          <li>Build an investment case for the agentic AI programme</li>
+          <li>Sequence the roadmap by business impact, not by IT convenience</li>
+          <li>Answer the board: "What is our SAP AI strategy?"</li>
+        </ul>
+        <h4>Key outputs</h4>
+        <ul class="pp-jobs">
+          <li>Enterprise maturity rollup (radar + heat map)</li>
+          <li>Wave 1 / 2 / 3 roadmap with ROI projection</li>
+          <li>Platform investment recommendation with rationale</li>
+        </ul>
+        <h4>Modules used</h4>
+        <div class="pp-skills">
+          <span class="pp-skill">Maturity Compass</span>
+          <span class="pp-skill">ROI Builder</span>
+          <span class="pp-skill">Fit Recommender</span>
+        </div>
+      </div>
+      <div class="pp-right">
+        <div class="convo">
+          <span class="u">Show me where we are across S/4HANA Finance — I need a board summary for next Thursday.</span>
+          <span class="a">Generating enterprise maturity rollup for FI / CO modules…<br><br>Your S/4HANA Finance landscape scores 3.2 / 5 overall.<br><br></span>
+          <div class="out">MATURITY RADAR — FI/CO
+Platform footprint      ████████░░  4.1  (RISE Public)
+Data foundation         ██████░░░░  3.0  (Datasphere partial)
+AI / agent readiness    █████░░░░░  2.8  (Joule licensed, not deployed)
+Integration arch        ████████░░  4.0  (IS 4.x migrated)
+Process standardisation ██████░░░░  3.1  (17% custom gaps in AR)
+
+⚠  Blocked modules: AP Automation (MDG gaps), Accruals (CoA variance)</div>
+          <span class="a">Close Orchestrator and Variance Investigator are high-readiness agents for Wave 1. Estimated 14,000 FTE hours / year recoverable. Shall I build the investment case?</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CoE Panel -->
+    <div class="persona-panel" id="panel-coe">
+      <div class="pp-left">
+        <h3>SAP CoE Lead / Solution Architect</h3>
+        <div class="ptag">Module deep-dive &amp; technical backlog</div>
+        <h4>Jobs to be done</h4>
+        <ul class="pp-jobs">
+          <li>Identify the top 10 agent opportunities for FI, CO, and MM</li>
+          <li>Map each agent to the right integration object (BAPI, IDoc, OData)</li>
+          <li>Assess effort tier and sequencing dependencies</li>
+          <li>Hand off YAML skill stubs to the build team</li>
+        </ul>
+        <h4>Key outputs</h4>
+        <ul class="pp-jobs">
+          <li>Prioritised agent backlog by module</li>
+          <li>Integration object map per agent</li>
+          <li>YAML-fronted Markdown skill specs</li>
+        </ul>
+        <h4>Modules used</h4>
+        <div class="pp-skills">
+          <span class="pp-skill">Agent Atlas</span>
+          <span class="pp-skill">Skill Studio</span>
+          <span class="pp-skill">Fit Recommender</span>
+        </div>
+      </div>
+      <div class="pp-right">
+        <div class="convo">
+          <span class="u">Give me the top 5 agents for MM Procurement, effort tier ≤ Medium, S/4 Public Cloud.</span>
+          <span class="a">Filtering Atlas — MM / Ariba, effort ≤ Medium, RISE Public…</span>
+          <div class="out">AGENT ATLAS — MM / PROCUREMENT
+01  PR-to-PO Coach         Effort: Low    Integration: BAPI_PO_CREATE1
+    Validates PR against sourcing policy before buyer approval
+02  GR/IR Clearing Agent   Effort: Medium Integration: MIRO IDoc + OData
+    Auto-matches 3-way GR/IR exceptions; escalates outliers
+03  Vendor Risk Monitor    Effort: Low    Integration: Ariba API + S/4 BP
+    Scores vendors on payment terms, SLA breach, risk flags
+04  Contract Clause Ext.   Effort: Medium Integration: Ariba CLM REST
+    Extracts key dates + obligations from uploaded contracts
+05  PO Exception Triager   Effort: Low    Integration: ME23N + Workflow API
+    Routes blocked POs to correct approver via Teams</div>
+          <span class="a">YAML stubs ready for all 5. Shall I open Skill Studio to refine #2 (GR/IR Clearing)?</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LoB Panel -->
+    <div class="persona-panel" id="panel-lob">
+      <div class="pp-left">
+        <h3>LoB Process Owner</h3>
+        <div class="ptag">Controller · CPO · Plant Director · CHRO</div>
+        <h4>Jobs to be done</h4>
+        <ul class="pp-jobs">
+          <li>Understand which repetitive exceptions an agent can handle today</li>
+          <li>Quantify the FTE time recoverable in my process area</li>
+          <li>Speak credibly to IT about what I need built</li>
+          <li>Get a quick demo scenario to show my CFO / CPO</li>
+        </ul>
+        <h4>Key outputs</h4>
+        <ul class="pp-jobs">
+          <li>Module-specific agent catalogue with plain-language descriptions</li>
+          <li>FTE-hours recovered estimate per agent</li>
+          <li>One-page agent business case template</li>
+        </ul>
+        <h4>Modules used</h4>
+        <div class="pp-skills">
+          <span class="pp-skill">Agent Atlas (filtered)</span>
+          <span class="pp-skill">ROI Builder</span>
+        </div>
+      </div>
+      <div class="pp-right">
+        <div class="convo">
+          <span class="u">I'm the Controller. Show me what agents could help my month-end close team.</span>
+          <span class="a">Loading FI / CO close agent catalogue…</span>
+          <div class="out">CLOSE AGENTS — FI / CONTROLLING
+Close Orchestrator
+  Monitors period-end status across all company codes;
+  auto-posts accruals within tolerance; flags exceptions
+  → Saves: ~420 hrs/close · Effort: Medium
+
+Variance Investigator
+  Explains cost centre variances in plain language
+  by cross-referencing actual vs plan postings in CO-CCA
+  → Saves: ~180 hrs/close · Effort: Low
+
+Intercompany Matcher
+  Auto-reconciles IC AR/AP pairs across company codes
+  before the close deadline
+  → Saves: ~95 hrs/close · Effort: Low</div>
+          <span class="a">Total recoverable: ~695 hrs per close cycle (~8,340/year). Shall I build the one-page ROI case?</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architect Panel -->
+    <div class="persona-panel" id="panel-arch">
+      <div class="pp-left">
+        <h3>Enterprise / AI Architect</h3>
+        <div class="ptag">Platform-fit decision tree</div>
+        <h4>Jobs to be done</h4>
+        <ul class="pp-jobs">
+          <li>Avoid a theological debate about Joule vs Google vs Microsoft</li>
+          <li>Map each use case to the right runtime based on data residency, user workspace, cost model</li>
+          <li>Produce a defensible, auditable platform recommendation</li>
+          <li>Identify in-house skill gaps for the chosen platform</li>
+        </ul>
+        <h4>Key outputs</h4>
+        <ul class="pp-jobs">
+          <li>Per-use-case platform recommendation with weighted rationale</li>
+          <li>Compliance-aware filtering (SOX, GDPR, BaFin)</li>
+          <li>Skill gap analysis vs chosen platform</li>
+        </ul>
+        <h4>Modules used</h4>
+        <div class="pp-skills">
+          <span class="pp-skill">Fit Recommender</span>
+          <span class="pp-skill">Maturity Compass (axis 7)</span>
+        </div>
+      </div>
+      <div class="pp-right">
+        <div class="convo">
+          <span class="u">Use case: GR/IR Clearing Agent. SAP on Azure. Users work in Teams. GDPR EU residency required.</span>
+          <span class="a">Running platform-fit matrix for GR/IR Clearing…</span>
+          <div class="out">PLATFORM FIT — GR/IR CLEARING AGENT
+#1  Microsoft Copilot Studio + Power Platform   Score: 87/100
+    ✓ Teams-native UX  ✓ SAP-on-Azure connectors
+    ✓ EU data residency  ✓ Power Automate SAP adapter
+    △ Cost: per-seat + per-flow; monitor at scale
+
+#2  SAP BTP AI Core / Gen AI Hub                Score: 71/100
+    ✓ Within SAP trust boundary
+    ✗ Teams integration requires additional connector
+    △ Joule not licensed on this landscape
+
+#3  Anthropic Claude API (custom)               Score: 64/100
+    ✓ Full control; GDPR-compliant EU inference
+    ✗ No pre-built SAP connectors; higher build cost</div>
+          <span class="a">Recommendation: Copilot Studio. Shall I generate the architecture decision record (ADR)?</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SI Panel -->
+    <div class="persona-panel" id="panel-si">
+      <div class="pp-left">
+        <h3>SI Partner / Practice Lead</h3>
+        <div class="ptag">Pre-sales asset · RFP response · White-label</div>
+        <h4>Jobs to be done</h4>
+        <ul class="pp-jobs">
+          <li>Respond to an RFP asking for an "SAP Agentic AI strategy" — in hours, not weeks</li>
+          <li>Run a client maturity workshop with a credible scoring framework</li>
+          <li>Produce a board-ready POV document with your firm's branding</li>
+          <li>Differentiate against generic AI playbooks from other SIs</li>
+        </ul>
+        <h4>Key outputs</h4>
+        <ul class="pp-jobs">
+          <li>White-labelled maturity report (PDF/PPTX)</li>
+          <li>RFP response pack — module maturity + agent opportunities + platform recommendation</li>
+          <li>Partner-tier skill marketplace listing</li>
+        </ul>
+        <h4>Modules used</h4>
+        <div class="pp-skills">
+          <span class="pp-skill">Full Platform</span>
+          <span class="pp-skill">White-Label Export</span>
+          <span class="pp-skill">Partner Tier</span>
+        </div>
+      </div>
+      <div class="pp-right">
+        <div class="convo">
+          <span class="u">I have an RFP from a global chemicals company — S/4 RISE Public, 48 company codes, FI/CO and MM in scope. Need a response pack by Friday.</span>
+          <span class="a">Initialising RFP pack for RISE Public — FI/CO + MM, global chemicals template…</span>
+          <div class="out">RFP PACK CONTENTS (generating)
+Section 1: SAP Landscape Maturity Assessment
+  → Pre-filled RISE Public baseline (axes 1,4,5 auto-scored)
+  → FI/CO estimated score: 3.6/5 (RISE Public typical)
+  → MM estimated score: 3.1/5 (Ariba integration TBC)
+
+Section 2: Agent Opportunity Catalogue (FI/CO + MM)
+  → 23 relevant agents selected; effort-ranked
+  → Wave 1 recommendation: 5 agents, 18-month horizon
+
+Section 3: Platform Fit
+  → SAP Joule (native) + BTP AI Core recommended
+  → Google Agentspace as federated search layer (optional)
+
+Section 4: Investment Case
+  → Estimated 42,000 FTE hrs/year recoverable (£2.1M @£50/hr)
+  → Build cost estimate: £380K Wave 1</div>
+          <span class="a">Pack ready to export as PPTX with your branding. Shall I generate now?</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════ ARCHITECTURE MESH ══════ -->
+<section class="arch-section" id="architecture">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Architecture</div>
+      <h2>Platform-agnostic by design.</h2>
+      <p>AgenticSAP is the assessment and ideation layer. It recommends runtimes — it doesn't lock you into one. Every recommendation cites a T-code, an IMG path, and an integration object.</p>
+    </div>
+
+    <div class="mesh">
+      <div class="mesh-lbl">Personas</div>
+      <div class="mesh-row">
+        <div class="mesh-node persona"><div class="nm">CIO</div><div class="lbl">Board Maturity</div></div>
+        <div class="mesh-node persona"><div class="nm">CoE Lead</div><div class="lbl">Agent Backlog</div></div>
+        <div class="mesh-node persona"><div class="nm">LoB Owner</div><div class="lbl">Process Agents</div></div>
+        <div class="mesh-node persona"><div class="nm">Architect</div><div class="lbl">Platform Fit</div></div>
+        <div class="mesh-node persona"><div class="nm">SI Partner</div><div class="lbl">RFP Pack</div></div>
+      </div>
+      <div class="mesh-arrow">↓</div>
+      <div class="mesh-lbl">AgenticSAP Core</div>
+      <div class="mesh-row">
+        <div class="mesh-node router"><div class="nm">Orchestration</div><div class="lbl">AgenticSAP Platform</div></div>
+      </div>
+      <div class="mesh-arrow">↓</div>
+      <div class="mesh-lbl">Platform Modules</div>
+      <div class="mesh-row">
+        <div class="mesh-node module"><div class="nm">M1</div><div class="lbl">Maturity Compass</div></div>
+        <div class="mesh-node module"><div class="nm">M2</div><div class="lbl">Agent Atlas</div></div>
+        <div class="mesh-node module"><div class="nm">M3</div><div class="lbl">Fit Recommender</div></div>
+        <div class="mesh-node module"><div class="nm">M4</div><div class="lbl">ROI Builder</div></div>
+        <div class="mesh-node module"><div class="nm">M5</div><div class="lbl">Skill Studio</div></div>
+      </div>
+      <div class="mesh-arrow">↓</div>
+      <div class="mesh-lbl">Recommended Runtimes (per use case)</div>
+      <div class="mesh-row">
+        <div class="mesh-node platform"><div class="nm">SAP</div><div class="lbl">Joule / BTP AI</div></div>
+        <div class="mesh-node platform"><div class="nm">Google</div><div class="lbl">Agentspace</div></div>
+        <div class="mesh-node platform"><div class="nm">Microsoft</div><div class="lbl">Copilot Studio</div></div>
+        <div class="mesh-node platform"><div class="nm">AWS</div><div class="lbl">Bedrock Agents</div></div>
+        <div class="mesh-node platform"><div class="nm">Anthropic</div><div class="lbl">Claude API</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ ROADMAP ══════ -->
+<section class="alt" id="roadmap">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">12-Month Roadmap</div>
+      <h2>Four quarters. Full SAP coverage.</h2>
+      <p>Starting with the highest-value modules and the most distinctive differentiator — the Technical Fit Recommender.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;">
+
+      <div style="background:#fff;border:1px solid #e0e0e0;border-left:4px solid var(--sap-blue);padding:1.75rem;">
+        <div style="font-size:11px;color:#6f6f6f;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:0.5rem;font-family:'IBM Plex Mono',monospace;">Q2 2026</div>
+        <div style="font-size:1.2rem;font-weight:700;color:#161616;margin-bottom:1rem;">Foundation</div>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;">
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:var(--sap-blue);">▪</span>Maturity Compass (FI, CO, MM)</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:var(--sap-blue);">▪</span>Agent Atlas — FI, CO, MM modules</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:var(--sap-blue);">▪</span>3 paying design partners</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:var(--sap-blue);">▪</span>YAML skill spec stubs (50 agents)</li>
+        </ul>
+      </div>
+
+      <div style="background:#fff;border:1px solid #e0e0e0;border-left:4px solid var(--sap-gold);padding:1.75rem;">
+        <div style="font-size:11px;color:#6f6f6f;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:0.5rem;font-family:'IBM Plex Mono',monospace;">Q3 2026</div>
+        <div style="font-size:1.2rem;font-weight:700;color:#161616;margin-bottom:1rem;">Differentiation</div>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;">
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:var(--sap-gold);">▪</span>Technical Fit Recommender</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:var(--sap-gold);">▪</span>ROI &amp; Roadmap Builder</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:var(--sap-gold);">▪</span>Atlas expanded: SD, HCM, PP</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:var(--sap-gold);">▪</span>SI partner white-label tier</li>
+        </ul>
+      </div>
+
+      <div style="background:#fff;border:1px solid #e0e0e0;border-left:4px solid #198038;padding:1.75rem;">
+        <div style="font-size:11px;color:#6f6f6f;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:0.5rem;font-family:'IBM Plex Mono',monospace;">Q4 2026</div>
+        <div style="font-size:1.2rem;font-weight:700;color:#161616;margin-bottom:1rem;">Build &amp; Run</div>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;">
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:#198038;">▪</span>Skill Authoring Studio</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:#198038;">▪</span>Pilot Sandbox (Phase 2)</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:#198038;">▪</span>Full module coverage to L2</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:#198038;">▪</span>WM/EWM/TM + cross-cutting</li>
+        </ul>
+      </div>
+
+      <div style="background:#fff;border:1px solid #e0e0e0;border-left:4px solid #6929c4;padding:1.75rem;">
+        <div style="font-size:11px;color:#6f6f6f;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:0.5rem;font-family:'IBM Plex Mono',monospace;">Q1 2027</div>
+        <div style="font-size:1.2rem;font-weight:700;color:#161616;margin-bottom:1rem;">Marketplace</div>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;">
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:#6929c4;">▪</span>Partner-authored skill marketplace</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:#6929c4;">▪</span>SAP-certified status pursuit</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:#6929c4;">▪</span>Revenue share model live</li>
+          <li style="font-size:13px;color:#393939;display:flex;gap:8px;"><span style="color:#6929c4;">▪</span>Hyperscaler co-sell agreements</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════ CTA ══════ -->
+<section class="cta-section" id="contact">
+  <div class="container" style="position:relative;z-index:1;">
+    <h2>Ready to build your SAP agentic strategy?</h2>
+    <p>Join the Q2 2026 design partner cohort. Three seats available. Get Maturity Compass + Agent Atlas for FI, CO, and MM — with direct access to the product team.</p>
+    <div class="cta-btns">
+      <a href="#" class="btn-cta-white">Apply for Design Partner →</a>
+      <a href="#" class="btn-cta-ghost-white">Book a 30-min Demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer class="c-footer">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem;">
+      <div>
+        <div class="footer-brand">AgenticSAP</div>
+        <div class="footer-tagline">SAP Agentic Transformation Platform</div>
+        <p style="margin-top:1rem;font-size:0.8125rem;color:#8d8d8d;line-height:1.65;max-width:320px;">
+          The platform-agnostic intelligence layer for every SAP CIO, CoE Lead, and LoB owner navigating the agentic AI transition. Sister product to NextGen BPO.
+        </p>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;font-weight:600;color:#f4f4f4;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;">Platform</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <a href="#assess" style="font-size:0.8125rem;color:#a8a8a8;">Maturity Compass</a>
+          <a href="#atlas" style="font-size:0.8125rem;color:#a8a8a8;">Agent Atlas</a>
+          <a href="#fit" style="font-size:0.8125rem;color:#a8a8a8;">Fit Recommender</a>
+          <a href="#roi" style="font-size:0.8125rem;color:#a8a8a8;">ROI Builder</a>
+          <a href="#skills" style="font-size:0.8125rem;color:#a8a8a8;">Skill Studio</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;font-weight:600;color:#f4f4f4;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;">Personas</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <a href="#personas" style="font-size:0.8125rem;color:#a8a8a8;">CIO / Programme Director</a>
+          <a href="#personas" style="font-size:0.8125rem;color:#a8a8a8;">SAP CoE Lead</a>
+          <a href="#personas" style="font-size:0.8125rem;color:#a8a8a8;">LoB Process Owner</a>
+          <a href="#personas" style="font-size:0.8125rem;color:#a8a8a8;">AI Architect</a>
+          <a href="#personas" style="font-size:0.8125rem;color:#a8a8a8;">SI Partner</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;font-weight:600;color:#f4f4f4;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;">Company</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <a href="#roadmap" style="font-size:0.8125rem;color:#a8a8a8;">Roadmap</a>
+          <a href="#contact" style="font-size:0.8125rem;color:#a8a8a8;">Design Partners</a>
+          <a href="https://nextgenbpo.app" style="font-size:0.8125rem;color:#a8a8a8;">NextGen BPO →</a>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #393939;padding-top:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <div style="font-size:0.75rem;color:#6f6f6f;">© 2026 AgenticSAP. Sister product of NextGen BPO.</div>
+      <div style="font-size:0.75rem;color:#6f6f6f;font-family:'IBM Plex Mono',monospace;">agenticsap.app</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function switchPersona(p) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.persona-panel').forEach(pp => pp.classList.remove('active'));
+  document.querySelector('.ptab[data-p="' + p + '"]').classList.add('active');
+  document.getElementById('panel-' + p).classList.add('active');
+}
+</script>
+
+</body>
+</html>
