@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAP Maturity Compass | AgenticSAP</title>
+  <link rel="stylesheet" href="/bpo-theme.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --sap-blue:   #0070C0;
+      --sap-blue-d: #003366;
+      --sap-gold:   #E89C00;
+      --sap-gold-l: #FFB84D;
+      --tier-found: #da1e28;
+      --tier-dev:   #e68a00;
+      --tier-cand:  #f1c21b;
+      --tier-prime: #42be65;
+      --tier-lead:  #198038;
+    }
+
+    /* NAV DROPDOWN */
+    .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+    .c-nav-dropdown>a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+    .c-nav-dropdown:hover>a::after{opacity:.85}
+    .c-nav-dropdown-menu{position:absolute!important;top:48px!important;left:0;display:flex!important;flex-direction:column;visibility:hidden!important;opacity:0!important;pointer-events:none!important;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:160px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:opacity .12s ease}
+    .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+    .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+    .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+    .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+    .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+
+    /* ── LAYOUT ── */
+    body { overflow: hidden; }
+    .compass-wrap {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      height: calc(100vh - 48px);
+    }
+
+    /* ── SIDEBAR ── */
+    .c-sidebar {
+      background: #fff;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-top {
+      padding: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    .sidebar-top-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase;
+      color: #6f6f6f; font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 0.5rem;
+    }
+    .assessment-select {
+      width: 100%; padding: 0.5rem 0.625rem;
+      border: 1px solid #c6c6c6; background: #f4f4f4;
+      font-size: 0.8125rem; font-family: 'IBM Plex Sans', sans-serif;
+      color: #161616; cursor: pointer; outline: none;
+      margin-bottom: 0.5rem;
+    }
+    .assessment-select:focus { border-color: var(--sap-blue); }
+    .btn-new-assessment {
+      width: 100%; padding: 0.5rem;
+      background: var(--sap-blue); color: #fff;
+      border: none; font-size: 0.8125rem; font-weight: 600;
+      font-family: 'IBM Plex Sans', sans-serif;
+      cursor: pointer; text-align: center;
+      transition: background 0.15s;
+    }
+    .btn-new-assessment:hover { background: var(--sap-blue-d); }
+
+    .sidebar-modules {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 1rem;
+    }
+    .mod-group-label {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+      color: #8d8d8d; font-family: 'IBM Plex Mono', monospace;
+      padding: 0.875rem 1rem 0.375rem;
+    }
+    .mod-btn {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; gap: 0.5rem;
+      background: none; border: none; border-left: 2px solid transparent;
+      cursor: pointer; font-family: 'IBM Plex Sans', sans-serif;
+      transition: background 0.1s, border-color 0.1s;
+      text-align: left;
+    }
+    .mod-btn:hover { background: #f4f4f4; }
+    .mod-btn.active { background: #f0f7fd; border-left-color: var(--sap-blue); }
+    .mod-btn-left { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .mod-code-badge {
+      font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700;
+      background: rgba(0,112,192,0.1); color: var(--sap-blue);
+      padding: 2px 5px; flex-shrink: 0;
+    }
+    .mod-btn-name { font-size: 0.8125rem; color: #161616; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mod-btn-score {
+      font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700;
+      color: #8d8d8d; flex-shrink: 0;
+    }
+    .mod-btn-score.scored { color: var(--sap-blue); }
+    .mod-btn-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #e0e0e0; flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid #e0e0e0;
+      padding: 0.75rem 1rem;
+      flex-shrink: 0;
+    }
+    .btn-rollup {
+      width: 100%; padding: 0.625rem;
+      background: #f4f4f4; color: #161616;
+      border: 1px solid #e0e0e0; font-size: 0.8125rem; font-weight: 600;
+      font-family: 'IBM Plex Sans', sans-serif;
+      cursor: pointer; text-align: center; transition: background 0.15s;
+    }
+    .btn-rollup:hover { background: #e0e0e0; }
+    .btn-rollup.active { background: var(--sap-blue-d); color: #fff; border-color: var(--sap-blue-d); }
+
+    /* ── MAIN PANEL ── */
+    .c-main {
+      display: flex; flex-direction: column;
+      overflow: hidden; background: #f4f4f4;
+    }
+
+    /* ── WELCOME VIEW ── */
+    #view-welcome {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem; text-align: center; padding: 2rem;
+    }
+    .welcome-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .welcome-title { font-size: 1.25rem; font-weight: 700; color: #161616; }
+    .welcome-sub { font-size: 0.9375rem; color: #525252; max-width: 440px; line-height: 1.65; }
+
+    /* ── MODULE VIEW ── */
+    #view-module {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .module-header {
+      background: #fff; border-bottom: 1px solid #e0e0e0;
+      padding: 1rem 1.5rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .mh-left { display: flex; align-items: center; gap: 0.875rem; }
+    .mh-code {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700;
+      letter-spacing: 1.4px; text-transform: uppercase;
+      background: var(--sap-blue); color: #fff; padding: 4px 10px;
+    }
+    .mh-name { font-size: 1.0625rem; font-weight: 700; color: #161616; }
+    .mh-right { display: flex; align-items: center; gap: 1rem; }
+    .mh-score-wrap { text-align: right; }
+    .mh-score-val { font-family: 'IBM Plex Mono', monospace; font-size: 1.75rem; font-weight: 700; color: var(--sap-blue); line-height: 1; }
+    .mh-score-label { font-size: 10px; color: #8d8d8d; text-transform: uppercase; letter-spacing: 1px; }
+    .readiness-badge {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 4px 10px; font-family: 'IBM Plex Mono', monospace;
+    }
+    .rb-foundational { background: rgba(218,30,40,0.1); color: #a2191f; }
+    .rb-developing    { background: rgba(230,138,0,0.12); color: #8a5200; }
+    .rb-candidate     { background: rgba(241,194,27,0.2); color: #7a5c00; }
+    .rb-primed        { background: rgba(66,190,101,0.15); color: #0e6027; }
+    .rb-leading       { background: rgba(25,128,56,0.15); color: #0a4420; }
+
+    .save-status {
+      font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+      color: #8d8d8d; display: flex; align-items: center; gap: 0.35rem;
+    }
+    .save-status.saving { color: var(--sap-blue); }
+    .save-status.saved  { color: #198038; }
+    .save-status.error  { color: #da1e28; }
+
+    .module-body {
+      flex: 1; overflow-y: auto;
+      display: grid; grid-template-columns: 1fr 380px;
+      gap: 0;
+    }
+
+    /* ── SLIDERS PANEL ── */
+    .sliders-panel {
+      padding: 1.25rem 1.5rem;
+      border-right: 1px solid #e0e0e0;
+      background: #fff;
+      overflow-y: auto;
+    }
+    .sliders-panel-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+      color: #6f6f6f; font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 1rem;
+    }
+
+    .axis-row {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #f4f4f4;
+    }
+    .axis-row:last-child { border-bottom: none; margin-bottom: 0; }
+
+    .axis-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .axis-label {
+      font-size: 0.875rem; font-weight: 600; color: #161616;
+    }
+    .axis-desc {
+      font-size: 11px; color: #8d8d8d; margin-top: 2px;
+    }
+    .axis-score-display {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.25rem; font-weight: 700; color: var(--sap-blue);
+      line-height: 1; flex-shrink: 0; min-width: 32px; text-align: right;
+    }
+    .axis-slider-wrap { position: relative; margin-bottom: 0.375rem; }
+    input[type=range].axis-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px;
+      border-radius: 2px; outline: none; cursor: pointer;
+      background: linear-gradient(to right, var(--sap-blue) 0%, #e0e0e0 0%);
+    }
+    input[type=range].axis-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--sap-blue); cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    input[type=range].axis-slider::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--sap-blue); cursor: pointer;
+      border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .axis-endpoints {
+      display: flex; justify-content: space-between;
+      font-size: 9.5px; color: #a8a8a8; font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .notes-row {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e0e0e0;
+      background: #fff;
+      flex-shrink: 0;
+    }
+    .notes-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+      color: #6f6f6f; font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.375rem;
+    }
+    .notes-input {
+      width: 100%; padding: 0.5rem 0.625rem;
+      border: none; border-bottom: 1px solid #c6c6c6; background: #f4f4f4;
+      font-size: 0.8125rem; font-family: 'IBM Plex Sans', sans-serif; color: #161616;
+      resize: none; outline: none; height: 52px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .notes-input:focus { border-bottom-color: var(--sap-blue); background: #fff; }
+
+    /* ── CHART PANEL ── */
+    .chart-panel {
+      padding: 1.25rem; background: #f4f4f4;
+      display: flex; flex-direction: column; gap: 1rem;
+      overflow-y: auto;
+    }
+    .radar-wrap {
+      background: #fff; border: 1px solid #e0e0e0;
+      padding: 1rem; position: relative;
+    }
+    .radar-wrap canvas { display: block; margin: 0 auto; }
+
+    .axis-breakdown {
+      background: #fff; border: 1px solid #e0e0e0;
+      padding: 1rem;
+    }
+    .ab-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
+      color: #6f6f6f; font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.75rem;
+    }
+    .ab-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.3rem 0; border-bottom: 1px solid #f4f4f4;
+    }
+    .ab-row:last-child { border-bottom: none; }
+    .ab-name { font-size: 11.5px; color: #525252; flex: 1; }
+    .ab-bar-wrap { width: 80px; height: 5px; background: #e0e0e0; flex-shrink: 0; }
+    .ab-bar { height: 100%; background: var(--sap-blue); transition: width 0.3s; }
+    .ab-val {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700;
+      color: #161616; min-width: 24px; text-align: right;
+    }
+
+    /* ── ROLLUP VIEW ── */
+    #view-rollup {
+      flex: 1; overflow-y: auto; padding: 1.5rem;
+    }
+    .rollup-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+      color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.25rem;
+    }
+    .rollup-h2 { font-size: 1.375rem; font-weight: 700; color: #161616; margin-bottom: 1.5rem; }
+
+    .rollup-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .rs-card {
+      background: #fff; border: 1px solid #e0e0e0; border-top: 3px solid var(--sap-blue);
+      padding: 1rem 1.25rem;
+    }
+    .rs-val { font-size: 1.75rem; font-weight: 300; color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace; line-height: 1; }
+    .rs-label { font-size: 10.5px; color: #6f6f6f; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+
+    .rollup-table-wrap {
+      background: #fff; border: 1px solid #e0e0e0; overflow-x: auto;
+    }
+    table.rollup-table { width: 100%; border-collapse: collapse; }
+    .rollup-table th {
+      padding: 0.625rem 0.875rem; background: #f4f4f4;
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      color: #525252; font-family: 'IBM Plex Mono', monospace;
+      border-bottom: 1px solid #e0e0e0; white-space: nowrap; text-align: left;
+    }
+    .rollup-table td {
+      padding: 0.625rem 0.875rem; font-size: 0.8125rem; color: #525252;
+      border-bottom: 1px solid #f4f4f4; white-space: nowrap;
+    }
+    .rollup-table tr:last-child td { border-bottom: none; }
+    .rollup-table tr:hover td { background: #fafafa; }
+    .rollup-table td.mod-name-cell { font-weight: 600; color: #161616; }
+    .rollup-table td.score-cell {
+      font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 0.9375rem;
+    }
+    .tier-pill {
+      display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; padding: 2px 8px; font-family: 'IBM Plex Mono', monospace;
+    }
+    .unscored-row td { color: #a8a8a8 !important; font-style: italic; }
+
+    /* ── NEW ASSESSMENT MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(22,22,22,0.55);
+      z-index: 9000; display: none; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; width: 100%; max-width: 480px;
+      border-top: 4px solid var(--sap-blue);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.22);
+      padding: 2rem;
+      animation: modalIn 0.18s ease;
+    }
+    @keyframes modalIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+    .modal-title { font-size: 1.125rem; font-weight: 700; color: #161616; margin-bottom: 0.25rem; }
+    .modal-sub { font-size: 0.875rem; color: #525252; margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      display: block; font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: #525252; margin-bottom: 0.375rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .form-input, .form-select {
+      width: 100%; padding: 0.625rem 0.75rem;
+      border: none; border-bottom: 1px solid #8d8d8d; background: #f4f4f4;
+      font-size: 0.9375rem; font-family: 'IBM Plex Sans', sans-serif; color: #161616;
+      outline: none; transition: border-color 0.15s, background 0.15s;
+    }
+    .form-input:focus, .form-select:focus { border-bottom-color: var(--sap-blue); background: #fff; }
+    .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .btn-modal-create {
+      flex: 1; padding: 0.75rem; background: var(--sap-blue); color: #fff;
+      border: none; font-size: 0.9375rem; font-weight: 600;
+      font-family: 'IBM Plex Sans', sans-serif; cursor: pointer; transition: background 0.15s;
+    }
+    .btn-modal-create:hover { background: var(--sap-blue-d); }
+    .btn-modal-cancel {
+      padding: 0.75rem 1.25rem; background: #f4f4f4; color: #525252;
+      border: 1px solid #e0e0e0; font-size: 0.9375rem; font-weight: 600;
+      font-family: 'IBM Plex Sans', sans-serif; cursor: pointer;
+    }
+    .btn-modal-cancel:hover { background: #e0e0e0; }
+    .form-error { font-size: 11px; color: #da1e28; margin-top: 0.25rem; display: none; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="c-nav">
+  <div class="container">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" fill="#0070C0"/><text x="4" y="22" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/"><span>Home</span></a>
+      <div class="c-nav-dropdown">
+        <a href="#" class="active"><span>Platform</span></a>
+        <div class="c-nav-dropdown-menu">
+          <a href="/compass.html" class="active"><span>Maturity Compass</span></a>
+          <a href="#"><span>Agent Atlas</span></a>
+          <a href="#"><span>Platform Fit</span></a>
+          <a href="#"><span>ROI Builder</span></a>
+          <a href="#"><span>Skill Studio</span></a>
+        </div>
+      </div>
+    </div>
+    <div id="assessment-name-display" style="font-size:0.75rem;color:#525252;font-family:'IBM Plex Mono',monospace;"></div>
+  </div>
+</nav>
+
+<!-- NEW ASSESSMENT MODAL -->
+<div class="modal-overlay" id="modal-new">
+  <div class="modal-box">
+    <div class="modal-title">New Assessment</div>
+    <div class="modal-sub">Give this assessment a name so you can find it later.</div>
+    <div class="form-group">
+      <label class="form-label" for="input-name">Assessment Name *</label>
+      <input class="form-input" id="input-name" type="text" placeholder="e.g. ACME Corp Q2 2026" maxlength="120"/>
+      <div class="form-error" id="name-error">Please enter an assessment name.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-company">Company</label>
+      <input class="form-input" id="input-company" type="text" placeholder="Optional" maxlength="120"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-version">SAP Landscape</label>
+      <select class="form-select" id="input-version">
+        <option value="">— Select —</option>
+        <option value="ECC 6.0">ECC 6.0</option>
+        <option value="S/4HANA On-Premise">S/4HANA On-Premise</option>
+        <option value="RISE Private Cloud">RISE Private Cloud</option>
+        <option value="RISE Public Cloud">RISE Public Cloud</option>
+        <option value="GROW with SAP">GROW with SAP</option>
+        <option value="Mixed">Mixed / Multiple</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-create" onclick="createAssessment()">Create Assessment</button>
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPASS LAYOUT -->
+<div class="compass-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="c-sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-top-label">Assessment</div>
+      <select class="assessment-select" id="assessment-select" onchange="loadAssessment(this.value)">
+        <option value="">— Select assessment —</option>
+      </select>
+      <button class="btn-new-assessment" onclick="openNewModal()">+ New Assessment</button>
+    </div>
+
+    <div class="sidebar-modules" id="module-list">
+      <div style="padding:1.5rem 1rem;text-align:center;color:#8d8d8d;font-size:0.8125rem;">
+        Select or create an assessment to begin.
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-rollup" id="btn-rollup" onclick="showRollup()" disabled>
+        📊 Enterprise Rollup
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN PANEL -->
+  <main class="c-main" id="main-panel">
+
+    <!-- WELCOME -->
+    <div id="view-welcome" style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;text-align:center;padding:2rem;">
+      <div style="font-size:3rem;">🧭</div>
+      <div style="font-size:1.25rem;font-weight:700;color:#161616;">SAP Maturity Compass</div>
+      <div style="font-size:0.9375rem;color:#525252;max-width:440px;line-height:1.65;">
+        Score your SAP landscape across 8 axes per module — from platform footprint to AI readiness.
+        Select or create an assessment to begin.
+      </div>
+      <button class="btn-new-assessment" style="max-width:220px;margin-top:0.5rem;" onclick="openNewModal()">
+        + Create First Assessment
+      </button>
+    </div>
+
+    <!-- MODULE VIEW -->
+    <div id="view-module" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
+
+      <div class="module-header">
+        <div class="mh-left">
+          <span class="mh-code" id="mh-code">FI</span>
+          <span class="mh-name" id="mh-name">Financial Accounting</span>
+        </div>
+        <div class="mh-right">
+          <span class="save-status" id="save-status"></span>
+          <div class="mh-score-wrap">
+            <div class="mh-score-val" id="mh-score">0.0</div>
+            <div class="mh-score-label">Avg / 5.0</div>
+          </div>
+          <span class="readiness-badge rb-foundational" id="readiness-badge">Foundational</span>
+        </div>
+      </div>
+
+      <div class="module-body">
+
+        <!-- SLIDERS -->
+        <div style="display:flex;flex-direction:column;overflow:hidden;">
+          <div class="sliders-panel" id="sliders-panel">
+            <div class="sliders-panel-title">Score each axis 0 – 5</div>
+            <!-- axes injected by JS -->
+          </div>
+          <div class="notes-row">
+            <div class="notes-label">Notes / Context</div>
+            <textarea class="notes-input" id="notes-input" placeholder="Add context about this module — blockers, assumptions, data sources…" oninput="onNotesInput()"></textarea>
+          </div>
+        </div>
+
+        <!-- CHART PANEL -->
+        <div class="chart-panel">
+          <div class="radar-wrap">
+            <canvas id="radarChart" width="320" height="280"></canvas>
+          </div>
+          <div class="axis-breakdown">
+            <div class="ab-title">Axis Breakdown</div>
+            <div id="axis-breakdown-rows"><!-- injected --></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ROLLUP VIEW -->
+    <div id="view-rollup" style="flex:1;display:none;overflow-y:auto;padding:1.5rem;">
+      <div class="rollup-title">Enterprise Rollup</div>
+      <div class="rollup-h2" id="rollup-title-name">Assessment Overview</div>
+      <div class="rollup-stats" id="rollup-stats"></div>
+      <div class="rollup-table-wrap">
+        <table class="rollup-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Overall</th>
+              <th>Platform</th>
+              <th>Custom Code</th>
+              <th>Data</th>
+              <th>Integration</th>
+              <th>UX / Fiori</th>
+              <th>Process Std.</th>
+              <th>AI Readiness</th>
+              <th>Compliance</th>
+              <th>Readiness Tier</th>
+            </tr>
+          </thead>
+          <tbody id="rollup-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+const AXES = [
+  { key: 'axis_platform',     label: 'Platform Footprint',      short: 'Platform',
+    low: 'ECC / legacy on-prem', high: 'RISE Public / GROW' },
+  { key: 'axis_custom_code',  label: 'Custom Code Burden',       short: 'Custom Code',
+    low: 'Heavy ABAP / Z-objects', high: 'Clean / fit-to-standard' },
+  { key: 'axis_data',         label: 'Data Foundation',          short: 'Data',
+    low: 'Siloed / poor MDG', high: 'Datasphere + SAC + clean masters' },
+  { key: 'axis_integration',  label: 'Integration Architecture', short: 'Integration',
+    low: 'PI/PO legacy', high: 'IS 4.x + Event Mesh' },
+  { key: 'axis_ux',           label: 'User Experience (Fiori)',  short: 'UX / Fiori',
+    low: 'SAP GUI only', high: 'Full Fiori + mobile' },
+  { key: 'axis_process',      label: 'Process Standardisation',  short: 'Process Std.',
+    low: 'Highly custom / fragmented', high: 'Fully fit-to-standard' },
+  { key: 'axis_ai_readiness', label: 'AI / Agent Readiness',     short: 'AI Readiness',
+    low: 'Nothing enabled', high: 'BTP AI Core + Joule deployed' },
+  { key: 'axis_compliance',   label: 'Compliance & Control',     short: 'Compliance',
+    low: 'Manual / ad-hoc SoD', high: 'Automated GRC + SoD + audit' },
+];
+
+const MODULES = [
+  { area: 'Finance',        code: 'FI',    name: 'Financial Accounting' },
+  { area: 'Finance',        code: 'CO',    name: 'Controlling' },
+  { area: 'Finance',        code: 'TR',    name: 'Treasury & Risk' },
+  { area: 'Procurement',    code: 'MM',    name: 'Materials Management' },
+  { area: 'Procurement',    code: 'ARIBA', name: 'Ariba / SRM' },
+  { area: 'Order-to-Cash',  code: 'SD',    name: 'Sales & Distribution' },
+  { area: 'Order-to-Cash',  code: 'CS',    name: 'Customer Service' },
+  { area: 'Manufacturing',  code: 'PP',    name: 'Production Planning' },
+  { area: 'Manufacturing',  code: 'QM',    name: 'Quality Management' },
+  { area: 'Manufacturing',  code: 'PM',    name: 'Plant Maintenance' },
+  { area: 'HR',             code: 'HCM',   name: 'Human Capital Mgmt' },
+  { area: 'HR',             code: 'SF',    name: 'SuccessFactors' },
+  { area: 'Logistics',      code: 'WM',    name: 'WM / EWM' },
+  { area: 'Logistics',      code: 'TM',    name: 'Transportation Mgmt' },
+  { area: 'Cross-cutting',  code: 'GRC',   name: 'GRC / Security' },
+  { area: 'Cross-cutting',  code: 'CROSS', name: 'Cross-cutting' },
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let currentAssessmentId = null;
+let currentModuleCode   = null;
+let moduleScores        = {};   // code -> { axis_platform, ... }
+let assessments         = [];
+let radarChart          = null;
+let saveTimer           = null;
+
+// ── UTILITIES ────────────────────────────────────────────────────────────────
+function avg(scores) {
+  const vals = AXES.map(a => parseFloat(scores[a.key] || 0));
+  return (vals.reduce((s, v) => s + v, 0) / vals.length);
+}
+
+function tier(score, aiScore) {
+  if (aiScore < 2.0 && score >= 3.0) return { label: 'AI Prerequisites Needed', cls: 'rb-developing', color: '#e68a00' };
+  if (score < 2.0)  return { label: 'Foundational', cls: 'rb-foundational', color: '#da1e28' };
+  if (score < 3.0)  return { label: 'Developing',   cls: 'rb-developing',    color: '#e68a00' };
+  if (score < 3.5)  return { label: 'Candidate',    cls: 'rb-candidate',     color: '#c49c00' };
+  if (score < 4.5)  return { label: 'Primed',       cls: 'rb-primed',        color: '#198038' };
+  return               { label: 'Leading',           cls: 'rb-leading',       color: '#0a4420' };
+}
+
+function tierFromScore(s) {
+  if (!s || s.total_axes === 0) return null;
+  const a = avg(s);
+  const ai = parseFloat(s.axis_ai_readiness || 0);
+  return tier(a, ai);
+}
+
+function fmt(v) { return parseFloat(v || 0).toFixed(1); }
+
+function setSaveStatus(state, text) {
+  const el = document.getElementById('save-status');
+  el.className = 'save-status ' + state;
+  el.textContent = text;
+}
+
+// ── API ───────────────────────────────────────────────────────────────────────
+async function apiFetch(url, opts = {}) {
+  const r = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || r.statusText); }
+  return r.json();
+}
+
+async function loadAssessments() {
+  try {
+    assessments = await apiFetch('/api/compass/assessments');
+    const sel = document.getElementById('assessment-select');
+    sel.innerHTML = '<option value="">— Select assessment —</option>';
+    assessments.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.name + (a.company ? ` — ${a.company}` : '') + (a.sap_version ? ` [${a.sap_version}]` : '');
+      sel.appendChild(opt);
+    });
+  } catch (e) {
+    console.error('Could not load assessments:', e.message);
+  }
+}
+
+async function loadAssessment(id) {
+  if (!id) return;
+  try {
+    const data = await apiFetch(`/api/compass/assessments/${id}`);
+    currentAssessmentId = id;
+    moduleScores = {};
+    (data.modules || []).forEach(m => { moduleScores[m.module_code] = m; });
+    document.getElementById('assessment-name-display').textContent = data.name;
+    document.getElementById('assessment-select').value = id;
+    renderModuleList();
+    document.getElementById('btn-rollup').disabled = false;
+    showWelcome();
+  } catch (e) { alert('Failed to load assessment: ' + e.message); }
+}
+
+async function createAssessment() {
+  const name = document.getElementById('input-name').value.trim();
+  const err  = document.getElementById('name-error');
+  if (!name) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  try {
+    const data = await apiFetch('/api/compass/assessments', {
+      method: 'POST',
+      body: JSON.stringify({
+        name,
+        company:     document.getElementById('input-company').value.trim(),
+        sap_version: document.getElementById('input-version').value,
+      })
+    });
+    closeModal();
+    await loadAssessments();
+    await loadAssessment(data.id);
+  } catch (e) { alert('Failed to create assessment: ' + e.message); }
+}
+
+async function saveModule() {
+  if (!currentAssessmentId || !currentModuleCode) return;
+  setSaveStatus('saving', '⟳ Saving…');
+  const mod = MODULES.find(m => m.code === currentModuleCode);
+  const scores = {};
+  AXES.forEach(a => {
+    scores[a.key] = parseFloat(document.getElementById('sl-' + a.key)?.value || 0);
+  });
+  scores.notes = document.getElementById('notes-input').value;
+  scores.module_name = mod?.name || currentModuleCode;
+  try {
+    const saved = await apiFetch(
+      `/api/compass/assessments/${currentAssessmentId}/modules/${currentModuleCode}`,
+      { method: 'PUT', body: JSON.stringify(scores) }
+    );
+    moduleScores[currentModuleCode] = saved;
+    updateModuleSidebarItem(currentModuleCode);
+    setSaveStatus('saved', '✓ Saved');
+    setTimeout(() => setSaveStatus('', ''), 2500);
+  } catch (e) {
+    setSaveStatus('error', '✗ Save failed');
+    console.error(e);
+  }
+}
+
+// ── RADAR CHART ───────────────────────────────────────────────────────────────
+function initRadar() {
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: AXES.map(a => a.short),
+      datasets: [{
+        label: 'Score',
+        data: AXES.map(() => 0),
+        backgroundColor: 'rgba(0,112,192,0.12)',
+        borderColor: '#0070C0',
+        borderWidth: 2,
+        pointBackgroundColor: '#0070C0',
+        pointRadius: 4,
+        pointHoverRadius: 5,
+      }]
+    },
+    options: {
+      responsive: false,
+      scales: {
+        r: {
+          min: 0, max: 5,
+          ticks: { stepSize: 1, display: false },
+          grid:  { color: 'rgba(0,0,0,0.07)' },
+          angleLines: { color: 'rgba(0,0,0,0.07)' },
+          pointLabels: {
+            font: { family: "'IBM Plex Sans',sans-serif", size: 11 },
+            color: '#525252',
+          }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+function updateRadar() {
+  if (!radarChart) return;
+  const vals = AXES.map(a => parseFloat(document.getElementById('sl-' + a.key)?.value || 0));
+  radarChart.data.datasets[0].data = vals;
+  radarChart.update('none');
+  // breakdown bars
+  AXES.forEach(a => {
+    const v = parseFloat(document.getElementById('sl-' + a.key)?.value || 0);
+    const bar = document.getElementById('ab-bar-' + a.key);
+    const val = document.getElementById('ab-val-' + a.key);
+    if (bar) bar.style.width = (v / 5 * 100) + '%';
+    if (val) val.textContent = fmt(v);
+  });
+  // overall score
+  const vals2 = AXES.map(a => parseFloat(document.getElementById('sl-' + a.key)?.value || 0));
+  const overall = vals2.reduce((s, v) => s + v, 0) / vals2.length;
+  const aiScore = parseFloat(document.getElementById('sl-axis_ai_readiness')?.value || 0);
+  document.getElementById('mh-score').textContent = overall.toFixed(1);
+  const t = tier(overall, aiScore);
+  const badge = document.getElementById('readiness-badge');
+  badge.textContent = t.label;
+  badge.className = 'readiness-badge ' + t.cls;
+}
+
+// ── SLIDER RENDER ─────────────────────────────────────────────────────────────
+function renderSliders() {
+  const panel = document.getElementById('sliders-panel');
+  panel.innerHTML = '<div class="sliders-panel-title">Score each axis 0 – 5</div>';
+  AXES.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'axis-row';
+    div.innerHTML = `
+      <div class="axis-header">
+        <div>
+          <div class="axis-label">${a.label}</div>
+          <div class="axis-desc">${a.low} → ${a.high}</div>
+        </div>
+        <div class="axis-score-display" id="disp-${a.key}">0.0</div>
+      </div>
+      <div class="axis-slider-wrap">
+        <input type="range" class="axis-slider" id="sl-${a.key}"
+               min="0" max="5" step="0.5" value="0"
+               oninput="onSlider('${a.key}', this.value)"/>
+      </div>
+      <div class="axis-endpoints">
+        <span>0 — None</span>
+        <span>1 — Initial</span>
+        <span>2 — Developing</span>
+        <span>3 — Defined</span>
+        <span>4 — Optimizing</span>
+        <span>5 — Leading</span>
+      </div>`;
+    panel.appendChild(div);
+  });
+}
+
+function renderBreakdownRows() {
+  const el = document.getElementById('axis-breakdown-rows');
+  el.innerHTML = AXES.map(a => `
+    <div class="ab-row">
+      <span class="ab-name">${a.short}</span>
+      <div class="ab-bar-wrap"><div class="ab-bar" id="ab-bar-${a.key}" style="width:0%"></div></div>
+      <span class="ab-val" id="ab-val-${a.key}">0.0</span>
+    </div>`).join('');
+}
+
+function onSlider(key, value) {
+  document.getElementById('disp-' + key).textContent = parseFloat(value).toFixed(1);
+  updateSliderFill(key, value);
+  updateRadar();
+  scheduleSave();
+}
+
+function updateSliderFill(key, value) {
+  const slider = document.getElementById('sl-' + key);
+  if (!slider) return;
+  const pct = (parseFloat(value) / 5) * 100;
+  slider.style.background = `linear-gradient(to right, var(--sap-blue) ${pct}%, #e0e0e0 ${pct}%)`;
+}
+
+function onNotesInput() { scheduleSave(); }
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  setSaveStatus('saving', '');
+  saveTimer = setTimeout(saveModule, 1200);
+}
+
+// ── MODULE LIST ───────────────────────────────────────────────────────────────
+function renderModuleList() {
+  const list = document.getElementById('module-list');
+  list.innerHTML = '';
+  const groups = [...new Set(MODULES.map(m => m.area))];
+  groups.forEach(area => {
+    const label = document.createElement('div');
+    label.className = 'mod-group-label';
+    label.textContent = area;
+    list.appendChild(label);
+    MODULES.filter(m => m.area === area).forEach(mod => {
+      const btn = document.createElement('button');
+      btn.className = 'mod-btn';
+      btn.id = 'modbtn-' + mod.code;
+      btn.onclick = () => selectModule(mod.code, mod.name);
+      const sc = moduleScores[mod.code];
+      const score = sc ? avg(sc).toFixed(1) : null;
+      const t = sc ? tierFromScore(sc) : null;
+      btn.innerHTML = `
+        <div class="mod-btn-left">
+          <span class="mod-code-badge">${mod.code}</span>
+          <span class="mod-btn-name">${mod.name}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="mod-btn-score${score ? ' scored' : ''}" id="modscore-${mod.code}">${score || '—'}</span>
+          <div class="mod-btn-dot" id="moddot-${mod.code}" style="${t ? 'background:' + t.color : ''}"></div>
+        </div>`;
+      list.appendChild(btn);
+    });
+  });
+}
+
+function updateModuleSidebarItem(code) {
+  const sc = moduleScores[code];
+  const score = sc ? avg(sc).toFixed(1) : null;
+  const t = sc ? tierFromScore(sc) : null;
+  const scoreEl = document.getElementById('modscore-' + code);
+  const dotEl   = document.getElementById('moddot-' + code);
+  if (scoreEl) { scoreEl.textContent = score || '—'; scoreEl.className = 'mod-btn-score' + (score ? ' scored' : ''); }
+  if (dotEl && t)   dotEl.style.background = t.color;
+}
+
+function selectModule(code, name) {
+  currentModuleCode = code;
+  document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('modbtn-' + code);
+  if (btn) btn.classList.add('active');
+  document.getElementById('btn-rollup').classList.remove('active');
+
+  document.getElementById('mh-code').textContent = code;
+  document.getElementById('mh-name').textContent = name;
+  document.getElementById('notes-input').value = '';
+  setSaveStatus('', '');
+
+  // load existing scores or zero
+  const sc = moduleScores[code] || {};
+  AXES.forEach(a => {
+    const sl = document.getElementById('sl-' + a.key);
+    if (!sl) return;
+    const v = parseFloat(sc[a.key] || 0);
+    sl.value = v;
+    document.getElementById('disp-' + a.key).textContent = v.toFixed(1);
+    updateSliderFill(a.key, v);
+  });
+  document.getElementById('notes-input').value = sc.notes || '';
+  updateRadar();
+  showView('view-module');
+}
+
+// ── VIEWS ──────────────────────────────────────────────────────────────────────
+function showView(id) {
+  ['view-welcome', 'view-module', 'view-rollup'].forEach(v => {
+    const el = document.getElementById(v);
+    if (el) { el.style.display = v === id ? 'flex' : 'none'; el.style.flexDirection = 'column'; }
+  });
+  if (id === 'view-module') document.getElementById('view-module').style.display = 'flex';
+  if (id === 'view-rollup') document.getElementById('view-rollup').style.display = 'block';
+  if (id === 'view-welcome') document.getElementById('view-welcome').style.display = 'flex';
+}
+
+function showWelcome() {
+  currentModuleCode = null;
+  document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-rollup').classList.remove('active');
+  showView('view-welcome');
+}
+
+function showRollup() {
+  if (!currentAssessmentId) return;
+  currentModuleCode = null;
+  document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-rollup').classList.add('active');
+  renderRollup();
+  showView('view-rollup');
+}
+
+function renderRollup() {
+  const assessment = assessments.find(a => a.id === currentAssessmentId);
+  if (assessment) {
+    document.getElementById('rollup-title-name').textContent =
+      assessment.name + (assessment.company ? ' — ' + assessment.company : '');
+  }
+
+  const scored = MODULES.filter(m => moduleScores[m.code]);
+  const unscored = MODULES.filter(m => !moduleScores[m.code]);
+  const allAvg = scored.length
+    ? scored.reduce((s, m) => s + avg(moduleScores[m.code]), 0) / scored.length
+    : 0;
+  const agentReady = scored.filter(m => avg(moduleScores[m.code]) >= 3.0 && parseFloat(moduleScores[m.code].axis_ai_readiness || 0) >= 2.0).length;
+  const blocked    = scored.length - agentReady;
+
+  document.getElementById('rollup-stats').innerHTML = `
+    <div class="rs-card"><div class="rs-val">${scored.length}</div><div class="rs-label">Modules scored</div></div>
+    <div class="rs-card" style="border-top-color:var(--sap-gold)"><div class="rs-val" style="color:var(--sap-gold)">${allAvg.toFixed(1)}</div><div class="rs-label">Enterprise avg</div></div>
+    <div class="rs-card" style="border-top-color:#198038"><div class="rs-val" style="color:#198038">${agentReady}</div><div class="rs-label">Agent-ready</div></div>
+    <div class="rs-card" style="border-top-color:#da1e28"><div class="rs-val" style="color:#da1e28">${blocked}</div><div class="rs-label">Blocked / developing</div></div>`;
+
+  const tbody = document.getElementById('rollup-tbody');
+  const rows = [
+    ...scored.sort((a, b) => avg(moduleScores[b.code]) - avg(moduleScores[a.code])),
+    ...unscored
+  ];
+  tbody.innerHTML = rows.map(m => {
+    const sc = moduleScores[m.code];
+    if (!sc) return `
+      <tr class="unscored-row">
+        <td class="mod-name-cell"><span class="mod-code-badge">${m.code}</span> ${m.name}</td>
+        <td colspan="10" style="color:#a8a8a8;font-size:11px;">Not scored</td>
+      </tr>`;
+    const overall = avg(sc);
+    const t = tier(overall, parseFloat(sc.axis_ai_readiness || 0));
+    const sc2 = `color:${t.color};background:${t.color}22`;
+    return `
+      <tr>
+        <td class="mod-name-cell"><span class="mod-code-badge" style="cursor:pointer;" onclick="selectModule('${m.code}','${m.name}')">${m.code}</span> ${m.name}</td>
+        <td class="score-cell" style="color:var(--sap-blue)">${overall.toFixed(1)}</td>
+        ${AXES.map(a => `<td>${fmt(sc[a.key])}</td>`).join('')}
+        <td><span class="tier-pill" style="${sc2}">${t.label}</span></td>
+      </tr>`;
+  }).join('');
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────────────
+function openNewModal() {
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-company').value = '';
+  document.getElementById('input-version').value = '';
+  document.getElementById('name-error').style.display = 'none';
+  document.getElementById('modal-new').classList.add('open');
+  setTimeout(() => document.getElementById('input-name').focus(), 100);
+}
+function closeModal() { document.getElementById('modal-new').classList.remove('open'); }
+document.getElementById('modal-new').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') createAssessment(); });
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+async function init() {
+  renderSliders();
+  renderBreakdownRows();
+  initRadar();
+  await loadAssessments();
+  // auto-load most recent assessment if any
+  if (assessments.length > 0) {
+    await loadAssessment(assessments[0].id);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
