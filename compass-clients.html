@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Clients — AgenticSAP Compass</title>
+  <title>Admin Console — AgenticSAP Compass</title>
   <link rel="stylesheet" href="/bpo-theme.css"/>
   <style>
     :root {
@@ -26,90 +26,97 @@
 
     body { background:#f4f4f4; font-family:'IBM Plex Sans',sans-serif; margin:0; color:#161616; }
 
-    /* PAGE HEADER */
-    .page-header { background:#fff; border-bottom:1px solid #e0e0e0; padding:2rem 2rem 1.5rem; }
+    .page-header { background:#fff; border-bottom:1px solid #e0e0e0; padding:1.75rem 2rem 1.5rem; }
     .page-header-inner { max-width:1100px; margin:0 auto; display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
-    .page-header h1 { font-size:1.5rem; font-weight:700; margin:0 0 0.25rem; }
+    .page-header h1 { font-size:1.5rem; font-weight:700; margin:0 0 0.2rem; }
     .page-header p  { font-size:0.875rem; color:#525252; margin:0; }
 
-    .btn-primary {
-      font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; font-weight:600;
-      background:var(--sap-blue); color:#fff; border:none; padding:0.625rem 1.25rem;
-      cursor:pointer; white-space:nowrap; flex-shrink:0;
-    }
-    .btn-primary:hover { background:var(--sap-blue-d); }
+    .page-body { max-width:1100px; margin:0 auto; padding:2rem; }
 
     /* STATS */
-    .page-body { max-width:1100px; margin:0 auto; padding:2rem; }
     .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
-    .stat-card { background:#fff; border:1px solid #e0e0e0; border-top:4px solid var(--sap-blue); padding:1.25rem 1.5rem; }
-    .stat-label { font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#6f6f6f; margin-bottom:0.4rem; font-family:'IBM Plex Mono',monospace; }
-    .stat-value { font-size:2rem; font-weight:700; color:#161616; font-family:'IBM Plex Mono',monospace; line-height:1; }
+    .stat-card { background:#fff; border:1px solid #e0e0e0; border-top:4px solid var(--sap-blue); padding:1.1rem 1.25rem; }
+    .stat-label { font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#6f6f6f; margin-bottom:0.35rem; font-family:'IBM Plex Mono',monospace; }
+    .stat-value { font-size:1.875rem; font-weight:700; color:#161616; font-family:'IBM Plex Mono',monospace; line-height:1; }
 
-    /* FILTER */
-    .filter-bar { display:flex; gap:0.75rem; align-items:center; margin-bottom:1.25rem; }
-    .filter-input { font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; border:1px solid #c6c6c6; padding:0.5rem 0.75rem; flex:1; outline:none; color:#161616; background:#fff; }
-    .filter-input:focus { border-color:var(--sap-blue); box-shadow:0 0 0 2px rgba(0,112,192,.15); }
-    .filter-count { font-size:0.8125rem; color:#6f6f6f; white-space:nowrap; }
+    /* BUTTONS */
+    .btn-primary { font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; font-weight:600; background:var(--sap-blue); color:#fff; border:none; padding:0.6rem 1.25rem; cursor:pointer; white-space:nowrap; }
+    .btn-primary:hover { background:var(--sap-blue-d); }
+    .btn-ghost   { font-family:'IBM Plex Sans',sans-serif; font-size:0.8125rem; font-weight:600; background:#fff; color:#161616; border:1px solid #c6c6c6; padding:0.4rem 0.875rem; cursor:pointer; }
+    .btn-ghost:hover { background:#f4f4f4; }
+    .btn-danger  { font-family:'IBM Plex Sans',sans-serif; font-size:0.8125rem; font-weight:600; background:#fff; color:var(--red); border:1px solid var(--red); padding:0.4rem 0.875rem; cursor:pointer; }
+    .btn-danger:hover { background:#fff1f1; }
+    .btn-link    { background:none; border:none; font-family:'IBM Plex Sans',sans-serif; font-size:0.8125rem; font-weight:600; color:var(--sap-blue); cursor:pointer; padding:0; }
+    .btn-link:hover { text-decoration:underline; }
 
-    /* CLIENT TABLE */
-    .client-table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #e0e0e0; }
-    .client-table th {
-      text-align:left; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
-      color:#6f6f6f; padding:0.75rem 1rem; border-bottom:2px solid #e0e0e0;
-      background:#f4f4f4; font-family:'IBM Plex Mono',monospace;
+    /* COMPANY CARDS */
+    .company-list { display:flex; flex-direction:column; gap:1rem; }
+
+    .company-card { background:#fff; border:1px solid #e0e0e0; border-left:4px solid var(--sap-blue); }
+    .company-header {
+      display:flex; align-items:center; gap:1rem;
+      padding:1rem 1.25rem; cursor:pointer; user-select:none;
+      border-bottom:1px solid transparent; transition:background .1s;
     }
-    .client-table td { padding:0.875rem 1rem; border-bottom:1px solid #f0f0f0; font-size:0.875rem; vertical-align:middle; }
-    .client-table tr:last-child td { border-bottom:none; }
-    .client-table tr:hover td { background:#fafafa; }
+    .company-header:hover { background:#fafafa; }
+    .company-header.open  { border-bottom-color:#e0e0e0; }
 
-    .client-name { font-weight:600; color:#161616; }
-    .client-meta { font-size:0.8125rem; color:#525252; margin-top:2px; }
-    .client-email a { color:var(--sap-blue); text-decoration:none; }
-    .client-email a:hover { text-decoration:underline; }
+    .company-toggle { font-size:0.75rem; color:#8d8d8d; width:16px; flex-shrink:0; transition:transform .15s; }
+    .company-toggle.open { transform:rotate(90deg); }
+
+    .company-name  { font-size:1rem; font-weight:700; color:#161616; flex:1; min-width:0; }
+    .company-meta  { font-size:0.8125rem; color:#6f6f6f; }
+    .company-chips { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .chip { font-size:11px; font-family:'IBM Plex Mono',monospace; background:#f4f4f4; color:#525252; padding:2px 8px; border:1px solid #e0e0e0; }
+    .chip.blue  { background:#edf5ff; color:var(--sap-blue); border-color:#a6c8ff; }
+    .chip.green { background:#defbe6; color:var(--green); border-color:#6fdc8c; }
+    .company-actions { display:flex; gap:0.5rem; flex-shrink:0; }
+
+    /* STAKEHOLDER TABLE (inside company card) */
+    .company-body { padding:0 0 0.75rem; }
+    .sh-table-wrap { padding:0.75rem 1.25rem 0; }
+    .sh-table { width:100%; border-collapse:collapse; font-size:0.875rem; }
+    .sh-table th { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#6f6f6f; padding:0.5rem 0.75rem; border-bottom:1px solid #e0e0e0; font-family:'IBM Plex Mono',monospace; text-align:left; background:#f9f9f9; }
+    .sh-table td { padding:0.625rem 0.75rem; border-bottom:1px solid #f4f4f4; vertical-align:middle; }
+    .sh-table tr:last-child td { border-bottom:none; }
+    .sh-table tr:hover td { background:#fafafa; }
+    .sh-name  { font-weight:600; }
+    .sh-email a { color:var(--sap-blue); text-decoration:none; font-size:0.8125rem; }
+    .sh-email a:hover { text-decoration:underline; }
+    .sh-actions { display:flex; gap:0.375rem; }
+
+    .add-sh-row { padding:0.75rem 1.25rem 0; }
+
+    .empty-sh { padding:1rem 1.25rem; font-size:0.875rem; color:#8d8d8d; font-style:italic; }
 
     /* TIER BADGE */
-    .tier-badge { font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; padding:3px 8px; font-family:'IBM Plex Mono',monospace; white-space:nowrap; }
-    .tier-Foundational  { background:#f4f4f4; color:#525252; border:1px solid #c6c6c6; }
-    .tier-Developing    { background:#fff3cd; color:#7d4e00; border:1px solid #f0b429; }
-    .tier-Candidate     { background:#d0e8ff; color:#0043a4; border:1px solid #78b4f5; }
-    .tier-Primed        { background:#defbe6; color:#0e6027; border:1px solid #6fdc8c; }
-    .tier-Leading       { background:#e8daff; color:#4d1fb5; border:1px solid #be95ff; }
-    .tier-AI-Prereq     { background:#fff1e6; color:#8a3800; border:1px solid #ffb784; }
-    .tier-None          { background:#f4f4f4; color:#8d8d8d; border:1px solid #c6c6c6; }
-
-    /* ROW ACTIONS */
-    .row-actions { display:flex; gap:0.5rem; }
-    .btn-row { font-family:'IBM Plex Sans',sans-serif; font-size:0.8125rem; padding:0.375rem 0.75rem; border:1px solid; cursor:pointer; font-weight:600; }
-    .btn-row-ghost { background:#fff; border-color:#c6c6c6; color:#161616; }
-    .btn-row-ghost:hover { background:#f4f4f4; }
-    .btn-row-danger { background:#fff; border-color:var(--red); color:var(--red); }
-    .btn-row-danger:hover { background:#fff1f1; }
-    .btn-row-link { background:none; border:none; color:var(--sap-blue); font-weight:600; cursor:pointer; font-size:0.8125rem; padding:0.375rem 0; text-decoration:none; font-family:'IBM Plex Sans',sans-serif; }
-    .btn-row-link:hover { text-decoration:underline; }
+    .tier-badge { font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; padding:2px 7px; font-family:'IBM Plex Mono',monospace; white-space:nowrap; }
+    .tier-Foundational  { background:#f4f4f4; color:#525252;  border:1px solid #c6c6c6; }
+    .tier-Developing    { background:#fff3cd; color:#7d4e00;  border:1px solid #f0b429; }
+    .tier-Candidate     { background:#d0e8ff; color:#0043a4;  border:1px solid #78b4f5; }
+    .tier-Primed        { background:#defbe6; color:#0e6027;  border:1px solid #6fdc8c; }
+    .tier-Leading       { background:#e8daff; color:#4d1fb5;  border:1px solid #be95ff; }
+    .tier-AI-Prereq     { background:#fff1e6; color:#8a3800;  border:1px solid #ffb784; }
+    .tier-None          { background:#f4f4f4; color:#8d8d8d;  border:1px solid #c6c6c6; }
 
     /* MODAL */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:500; align-items:center; justify-content:center; }
     .modal-overlay.open { display:flex; }
-    .modal-box { background:#fff; padding:2rem; width:100%; max-width:480px; border-top:4px solid var(--sap-blue); animation:modalIn .16s ease; }
-    @keyframes modalIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
-    .modal-title { font-size:1.125rem; font-weight:700; color:#161616; margin-bottom:0.25rem; }
-    .modal-sub { font-size:0.875rem; color:#525252; margin-bottom:1.5rem; }
-
-    .form-group { margin-bottom:1rem; }
-    .form-label { display:block; font-size:0.8125rem; font-weight:600; color:#161616; margin-bottom:0.375rem; }
-    .form-input { width:100%; box-sizing:border-box; font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; border:1px solid #c6c6c6; padding:0.5rem 0.75rem; outline:none; color:#161616; }
-    .form-input:focus { border-color:var(--sap-blue); box-shadow:0 0 0 2px rgba(0,112,192,.15); }
-    .form-error { font-size:0.8125rem; color:var(--red); margin-top:0.25rem; display:none; }
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
-
+    .modal-box { background:#fff; padding:2rem; width:100%; max-width:460px; border-top:4px solid var(--sap-blue); }
+    .modal-title { font-size:1.125rem; font-weight:700; margin-bottom:0.25rem; }
+    .modal-sub   { font-size:0.875rem; color:#525252; margin-bottom:1.5rem; }
+    .form-group  { margin-bottom:1rem; }
+    .form-label  { display:block; font-size:0.8125rem; font-weight:600; margin-bottom:0.35rem; }
+    .form-input, .form-select { width:100%; box-sizing:border-box; font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; border:1px solid #c6c6c6; padding:0.5rem 0.75rem; outline:none; color:#161616; background:#fff; }
+    .form-input:focus, .form-select:focus { border-color:var(--sap-blue); box-shadow:0 0 0 2px rgba(0,112,192,.15); }
+    .form-error  { font-size:0.8125rem; color:var(--red); margin-top:0.25rem; display:none; }
+    .form-row    { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
     .modal-actions { display:flex; gap:0.75rem; margin-top:1.5rem; }
-    .btn-modal-save { font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; font-weight:600; background:var(--sap-blue); color:#fff; border:none; padding:0.625rem 1.25rem; cursor:pointer; }
+    .btn-modal-save { font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; font-weight:600; background:var(--sap-blue); color:#fff; border:none; padding:0.6rem 1.25rem; cursor:pointer; }
     .btn-modal-save:hover { background:var(--sap-blue-d); }
-    .btn-modal-cancel { font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; font-weight:600; background:#e0e0e0; color:#161616; border:none; padding:0.625rem 1.25rem; cursor:pointer; }
+    .btn-modal-cancel { font-family:'IBM Plex Sans',sans-serif; font-size:0.875rem; font-weight:600; background:#e0e0e0; color:#161616; border:none; padding:0.6rem 1.25rem; cursor:pointer; }
     .btn-modal-cancel:hover { background:#c6c6c6; }
 
-    /* EMPTY / ERROR */
     .state-msg { text-align:center; padding:4rem 2rem; color:#6f6f6f; font-size:0.9375rem; }
     .state-msg.error { color:var(--red); }
   </style>
@@ -128,7 +135,7 @@
         <a href="#" class="active"><span>Platform</span></a>
         <div class="c-nav-dropdown-menu">
           <a href="/compass.html"><span>Maturity Compass</span></a>
-          <a href="/compass-clients.html" class="active"><span>Client Summary</span></a>
+          <a href="/compass-clients.html" class="active"><span>Admin Console</span></a>
           <a href="/utilities.html"><span>Utilities Recommender</span></a>
           <a href="#"><span>Agent Atlas</span></a>
           <a href="#"><span>Platform Fit</span></a>
@@ -139,33 +146,70 @@
   </div>
 </nav>
 
-<!-- ADD / EDIT CLIENT MODAL -->
-<div class="modal-overlay" id="client-modal">
+<!-- COMPANY MODAL -->
+<div class="modal-overlay" id="modal-company">
   <div class="modal-box">
-    <div class="modal-title" id="modal-title">Add Client</div>
-    <div class="modal-sub">Client records are created by admins and selected when starting an assessment.</div>
+    <div class="modal-title" id="co-modal-title">Add Company</div>
+    <div class="modal-sub">Companies are the top-level account. Stakeholders are added within each company.</div>
     <div class="form-group">
-      <label class="form-label" for="m-name">Company Name *</label>
-      <input class="form-input" id="m-name" type="text" placeholder="e.g. ACME Corporation" maxlength="200"/>
-      <div class="form-error" id="m-name-err">Company name is required.</div>
+      <label class="form-label" for="co-name">Company Name *</label>
+      <input class="form-input" id="co-name" type="text" placeholder="e.g. Siemens AG" maxlength="200"/>
+      <div class="form-error" id="co-name-err">Company name is required.</div>
     </div>
     <div class="form-row">
       <div class="form-group" style="margin-bottom:0">
-        <label class="form-label" for="m-contact">Contact Name</label>
-        <input class="form-input" id="m-contact" type="text" placeholder="Jane Smith" maxlength="120"/>
+        <label class="form-label" for="co-industry">Industry</label>
+        <select class="form-select" id="co-industry">
+          <option value="">— Select —</option>
+          <option>Automotive</option><option>Chemicals</option><option>Consumer Goods</option>
+          <option>Energy & Utilities</option><option>Financial Services</option>
+          <option>Healthcare & Life Sciences</option><option>High Tech</option>
+          <option>Industrial Manufacturing</option><option>Public Sector</option>
+          <option>Retail</option><option>Telecommunications</option><option>Other</option>
+        </select>
       </div>
       <div class="form-group" style="margin-bottom:0">
-        <label class="form-label" for="m-title">Title</label>
-        <input class="form-input" id="m-title" type="text" placeholder="IT Director" maxlength="120"/>
+        <label class="form-label" for="co-size">Company Size</label>
+        <select class="form-select" id="co-size">
+          <option value="">— Select —</option>
+          <option value="small">Small (&lt;500)</option>
+          <option value="mid">Mid (500–5k)</option>
+          <option value="large">Large (5k–50k)</option>
+          <option value="xl">Enterprise (50k+)</option>
+        </select>
       </div>
     </div>
-    <div class="form-group" style="margin-top:0.75rem;">
-      <label class="form-label" for="m-email">Email</label>
-      <input class="form-input" id="m-email" type="email" placeholder="jane@example.com" maxlength="200"/>
+    <div class="modal-actions">
+      <button class="btn-modal-save" onclick="saveCompany()">Save Company</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-company')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- STAKEHOLDER MODAL -->
+<div class="modal-overlay" id="modal-sh">
+  <div class="modal-box">
+    <div class="modal-title" id="sh-modal-title">Add Stakeholder</div>
+    <div class="modal-sub" id="sh-modal-sub">Adding stakeholder to <strong id="sh-company-label">—</strong></div>
+    <input type="hidden" id="sh-company-id"/>
+    <div class="form-group">
+      <label class="form-label" for="sh-name">Full Name *</label>
+      <input class="form-input" id="sh-name" type="text" placeholder="e.g. Jane Smith" maxlength="120"/>
+      <div class="form-error" id="sh-name-err">Name is required.</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" for="sh-title">Job Title</label>
+        <input class="form-input" id="sh-title" type="text" placeholder="e.g. IT Director" maxlength="120"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" for="sh-email">Email</label>
+        <input class="form-input" id="sh-email" type="email" placeholder="jane@company.com" maxlength="200"/>
+      </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-save" onclick="saveClient()">Save Client</button>
-      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveStakeholder()">Save Stakeholder</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-sh')">Cancel</button>
     </div>
   </div>
 </div>
@@ -173,10 +217,10 @@
 <div class="page-header">
   <div class="page-header-inner">
     <div>
-      <h1>Client Summary</h1>
-      <p>Admin-managed client records. Each client can have multiple assessments in Maturity Compass.</p>
+      <h1>Admin Console</h1>
+      <p>Manage companies and their stakeholders. Stakeholders are selected when creating Compass assessments.</p>
     </div>
-    <button class="btn-primary" onclick="openAddModal()">+ Add Client</button>
+    <button class="btn-primary" onclick="openAddCompany()">+ Add Company</button>
   </div>
 </div>
 
@@ -184,42 +228,41 @@
 
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-label">Total Clients</div>
-      <div class="stat-value" id="stat-clients">—</div>
+      <div class="stat-label">Companies</div>
+      <div class="stat-value" id="stat-co">—</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Assessments</div>
-      <div class="stat-value" id="stat-assessments">—</div>
+      <div class="stat-label">Stakeholders</div>
+      <div class="stat-value" id="stat-sh">—</div>
     </div>
     <div class="stat-card" style="border-top-color:var(--sap-gold);">
+      <div class="stat-label">Assessments</div>
+      <div class="stat-value" id="stat-as">—</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--green);">
       <div class="stat-label">Avg Maturity</div>
       <div class="stat-value" id="stat-avg">—</div>
     </div>
-    <div class="stat-card" style="border-top-color:var(--green);">
-      <div class="stat-label">Primed / Leading</div>
-      <div class="stat-value" id="stat-ready">—</div>
-    </div>
   </div>
 
-  <div class="filter-bar">
-    <input class="filter-input" id="filter-input" type="text" placeholder="Filter by company, contact, or email…" oninput="renderTable()"/>
-    <span class="filter-count" id="filter-count"></span>
-  </div>
-
-  <div id="table-wrap">
+  <div id="company-list" class="company-list">
     <div class="state-msg">Loading…</div>
   </div>
 
 </div>
 
 <script>
-let allClients = [];
-let editingId  = null;
+let companies   = [];   // from /api/compass/companies
+let stakeholders = {};  // company_id → [stakeholder, ...]
+let editingCoId  = null;
+let editingShId  = null;
+
+const INDUSTRY_SIZES = { small:'< 500', mid:'500–5k', large:'5k–50k', xl:'50k+' };
 
 function tier(avg, minAI) {
-  if (avg === null || avg === undefined || avg === '') return { label:'Not Scored', cls:'tier-None' };
+  if (avg == null || avg === '') return { label:'Not Scored', cls:'tier-None' };
   const a = parseFloat(avg), ai = parseFloat(minAI);
-  if (a >= 3.0 && ai < 2.0) return { label:'AI Prereq Needed', cls:'tier-AI-Prereq' };
+  if (a >= 3.0 && !isNaN(ai) && ai < 2.0) return { label:'AI Prereq', cls:'tier-AI-Prereq' };
   if (a >= 4.5) return { label:'Leading',     cls:'tier-Leading'     };
   if (a >= 3.5) return { label:'Primed',      cls:'tier-Primed'      };
   if (a >= 3.0) return { label:'Candidate',   cls:'tier-Candidate'   };
@@ -227,176 +270,283 @@ function tier(avg, minAI) {
   return         { label:'Foundational', cls:'tier-Foundational' };
 }
 
-function fmtDate(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function renderTable() {
-  const q = (document.getElementById('filter-input').value || '').toLowerCase();
-  const list = q
-    ? allClients.filter(c =>
-        (c.name||'').toLowerCase().includes(q) ||
-        (c.contact_name||'').toLowerCase().includes(q) ||
-        (c.contact_email||'').toLowerCase().includes(q))
-    : allClients;
+// ── RENDER ─────────────────────────────────────────────────────────────────
 
-  document.getElementById('filter-count').textContent =
-    list.length === allClients.length
-      ? `${allClients.length} client${allClients.length !== 1 ? 's' : ''}`
-      : `${list.length} of ${allClients.length}`;
-
-  const wrap = document.getElementById('table-wrap');
-
-  if (!list.length) {
-    wrap.innerHTML = `<div class="state-msg">${allClients.length === 0
-      ? 'No clients yet. Click <strong>+ Add Client</strong> to create the first one.'
-      : 'No clients match your filter.'}</div>`;
+function renderCompanies() {
+  const list = document.getElementById('company-list');
+  if (!companies.length) {
+    list.innerHTML = `<div class="state-msg">No companies yet. Click <strong>+ Add Company</strong> to create the first one.</div>`;
     return;
   }
-
-  const rows = list.map(c => {
-    const t = tier(c.avg_score, c.min_ai_readiness);
-    const score = c.avg_score !== null ? parseFloat(c.avg_score).toFixed(1) : '—';
-    return `<tr>
-      <td>
-        <div class="client-name">${esc(c.name)}</div>
-        ${c.contact_name ? `<div class="client-meta">${esc(c.contact_name)}${c.contact_title ? ', ' + esc(c.contact_title) : ''}</div>` : ''}
-      </td>
-      <td class="client-email">${c.contact_email ? `<a href="mailto:${esc(c.contact_email)}">${esc(c.contact_email)}</a>` : '<span style="color:#8d8d8d;">—</span>'}</td>
-      <td style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.875rem;">${c.assessment_count}</td>
-      <td style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.875rem;">${score}</td>
-      <td><span class="tier-badge ${t.cls}">${t.label}</span></td>
-      <td>${fmtDate(c.last_updated)}</td>
-      <td>
-        <div class="row-actions">
-          <a class="btn-row-link" href="/compass.html" onclick="goToCompass(event,'${c.id}')">Compass →</a>
-          <button class="btn-row btn-row-ghost" onclick="openEditModal('${c.id}')">Edit</button>
-          <button class="btn-row btn-row-danger" onclick="deleteClient('${c.id}','${esc(c.name)}')">Delete</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-
-  wrap.innerHTML = `<table class="client-table">
-    <thead><tr>
-      <th>Company / Contact</th>
-      <th>Email</th>
-      <th style="text-align:center;">Assessments</th>
-      <th style="text-align:center;">Avg Score</th>
-      <th>Tier</th>
-      <th>Last Updated</th>
-      <th>Actions</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
+  list.innerHTML = companies.map(co => renderCompanyCard(co)).join('');
 }
 
-function goToCompass(e, clientId) {
+function renderCompanyCard(co) {
+  const t = tier(co.avg_score, co.min_ai_readiness);
+  const industryLabel = co.industry ? `<span class="chip">${esc(co.industry)}</span>` : '';
+  const sizeLabel     = co.size ? `<span class="chip">${esc(INDUSTRY_SIZES[co.size] || co.size)}</span>` : '';
+  const scoreChip     = co.avg_score != null
+    ? `<span class="chip blue">${parseFloat(co.avg_score).toFixed(1)} avg</span>` : '';
+  const assChip       = co.assessment_count > 0
+    ? `<span class="chip green">${co.assessment_count} assessment${co.assessment_count!==1?'s':''}</span>` : '';
+
+  return `<div class="company-card" id="co-${co.id}">
+    <div class="company-header" onclick="toggleCompany('${co.id}')">
+      <span class="company-toggle" id="tog-${co.id}">▶</span>
+      <div style="flex:1;min-width:0;">
+        <div class="company-name">${esc(co.name)}</div>
+        <div style="display:flex;gap:0.4rem;margin-top:4px;flex-wrap:wrap;">
+          ${industryLabel}${sizeLabel}
+          <span class="chip">${co.client_count} stakeholder${co.client_count!==1?'s':''}</span>
+          ${assChip}${scoreChip}
+        </div>
+      </div>
+      <span class="tier-badge ${t.cls}" style="flex-shrink:0;">${t.label}</span>
+      <div class="company-actions" onclick="e=>e.stopPropagation()">
+        <button class="btn-ghost" onclick="event.stopPropagation();openEditCompany('${co.id}')">Edit</button>
+        <button class="btn-danger" onclick="event.stopPropagation();deleteCompany('${co.id}','${esc(co.name)}')">Delete</button>
+      </div>
+    </div>
+    <div class="company-body" id="body-${co.id}" style="display:none;">
+      <div id="sh-wrap-${co.id}"><div class="empty-sh">Loading stakeholders…</div></div>
+      <div class="add-sh-row">
+        <button class="btn-ghost" onclick="openAddStakeholder('${co.id}','${esc(co.name)}')">+ Add Stakeholder</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderStakeholders(companyId) {
+  const shs  = stakeholders[companyId] || [];
+  const wrap = document.getElementById(`sh-wrap-${companyId}`);
+  if (!wrap) return;
+  if (!shs.length) {
+    wrap.innerHTML = `<div class="empty-sh">No stakeholders yet for this company.</div>`;
+    return;
+  }
+  const rows = shs.map(sh => `<tr>
+    <td class="sh-name">${esc(sh.name)}</td>
+    <td style="color:#525252;font-size:0.8125rem;">${esc(sh.title||'—')}</td>
+    <td class="sh-email">${sh.email ? `<a href="mailto:${esc(sh.email)}">${esc(sh.email)}</a>` : '<span style="color:#8d8d8d;">—</span>'}</td>
+    <td style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:0.875rem;">${sh.assessment_count}</td>
+    <td>
+      <div class="sh-actions">
+        <a class="btn-link" href="/compass.html" onclick="openCompass(event,'${sh.id}')">Compass →</a>
+        <button class="btn-ghost" onclick="openEditStakeholder('${sh.id}','${companyId}')">Edit</button>
+        <button class="btn-danger" onclick="deleteStakeholder('${sh.id}','${esc(sh.name)}')">Delete</button>
+      </div>
+    </td>
+  </tr>`).join('');
+
+  wrap.innerHTML = `<div class="sh-table-wrap"><table class="sh-table">
+    <thead><tr>
+      <th>Name</th><th>Title</th><th>Email</th>
+      <th style="text-align:center;">Assessments</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+async function toggleCompany(id) {
+  const body = document.getElementById(`body-${id}`);
+  const tog  = document.getElementById(`tog-${id}`);
+  const hdr  = tog.closest('.company-header');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  tog.classList.toggle('open', !open);
+  hdr.classList.toggle('open', !open);
+  if (!open && !stakeholders[id]) await loadStakeholders(id);
+}
+
+function openCompass(e, clientId) {
   e.preventDefault();
   sessionStorage.setItem('compass_client_filter', clientId);
   location.href = '/compass.html';
 }
 
-function esc(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// ── DATA LOADING ───────────────────────────────────────────────────────────
 
-async function loadClients() {
+async function loadAll() {
   try {
     const health = await fetch('/api/health').then(r => r.json());
     if (!health.db) {
-      document.getElementById('table-wrap').innerHTML =
+      document.getElementById('company-list').innerHTML =
         `<div class="state-msg error">Database not connected. <a href="/compass.html">Go to Compass</a> for setup instructions.</div>`;
       return;
     }
-    allClients = await fetch('/api/compass/clients').then(r => r.json());
 
-    const total       = allClients.length;
-    const totalAssess = allClients.reduce((s,c) => s + (c.assessment_count||0), 0);
-    const scored      = allClients.filter(c => c.avg_score !== null);
-    const avgAll      = scored.length
+    companies = await fetch('/api/compass/companies').then(r => r.json());
+
+    const totalSh  = companies.reduce((s,c) => s + (c.client_count||0), 0);
+    const totalAs  = companies.reduce((s,c) => s + (c.assessment_count||0), 0);
+    const scored   = companies.filter(c => c.avg_score != null);
+    const avgAll   = scored.length
       ? (scored.reduce((s,c) => s + parseFloat(c.avg_score), 0) / scored.length).toFixed(1) : '—';
-    const ready       = scored.filter(c => {
-      const t = tier(c.avg_score, c.min_ai_readiness);
-      return t.label === 'Primed' || t.label === 'Leading';
-    }).length;
 
-    document.getElementById('stat-clients').textContent     = total;
-    document.getElementById('stat-assessments').textContent = totalAssess;
-    document.getElementById('stat-avg').textContent         = avgAll;
-    document.getElementById('stat-ready').textContent       = ready;
+    document.getElementById('stat-co').textContent  = companies.length;
+    document.getElementById('stat-sh').textContent  = totalSh;
+    document.getElementById('stat-as').textContent  = totalAs;
+    document.getElementById('stat-avg').textContent = avgAll;
 
-    renderTable();
+    renderCompanies();
   } catch (e) {
-    document.getElementById('table-wrap').innerHTML =
+    document.getElementById('company-list').innerHTML =
       `<div class="state-msg error">Failed to load: ${e.message}</div>`;
   }
 }
 
-// ── MODAL ──────────────────────────────────────────────────────────────────
-
-function openAddModal() {
-  editingId = null;
-  document.getElementById('modal-title').textContent = 'Add Client';
-  ['m-name','m-contact','m-title','m-email'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('m-name-err').style.display = 'none';
-  document.getElementById('client-modal').classList.add('open');
-  setTimeout(() => document.getElementById('m-name').focus(), 100);
-}
-
-function openEditModal(id) {
-  const c = allClients.find(x => x.id === id);
-  if (!c) return;
-  editingId = id;
-  document.getElementById('modal-title').textContent  = 'Edit Client';
-  document.getElementById('m-name').value             = c.name || '';
-  document.getElementById('m-contact').value          = c.contact_name || '';
-  document.getElementById('m-title').value            = c.contact_title || '';
-  document.getElementById('m-email').value            = c.contact_email || '';
-  document.getElementById('m-name-err').style.display = 'none';
-  document.getElementById('client-modal').classList.add('open');
-  setTimeout(() => document.getElementById('m-name').focus(), 100);
-}
-
-function closeModal() { document.getElementById('client-modal').classList.remove('open'); }
-document.getElementById('client-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-async function saveClient() {
-  const name = document.getElementById('m-name').value.trim();
-  if (!name) { document.getElementById('m-name-err').style.display = 'block'; return; }
-  document.getElementById('m-name-err').style.display = 'none';
-
-  const body = {
-    name,
-    contact_name:  document.getElementById('m-contact').value.trim(),
-    contact_title: document.getElementById('m-title').value.trim(),
-    contact_email: document.getElementById('m-email').value.trim(),
-  };
-
+async function loadStakeholders(companyId) {
   try {
-    const url    = editingId ? `/api/compass/clients/${editingId}` : '/api/compass/clients';
-    const method = editingId ? 'PUT' : 'POST';
-    const res    = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-    const data   = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Save failed');
-    closeModal();
-    await loadClients();
+    const shs = await fetch(`/api/compass/clients?companyId=${companyId}`).then(r => r.json());
+    stakeholders[companyId] = shs;
+    renderStakeholders(companyId);
+  } catch (e) {
+    const wrap = document.getElementById(`sh-wrap-${companyId}`);
+    if (wrap) wrap.innerHTML = `<div class="empty-sh" style="color:var(--red);">Failed to load stakeholders.</div>`;
+  }
+}
+
+// ── COMPANY MODAL ──────────────────────────────────────────────────────────
+
+function openAddCompany() {
+  editingCoId = null;
+  document.getElementById('co-modal-title').textContent = 'Add Company';
+  document.getElementById('co-name').value     = '';
+  document.getElementById('co-industry').value = '';
+  document.getElementById('co-size').value     = '';
+  document.getElementById('co-name-err').style.display = 'none';
+  document.getElementById('modal-company').classList.add('open');
+  setTimeout(() => document.getElementById('co-name').focus(), 100);
+}
+
+function openEditCompany(id) {
+  const co = companies.find(c => c.id === id);
+  if (!co) return;
+  editingCoId = id;
+  document.getElementById('co-modal-title').textContent = 'Edit Company';
+  document.getElementById('co-name').value     = co.name || '';
+  document.getElementById('co-industry').value = co.industry || '';
+  document.getElementById('co-size').value     = co.size || '';
+  document.getElementById('co-name-err').style.display = 'none';
+  document.getElementById('modal-company').classList.add('open');
+  setTimeout(() => document.getElementById('co-name').focus(), 100);
+}
+
+async function saveCompany() {
+  const name = document.getElementById('co-name').value.trim();
+  if (!name) { document.getElementById('co-name-err').style.display = 'block'; return; }
+  document.getElementById('co-name-err').style.display = 'none';
+  const body = { name, industry: document.getElementById('co-industry').value, size: document.getElementById('co-size').value };
+  try {
+    const url = editingCoId ? `/api/compass/companies/${editingCoId}` : '/api/compass/companies';
+    const res = await fetch(url, { method: editingCoId ? 'PUT' : 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    closeModal('modal-company');
+    stakeholders = {};
+    await loadAll();
   } catch (e) { alert('Error: ' + e.message); }
 }
 
-async function deleteClient(id, name) {
-  if (!confirm(`Delete client "${name}"?\n\nThis cannot be undone. Assessments linked to this client will be unlinked.`)) return;
+async function deleteCompany(id, name) {
+  if (!confirm(`Delete company "${name}"?\n\nAll stakeholders must be removed first.`)) return;
+  try {
+    const res = await fetch(`/api/compass/companies/${id}`, { method:'DELETE' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    stakeholders = {};
+    await loadAll();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+// ── STAKEHOLDER MODAL ──────────────────────────────────────────────────────
+
+function openAddStakeholder(companyId, companyName) {
+  editingShId = null;
+  document.getElementById('sh-modal-title').textContent = 'Add Stakeholder';
+  document.getElementById('sh-company-label').textContent = companyName;
+  document.getElementById('sh-company-id').value = companyId;
+  document.getElementById('sh-name').value  = '';
+  document.getElementById('sh-title').value = '';
+  document.getElementById('sh-email').value = '';
+  document.getElementById('sh-name-err').style.display = 'none';
+  document.getElementById('modal-sh').classList.add('open');
+  setTimeout(() => document.getElementById('sh-name').focus(), 100);
+}
+
+function openEditStakeholder(shId, companyId) {
+  const sh = (stakeholders[companyId]||[]).find(s => s.id === shId);
+  if (!sh) return;
+  editingShId = shId;
+  document.getElementById('sh-modal-title').textContent = 'Edit Stakeholder';
+  document.getElementById('sh-company-label').textContent = sh.company_name || '';
+  document.getElementById('sh-company-id').value = companyId;
+  document.getElementById('sh-name').value  = sh.name || '';
+  document.getElementById('sh-title').value = sh.title || '';
+  document.getElementById('sh-email').value = sh.email || '';
+  document.getElementById('sh-name-err').style.display = 'none';
+  document.getElementById('modal-sh').classList.add('open');
+  setTimeout(() => document.getElementById('sh-name').focus(), 100);
+}
+
+async function saveStakeholder() {
+  const name = document.getElementById('sh-name').value.trim();
+  if (!name) { document.getElementById('sh-name-err').style.display = 'block'; return; }
+  document.getElementById('sh-name-err').style.display = 'none';
+  const companyId = document.getElementById('sh-company-id').value;
+  const body = { company_id: companyId, name, title: document.getElementById('sh-title').value.trim(), email: document.getElementById('sh-email').value.trim() };
+  try {
+    const url = editingShId ? `/api/compass/clients/${editingShId}` : '/api/compass/clients';
+    const res = await fetch(url, { method: editingShId ? 'PUT' : 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    closeModal('modal-sh');
+    delete stakeholders[companyId];
+    await loadStakeholders(companyId);
+    // Refresh company stats
+    companies = await fetch('/api/compass/companies').then(r => r.json());
+    document.getElementById(`co-${companyId}`).outerHTML = renderCompanyCard(companies.find(c=>c.id===companyId));
+    // Re-open body
+    const body2 = document.getElementById(`body-${companyId}`);
+    if (body2) { body2.style.display = 'block'; document.getElementById(`tog-${companyId}`).classList.add('open'); document.getElementById(`tog-${companyId}`).closest('.company-header').classList.add('open'); }
+    await loadStakeholders(companyId);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function deleteStakeholder(id, name) {
+  if (!confirm(`Delete stakeholder "${name}"?`)) return;
   try {
     const res  = await fetch(`/api/compass/clients/${id}`, { method:'DELETE' });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Delete failed');
-    await loadClients();
+    if (!res.ok) throw new Error(data.error);
+    // find which company and refresh
+    for (const [coId, shs] of Object.entries(stakeholders)) {
+      if (shs.find(s => s.id === id)) {
+        delete stakeholders[coId];
+        await loadStakeholders(coId);
+        break;
+      }
+    }
+    companies = await fetch('/api/compass/companies').then(r => r.json());
+    renderCompanies();
   } catch (e) { alert('Error: ' + e.message); }
 }
 
-loadClients();
+// ── MODAL HELPERS ──────────────────────────────────────────────────────────
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+['modal-company','modal-sh'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(id); });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') ['modal-company','modal-sh'].forEach(id => closeModal(id));
+});
+
+loadAll();
 </script>
 </body>
 </html>

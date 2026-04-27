@@ -1104,14 +1104,30 @@ async function openNewModal() {
   document.getElementById('name-error').style.display   = 'none';
   document.getElementById('client-error').style.display = 'none';
 
-  // Populate client dropdown fresh each time
+  // Populate stakeholder dropdown grouped by company
   try {
-    const clients = await apiFetch('/api/compass/clients');
+    const [companies, clients] = await Promise.all([
+      apiFetch('/api/compass/companies'),
+      apiFetch('/api/compass/clients'),
+    ]);
     const sel = document.getElementById('input-client');
-    sel.innerHTML = '<option value="">— Select client —</option>' +
-      clients.map(c => `<option value="${c.id}">${c.name}${c.contact_name ? ' · ' + c.contact_name : ''}</option>`).join('');
-    if (clients.length === 0) {
-      sel.innerHTML = '<option value="" disabled>No clients yet — add one in Client Summary</option>';
+    if (!clients.length) {
+      sel.innerHTML = '<option value="" disabled>No stakeholders yet — add them in Admin Console</option>';
+    } else {
+      sel.innerHTML = '<option value="">— Select stakeholder —</option>';
+      companies.forEach(co => {
+        const members = clients.filter(c => c.company_id === co.id);
+        if (!members.length) return;
+        const grp = document.createElement('optgroup');
+        grp.label = co.name;
+        members.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name + (c.title ? ` · ${c.title}` : '');
+          grp.appendChild(opt);
+        });
+        sel.appendChild(grp);
+      });
     }
   } catch (_) {}
 
