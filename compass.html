@@ -418,30 +418,18 @@
 <div class="modal-overlay" id="modal-new">
   <div class="modal-box">
     <div class="modal-title">New Assessment</div>
-    <div class="modal-sub">Client details are saved with the assessment and visible on the summary page.</div>
+    <div class="modal-sub">Select a client, then name this assessment session. <a href="/compass-clients.html" style="color:var(--sap-blue);font-weight:600;">Manage clients →</a></div>
+    <div class="form-group">
+      <label class="form-label" for="input-client">Client *</label>
+      <select class="form-select" id="input-client">
+        <option value="">— Select client —</option>
+      </select>
+      <div class="form-error" id="client-error">Please select a client.</div>
+    </div>
     <div class="form-group">
       <label class="form-label" for="input-name">Assessment Name *</label>
-      <input class="form-input" id="input-name" type="text" placeholder="e.g. ACME Corp Q2 2026" maxlength="120"/>
+      <input class="form-input" id="input-name" type="text" placeholder="e.g. ACME Corp — Initial Scan" maxlength="120"/>
       <div class="form-error" id="name-error">Please enter an assessment name.</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="input-company">Company *</label>
-      <input class="form-input" id="input-company" type="text" placeholder="e.g. ACME Corporation" maxlength="120"/>
-      <div class="form-error" id="company-error">Please enter a company name.</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
-      <div class="form-group" style="margin-bottom:0;">
-        <label class="form-label" for="input-contact-name">Contact Name</label>
-        <input class="form-input" id="input-contact-name" type="text" placeholder="Jane Smith" maxlength="120"/>
-      </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label class="form-label" for="input-contact-title">Title</label>
-        <input class="form-input" id="input-contact-title" type="text" placeholder="IT Director" maxlength="120"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="input-contact-email">Email</label>
-      <input class="form-input" id="input-contact-email" type="email" placeholder="jane@example.com" maxlength="200"/>
     </div>
     <div class="form-group">
       <label class="form-label" for="input-version">SAP Landscape</label>
@@ -697,24 +685,21 @@ async function loadAssessment(id) {
 }
 
 async function createAssessment() {
-  const name    = document.getElementById('input-name').value.trim();
-  const company = document.getElementById('input-company').value.trim();
-  const nameErr = document.getElementById('name-error');
-  const coErr   = document.getElementById('company-error');
+  const client_id = document.getElementById('input-client').value;
+  const name      = document.getElementById('input-name').value.trim();
+  const clientErr = document.getElementById('client-error');
+  const nameErr   = document.getElementById('name-error');
   let valid = true;
-  if (!name)    { nameErr.style.display = 'block'; valid = false; } else nameErr.style.display = 'none';
-  if (!company) { coErr.style.display  = 'block'; valid = false; } else coErr.style.display  = 'none';
+  if (!client_id) { clientErr.style.display = 'block'; valid = false; } else clientErr.style.display = 'none';
+  if (!name)      { nameErr.style.display   = 'block'; valid = false; } else nameErr.style.display   = 'none';
   if (!valid) return;
   try {
     const data = await apiFetch('/api/compass/assessments', {
       method: 'POST',
       body: JSON.stringify({
+        client_id,
         name,
-        company,
-        sap_version:   document.getElementById('input-version').value,
-        contact_name:  document.getElementById('input-contact-name').value.trim(),
-        contact_title: document.getElementById('input-contact-title').value.trim(),
-        contact_email: document.getElementById('input-contact-email').value.trim(),
+        sap_version: document.getElementById('input-version').value,
       })
     });
     closeModal();
@@ -1016,13 +1001,26 @@ function renderRollup() {
 }
 
 // ── MODAL ──────────────────────────────────────────────────────────────────────
-function openNewModal() {
-  ['input-name','input-company','input-contact-name','input-contact-title','input-contact-email','input-version']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.getElementById('name-error').style.display = 'none';
-  document.getElementById('company-error').style.display = 'none';
+async function openNewModal() {
+  document.getElementById('input-name').value    = '';
+  document.getElementById('input-version').value = '';
+  document.getElementById('input-client').value  = '';
+  document.getElementById('name-error').style.display   = 'none';
+  document.getElementById('client-error').style.display = 'none';
+
+  // Populate client dropdown fresh each time
+  try {
+    const clients = await apiFetch('/api/compass/clients');
+    const sel = document.getElementById('input-client');
+    sel.innerHTML = '<option value="">— Select client —</option>' +
+      clients.map(c => `<option value="${c.id}">${c.name}${c.contact_name ? ' · ' + c.contact_name : ''}</option>`).join('');
+    if (clients.length === 0) {
+      sel.innerHTML = '<option value="" disabled>No clients yet — add one in Client Summary</option>';
+    }
+  } catch (_) {}
+
   document.getElementById('modal-new').classList.add('open');
-  setTimeout(() => document.getElementById('input-name').focus(), 100);
+  setTimeout(() => document.getElementById('input-client').focus(), 100);
 }
 function closeModal() { document.getElementById('modal-new').classList.remove('open'); }
 document.getElementById('modal-new').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
