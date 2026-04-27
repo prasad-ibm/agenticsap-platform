@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAP Utilities Agent Recommender | AgenticSAP</title>
+  <link rel="stylesheet" href="/bpo-theme.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    /* ── LIGHTHOUSE PALETTE ── */
+    :root {
+      --lh-blue:#0F3460; --lh-mid:#1A56A0; --lh-light:#D5E3F5; --lh-accent:#3B82C4;
+      --lh-teal:#0D7377; --lh-teal-l:#D0ECEC;
+      --lh-warm:#F9F6F0; --lh-dark:#1A1A2E; --lh-gray:#4A5568; --lh-gray-l:#E8EDF4;
+      --lh-white:#FFFFFF; --lh-gold:#C4992A; --lh-gold-l:#FBF4E3;
+    }
+    body { font-family:'DM Sans','IBM Plex Sans',system-ui,sans-serif; background:var(--lh-warm); color:var(--lh-dark); margin:0; }
+
+    /* ── NAV DROPDOWN (same as compass.html) ── */
+    .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+    .c-nav-dropdown>a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+    .c-nav-dropdown:hover>a::after{opacity:.85}
+    .c-nav-dropdown-menu{position:absolute!important;top:48px!important;left:0;display:flex!important;flex-direction:column;visibility:hidden!important;opacity:0!important;pointer-events:none!important;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:200px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:opacity .12s ease}
+    .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+    .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+    .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+    .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+    .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+
+    /* ── STEP BAR ── */
+    .step-bar{background:var(--lh-blue);display:flex;align-items:center;justify-content:center;gap:0;padding:13px 24px;border-bottom:3px solid var(--lh-gold);}
+    .step-item{display:flex;align-items:center;gap:9px;}
+    .step-num{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.45);flex-shrink:0;transition:all .2s;}
+    .step-item.active .step-num{background:var(--lh-gold);border-color:var(--lh-gold);color:var(--lh-blue);}
+    .step-item.done   .step-num{background:var(--lh-teal);border-color:var(--lh-teal);color:#fff;}
+    .step-label{font-size:11px;font-weight:500;color:rgba(255,255,255,0.42);white-space:nowrap;}
+    .step-item.active .step-label{color:#fff;font-weight:600;}
+    .step-item.done   .step-label{color:rgba(255,255,255,0.68);}
+    .step-sep{width:40px;height:1px;background:rgba(255,255,255,0.15);margin:0 6px;}
+
+    /* ── SECTION LABEL ── */
+    .slabel{font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--lh-mid);margin-bottom:12px;padding-bottom:5px;border-bottom:2px solid var(--lh-light);}
+    .slabel.teal{color:var(--lh-teal);border-bottom-color:var(--lh-teal-l);}
+    .slabel.gold{color:var(--lh-gold);border-bottom-color:#F0E3C0;}
+
+    /* ── STEP PANELS ── */
+    .step-panel{display:none;} .step-panel.active{display:block;}
+
+    /* ── STEP 1 ── */
+    .s1-inner{max-width:880px;margin:0 auto;padding:40px 24px 80px;}
+    .s1-title{font-family:'DM Serif Display',serif;font-size:30px;font-weight:400;color:var(--lh-blue);line-height:1.15;margin-bottom:6px;}
+    .s1-sub{font-size:14px;color:var(--lh-gray);margin-bottom:36px;font-weight:300;}
+    .util-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:32px;}
+    .util-card{background:var(--lh-white);border:2px solid var(--lh-gray-l);border-radius:4px;padding:18px 14px;cursor:pointer;transition:all .18s;text-align:center;}
+    .util-card:hover{border-color:var(--lh-mid);transform:translateY(-1px);box-shadow:0 3px 10px rgba(15,52,96,.10);}
+    .util-card.sel{border-color:var(--lh-mid);background:var(--lh-light);}
+    .util-icon{font-size:26px;margin-bottom:8px;}
+    .util-name{font-size:12px;font-weight:600;color:var(--lh-blue);margin-bottom:3px;}
+    .util-desc{font-size:10px;color:var(--lh-gray);line-height:1.4;}
+    .profile-fields{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:32px;}
+    .pfield label{display:block;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--lh-gray);margin-bottom:5px;}
+    .pfield select{width:100%;padding:9px 10px;border:1px solid #CBD5E0;border-radius:3px;background:var(--lh-white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--lh-dark);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234A5568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+    .s1-cta{display:flex;justify-content:flex-end;gap:10px;}
+
+    /* ── STEP 2 ── */
+    .s2-inner{display:grid;grid-template-columns:1fr 360px;height:calc(100vh - 48px - 59px);}
+    .s2-axes{padding:24px 26px;overflow-y:auto;background:var(--lh-white);border-right:1px solid var(--lh-gray-l);}
+    .s2-chart-panel{padding:24px 20px;background:var(--lh-warm);display:flex;flex-direction:column;overflow:hidden;}
+    .axis-row{margin-bottom:16px;}
+    .axis-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+    .axis-name{font-size:12px;font-weight:600;color:var(--lh-dark);}
+    .axis-tag{font-size:9px;color:var(--lh-gray);}
+    .axis-score{font-size:13px;font-weight:700;color:var(--lh-mid);}
+    .axis-slider{width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;}
+    .axis-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--lh-mid);cursor:pointer;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+    .axis-desc{font-size:10px;color:var(--lh-gray);margin-top:2px;}
+    .s2-chart-title{font-family:'DM Serif Display',serif;font-size:15px;color:var(--lh-blue);margin-bottom:3px;}
+    .s2-chart-sub{font-size:10px;color:var(--lh-gray);margin-bottom:12px;}
+    .s2-chart-wrap{flex:1;position:relative;min-height:0;}
+    .s2-nav{display:flex;justify-content:space-between;align-items:center;padding:12px 26px;background:var(--lh-white);border-top:1px solid var(--lh-gray-l);}
+
+    /* ── STEP 3 ── */
+    .s3-inner{max-width:1180px;margin:0 auto;padding:32px 24px 80px;}
+    .s3-title{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--lh-blue);margin-bottom:4px;}
+    .s3-sub{font-size:13px;color:var(--lh-gray);margin-bottom:22px;}
+
+    /* Metrics */
+    .metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:22px;}
+    .m-card{background:var(--lh-blue);border-radius:4px;padding:14px 12px;text-align:center;}
+    .m-val{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;line-height:1;display:block;}
+    .m-lbl{font-size:9px;color:#90B4D4;display:block;margin-top:3px;line-height:1.3;}
+
+    /* LHC callout */
+    .lhc-callout{background:var(--lh-blue);border-left:4px solid var(--lh-gold);border-radius:0 4px 4px 0;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:16px;}
+    .lhc-icon{font-size:26px;flex-shrink:0;}
+    .lhc-text{flex:1;}
+    .lhc-text h3{font-family:'DM Serif Display',serif;font-size:15px;color:#fff;font-weight:400;margin-bottom:3px;}
+    .lhc-text p{font-size:11px;color:#A8C4E0;line-height:1.5;}
+    .lhc-cta{background:var(--lh-gold);color:var(--lh-blue);border:none;padding:9px 16px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+
+    /* Sovereign */
+    .sov-notice{background:var(--lh-gold-l);border:1px solid #E8D5A0;border-left:4px solid var(--lh-gold);border-radius:0 3px 3px 0;padding:10px 14px;margin-bottom:18px;font-size:11px;color:#6B4C00;}
+    .sov-notice strong{color:#4A3500;}
+
+    /* Phase tabs */
+    .phase-tabs{display:flex;gap:0;border-bottom:2px solid var(--lh-gray-l);margin-bottom:18px;}
+    .ptab{padding:9px 18px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--lh-gray);border-bottom:3px solid transparent;margin-bottom:-2px;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;}
+    .ptab.active{color:var(--lh-blue);border-bottom-color:var(--lh-blue);}
+    .ptab .pc{background:var(--lh-gray-l);color:var(--lh-gray);font-size:9px;padding:1px 6px;border-radius:10px;}
+    .ptab.active .pc{background:var(--lh-mid);color:#fff;}
+
+    /* Filter chips */
+    .fchips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:15px;}
+    .fchip{padding:4px 12px;border-radius:20px;border:1px solid var(--lh-gray-l);background:var(--lh-white);font-size:10px;font-weight:500;cursor:pointer;color:var(--lh-gray);transition:all .12s;}
+    .fchip.active{background:var(--lh-mid);border-color:var(--lh-mid);color:#fff;}
+
+    /* Agent cards */
+    .agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:30px;}
+    .ag-card{background:var(--lh-white);border:1px solid var(--lh-gray-l);border-radius:4px;padding:16px 18px;transition:box-shadow .15s;}
+    .ag-card:hover{box-shadow:0 3px 14px rgba(0,0,0,.08);}
+    .ag-card.av{border-left:4px solid var(--lh-teal);}
+    .ag-card.pa{border-left:4px solid var(--lh-gold);}
+    .ag-card.bl{border-left:4px solid #CBD5E0;opacity:.72;}
+    .ag-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:10px;}
+    .ag-name{font-size:13px;font-weight:700;color:var(--lh-blue);margin-bottom:2px;}
+    .ag-persona{font-size:10px;color:var(--lh-gray);}
+    .sp{font-size:9px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+    .sp-av{background:var(--lh-teal-l);color:var(--lh-teal);}
+    .sp-pa{background:var(--lh-gold-l);color:#8B6A1A;}
+    .sp-bl{background:var(--lh-gray-l);color:var(--lh-gray);}
+    .ag-kpi{font-size:10px;color:var(--lh-gray);margin-bottom:8px;}
+    .ag-kpi strong{color:var(--lh-teal);}
+    .ag-roi{background:var(--lh-warm);border-radius:3px;padding:7px 10px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+    .roi-val{font-family:'DM Serif Display',serif;font-size:18px;color:var(--lh-blue);flex-shrink:0;}
+    .roi-basis{font-size:9px;color:var(--lh-gray);line-height:1.35;}
+    .ag-modules{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;}
+    .mtag{background:var(--lh-light);color:var(--lh-mid);font-size:9px;font-weight:600;padding:2px 7px;border-radius:2px;}
+    .mtag.aws{background:#FFF3E0;color:#B26A00;}
+    .ag-reqs{font-size:10px;color:var(--lh-gray);}
+    .req-i{display:inline-flex;align-items:center;gap:3px;margin:2px 5px 2px 0;}
+    .rdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+    .r-met{background:var(--lh-teal);}  .r-unmet{background:#E53E3E;}
+
+    /* Roadmap */
+    .roadmap-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:26px;}
+    .rph{border-radius:4px;overflow:hidden;}
+    .rph-hdr{padding:9px 12px;font-size:10px;font-weight:700;color:#fff;}
+    .rph1 .rph-hdr{background:var(--lh-mid);}
+    .rph2 .rph-hdr{background:var(--lh-teal);}
+    .rph3 .rph-hdr{background:var(--lh-gold);}
+    .rph-body{background:var(--lh-white);border:1px solid var(--lh-gray-l);border-top:none;padding:8px 12px;}
+    .r-agent{padding:5px 0;border-bottom:1px solid var(--lh-gray-l);font-size:10px;}
+    .r-agent:last-child{border-bottom:none;}
+    .r-agent strong{color:var(--lh-blue);font-weight:600;display:block;font-size:11px;}
+    .r-agent em{color:var(--lh-gray);font-style:italic;font-size:9px;}
+
+    /* Wave plan */
+    .wave-wrap{background:var(--lh-white);border:1px solid var(--lh-gray-l);border-radius:4px;overflow:hidden;margin-bottom:26px;}
+    .wave-tbl{width:100%;border-collapse:collapse;}
+    .wave-tbl thead tr{background:var(--lh-blue);color:#fff;}
+    .wave-tbl thead th{padding:9px 12px;font-size:10px;font-weight:600;text-align:left;}
+    .wave-tbl tbody tr:nth-child(even){background:var(--lh-gray-l);}
+    .wave-tbl tbody td{padding:7px 12px;font-size:11px;color:var(--lh-dark);vertical-align:middle;}
+    .wb{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;}
+    .wb-1{background:var(--lh-teal-l);color:var(--lh-teal);}
+    .wb-2{background:var(--lh-gold-l);color:#8B6A1A;}
+    .wb-3{background:var(--lh-gray-l);color:var(--lh-gray);}
+
+    /* Architecture */
+    .arch-box{background:var(--lh-blue);border-radius:4px;padding:22px 24px;margin-bottom:26px;}
+    .arch-h{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;color:#fff;margin-bottom:3px;}
+    .arch-sub{font-size:10px;color:#90B4D4;margin-bottom:16px;}
+    .arch-layers{display:flex;flex-direction:column;gap:6px;}
+    .arch-layer{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);border-radius:3px;padding:9px 14px;display:flex;align-items:center;gap:14px;}
+    .arch-lbl{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--lh-accent);min-width:110px;flex-shrink:0;}
+    .arch-nodes{display:flex;flex-wrap:wrap;gap:5px;}
+    .anode{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#fff;font-size:9px;font-weight:600;padding:3px 9px;border-radius:2px;}
+    .anode.gold{background:var(--lh-gold);border-color:var(--lh-gold);color:var(--lh-blue);}
+    .anode.teal{background:rgba(13,115,119,0.45);border-color:var(--lh-teal);}
+    .anode.dim{opacity:.35;}
+
+    /* Buttons */
+    .btn-p{background:var(--lh-mid);color:#fff;border:none;padding:11px 26px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+    .btn-p:hover{background:var(--lh-blue);}
+    .btn-s{background:transparent;color:var(--lh-mid);border:2px solid var(--lh-mid);padding:9px 22px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+
+    /* empty */
+    .empty-state{text-align:center;padding:40px;color:var(--lh-gray);font-size:13px;}
+
+    /* phase dots */
+    .pdot{display:inline-block;width:7px;height:7px;border-radius:50%;vertical-align:middle;margin-right:3px;}
+    .pd1{background:var(--lh-mid);} .pd2{background:var(--lh-teal);} .pd3{background:var(--lh-gold);}
+
+    /* num-items (lighthouse style) */
+    .num-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:22px;}
+    .num-item{background:rgba(255,255,255,0.08);border-radius:2px;padding:10px 8px;text-align:center;}
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav class="c-nav" style="position:sticky;top:0;z-index:900;">
+  <div class="c-nav-inner">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" fill="#0070C0"/><text x="4" y="22" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/"><span>Home</span></a>
+      <div class="c-nav-dropdown">
+        <a href="#" class="active"><span>Platform</span></a>
+        <div class="c-nav-dropdown-menu">
+          <a href="/compass.html"><span>Maturity Compass</span></a>
+          <a href="/utilities.html" class="active"><span>Utilities Recommender</span></a>
+          <a href="#"><span>Agent Atlas</span></a>
+          <a href="#"><span>Platform Fit</span></a>
+          <a href="#"><span>ROI Builder</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── STEP BAR ── -->
+<div class="step-bar" id="step-bar">
+  <div class="step-item active" id="si-1">
+    <div class="step-num">1</div>
+    <div class="step-label">Utility Profile</div>
+  </div>
+  <div class="step-sep"></div>
+  <div class="step-item" id="si-2">
+    <div class="step-num">2</div>
+    <div class="step-label">Maturity Quick-Scan</div>
+  </div>
+  <div class="step-sep"></div>
+  <div class="step-item" id="si-3">
+    <div class="step-num">3</div>
+    <div class="step-label">Agent Opportunities</div>
+  </div>
+</div>
+
+<!-- ════ STEP 1: PROFILE ════ -->
+<div id="step1" class="step-panel active">
+  <div class="s1-inner">
+    <div class="s1-title">Tell us about your utility.</div>
+    <div class="s1-sub">We'll tailor agent recommendations, ROI estimates, and architecture guidance to your specific operating context.</div>
+
+    <div class="slabel">Utility Type</div>
+    <div class="util-grid" id="util-grid">
+      <div class="util-card" onclick="selectType('electric')">
+        <div class="util-icon">⚡</div>
+        <div class="util-name">Electric Network Operator</div>
+        <div class="util-desc">DSO, ISO, or wires-only distribution utility with AMI and grid assets</div>
+      </div>
+      <div class="util-card" onclick="selectType('retailer')">
+        <div class="util-icon">🏷️</div>
+        <div class="util-name">Energy Retailer / CRO</div>
+        <div class="util-desc">C&amp;I or mass-market retailer in a competitive market; market comms focus</div>
+      </div>
+      <div class="util-card" onclick="selectType('integrated')">
+        <div class="util-icon">🏭</div>
+        <div class="util-name">Integrated IOU</div>
+        <div class="util-desc">Investor-owned utility with generation, transmission and distribution</div>
+      </div>
+      <div class="util-card" onclick="selectType('gas')">
+        <div class="util-icon">🔥</div>
+        <div class="util-name">Gas Utility / LDC</div>
+        <div class="util-desc">Local distribution company with meter-to-cash and safety compliance focus</div>
+      </div>
+      <div class="util-card" onclick="selectType('water')">
+        <div class="util-icon">💧</div>
+        <div class="util-name">Water / Wastewater</div>
+        <div class="util-desc">Water authority or municipal utility with billing and field ops focus</div>
+      </div>
+      <div class="util-card" onclick="selectType('multi')">
+        <div class="util-icon">🌐</div>
+        <div class="util-name">Multi-utility / Holding Co.</div>
+        <div class="util-desc">Multi-commodity or multi-OpCo utility with complex regulatory environment</div>
+      </div>
+    </div>
+
+    <div class="slabel">Operating Context</div>
+    <div class="profile-fields">
+      <div class="pfield">
+        <label for="p-customers">Customer Accounts</label>
+        <select id="p-customers">
+          <option value="">— Select range —</option>
+          <option value="small">&lt; 100K accounts</option>
+          <option value="mid">100K – 500K accounts</option>
+          <option value="large">500K – 2M accounts</option>
+          <option value="xl">2M+ accounts</option>
+        </select>
+      </div>
+      <div class="pfield">
+        <label for="p-sap">SAP Landscape Status</label>
+        <select id="p-sap">
+          <option value="">— Select status —</option>
+          <option value="ecc">Legacy ECC / IS-U (no migration planned)</option>
+          <option value="planning">Migration planning (>18 months out)</option>
+          <option value="migration">Active S/4HANA migration</option>
+          <option value="live">S/4HANA live (&lt;18 months post go-live)</option>
+          <option value="established">S/4HANA established (&gt;18 months)</option>
+        </select>
+      </div>
+      <div class="pfield">
+        <label for="p-regulatory">Regulatory Complexity</label>
+        <select id="p-regulatory">
+          <option value="">— Select —</option>
+          <option value="single">Single jurisdiction (1 state / territory)</option>
+          <option value="multi">Multi-jurisdiction (2–5 states)</option>
+          <option value="complex">Complex multi (6+ states or multi-country)</option>
+          <option value="federal">FERC-jurisdictional / transmission</option>
+        </select>
+      </div>
+      <div class="pfield">
+        <label for="p-region">Geographic Region</label>
+        <select id="p-region">
+          <option value="">— Select —</option>
+          <option value="us">North America (US)</option>
+          <option value="ca">North America (Canada)</option>
+          <option value="eu">Europe / EMEA</option>
+          <option value="apac">Asia-Pacific (AEMO / ANZ)</option>
+          <option value="latam">Latin America</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="s1-cta">
+      <button class="btn-p" onclick="goStep(2)">Begin Maturity Scan →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ STEP 2: MATURITY ════ -->
+<div id="step2" class="step-panel">
+  <div class="s2-inner">
+
+    <div class="s2-axes">
+      <div class="slabel">Rate Your Current Maturity — 10 Dimensions</div>
+      <div style="font-size:11px;color:var(--lh-gray);margin-bottom:20px;">Score 1 (basic/absent) → 5 (world-class). These drive your agent recommendations and wave plan.</div>
+      <div id="axes-container"></div>
+    </div>
+
+    <div class="s2-chart-panel">
+      <div class="s2-chart-title">Maturity Profile</div>
+      <div class="s2-chart-sub">Scores drive agent availability in Step 3</div>
+      <div class="s2-chart-wrap">
+        <canvas id="radar-canvas"></canvas>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--lh-gray);margin-bottom:8px;">Overall Readiness</div>
+        <div id="overall-tier" style="font-size:13px;font-weight:600;color:var(--lh-mid);">—</div>
+        <div id="avg-score" style="font-size:11px;color:var(--lh-gray);margin-top:2px;"></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="s2-nav">
+    <button class="btn-s" onclick="goStep(1)">← Back</button>
+    <button class="btn-p" onclick="goStep(3)">Generate My Roadmap →</button>
+  </div>
+</div>
+
+<!-- ════ STEP 3: RESULTS ════ -->
+<div id="step3" class="step-panel">
+  <div class="s3-inner">
+
+    <div class="s3-title" id="s3-title">Your Agentic AI Roadmap</div>
+    <div class="s3-sub" id="s3-sub"></div>
+
+    <!-- Metrics -->
+    <div class="metrics-row" id="metrics-row"></div>
+
+    <!-- LHC Callout -->
+    <div class="lhc-callout" id="lhc-callout" style="display:none;">
+      <div class="lhc-icon">🏛️</div>
+      <div class="lhc-text">
+        <h3>IBM Lighthouse Council — You May Qualify</h3>
+        <p id="lhc-text-body">Your maturity profile and migration status suggest you are an ideal candidate for the IBM Lighthouse Council — a co-investment program where IBM builds AI agents <em>with</em> you at no development cost, validated on your own operational data. $41.7M+ annual value demonstrated at Avangrid (FY2025 FERC Form 1 actuals).</p>
+      </div>
+      <button class="lhc-cta" onclick="alert('IBM Lighthouse Council interest registered. IBM Consulting will follow up within 2 business days.')">Request Conversation</button>
+    </div>
+
+    <!-- Sovereign notice -->
+    <div class="sov-notice" id="sov-notice" style="display:none;">
+      <strong>⚠️ Sovereign &amp; Data Residency Consideration:</strong> Your compliance maturity and/or region indicates potential data residency requirements (NERC-CIP, GDPR, Australian Privacy Act). AWS GovCloud or SAP Private Cloud deployment should be assessed before production AI workloads. IBM Consulting can provide a regulatory readiness review.
+    </div>
+
+    <!-- Phase Tabs -->
+    <div class="phase-tabs" id="phase-tabs">
+      <button class="ptab active" onclick="switchPhase(1)" id="ptab-1"><span class="pdot pd1"></span>Phase 1 — Invoice to Pay &amp; CRM <span class="pc" id="pc-1">0</span></button>
+      <button class="ptab" onclick="switchPhase(2)" id="ptab-2"><span class="pdot pd2"></span>Phase 2 — Regulatory &amp; Asset <span class="pc" id="pc-2">0</span></button>
+      <button class="ptab" onclick="switchPhase(3)" id="ptab-3"><span class="pdot pd3"></span>Phase 3 — Grid &amp; Innovation <span class="pc" id="pc-3">0</span></button>
+    </div>
+
+    <!-- Domain filter -->
+    <div class="fchips" id="filter-chips"></div>
+
+    <!-- Agent cards -->
+    <div class="agents-grid" id="agents-grid"></div>
+
+    <!-- Roadmap section -->
+    <div class="slabel gold" style="margin-top:8px;">Agent Roadmap — Founding Member Priority</div>
+    <div class="roadmap-row">
+      <div class="rph rph1">
+        <div class="rph-hdr">Phase 1 — Invoice to Pay &amp; CRM (Now)</div>
+        <div class="rph-body" id="roadmap-ph1"></div>
+      </div>
+      <div class="rph rph2">
+        <div class="rph-hdr">Phase 2 — Regulatory &amp; Asset Operations</div>
+        <div class="rph-body" id="roadmap-ph2"></div>
+      </div>
+      <div class="rph rph3">
+        <div class="rph-hdr">Phase 3 — Grid &amp; Customer Innovation</div>
+        <div class="rph-body" id="roadmap-ph3"></div>
+      </div>
+    </div>
+
+    <!-- Wave plan -->
+    <div class="slabel teal">Recommended Implementation Wave Plan</div>
+    <div class="wave-wrap">
+      <table class="wave-tbl">
+        <thead><tr>
+          <th>Wave</th><th>Timeline</th><th>Agent</th><th>Domain</th><th>Est. Annual Value</th><th>Rationale</th>
+        </tr></thead>
+        <tbody id="wave-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Architecture -->
+    <div class="slabel">Next-Generation Architecture</div>
+    <div class="arch-box">
+      <div class="arch-h">AWS Bedrock + SAP S/4HANA Utilities Agentic Stack</div>
+      <div class="arch-sub" id="arch-sub">5-layer architecture — layers highlighted based on your maturity scores</div>
+      <div class="arch-layers" id="arch-layers"></div>
+    </div>
+
+    <!-- IBM Garage -->
+    <div style="background:var(--lh-teal-l);border-left:3px solid var(--lh-teal);border-radius:0 4px 4px 0;padding:14px 18px;margin-bottom:26px;">
+      <div class="slabel teal" style="margin-bottom:8px;">IBM Garage Co-Build Methodology</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div style="background:#fff;border-radius:3px;padding:12px;">
+          <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--lh-teal);opacity:.5;line-height:1;margin-bottom:4px;">01</div>
+          <div style="font-size:11px;font-weight:700;color:var(--lh-teal);margin-bottom:4px;">Co-Define</div>
+          <div style="font-size:10px;color:var(--lh-gray);line-height:1.45;">Utility SMEs and IBM jointly define each agent's goal, KPIs, and success criteria before development begins — grounded in your operational data and financial baseline.</div>
+        </div>
+        <div style="background:#fff;border-radius:3px;padding:12px;">
+          <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--lh-teal);opacity:.5;line-height:1;margin-bottom:4px;">02</div>
+          <div style="font-size:11px;font-weight:700;color:var(--lh-teal);margin-bottom:4px;">Co-Build</div>
+          <div style="font-size:10px;color:var(--lh-gray);line-height:1.45;">Three structured Council feedback gates (Weeks 10, 18, 22) where your team interacts with working agents on real data. Shadow mode runs before any agent goes live.</div>
+        </div>
+        <div style="background:#fff;border-radius:3px;padding:12px;">
+          <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--lh-teal);opacity:.5;line-height:1;margin-bottom:4px;">03</div>
+          <div style="font-size:11px;font-weight:700;color:var(--lh-teal);margin-bottom:4px;">Co-Validate</div>
+          <div style="font-size:10px;color:var(--lh-gray);line-height:1.45;">Outcome baseline agreed jointly. IBM's subscription — 5% of measured savings — starts only after your utility confirms the baseline is fair. Incentives permanently aligned.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <button class="btn-s" onclick="goStep(2)">← Adjust Maturity</button>
+      <button class="btn-p" onclick="alert('A consultant will reach out within 2 business days to discuss your roadmap.')">Book a Strategy Session →</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   DATA CONSTANTS
+════════════════════════════════════════════════ */
+
+const AXES = [
+  { key:'platform',    label:'SAP Platform Maturity',      tag:'S/4HANA / IS-U',      desc:'Data quality, API coverage, migration completeness, BAPI readiness' },
+  { key:'customer',    label:'Customer Data & FI-CA Quality', tag:'FI-CA / CRM',       desc:'Account completeness, DPA portfolio health, billing history, contact data' },
+  { key:'meter_data',  label:'Meter & Usage Data',          tag:'MDM / AMI',            desc:'AMI penetration %, interval data availability, read quality, estimation rates' },
+  { key:'ot_it',       label:'OT/IT Convergence',           tag:'SCADA / IoT / Edge',   desc:'SCADA integration depth, real-time sensor feeds, network segmentation maturity' },
+  { key:'field_ops',   label:'Field Operations',            tag:'FSM / PM / EAM',       desc:'Mobile workforce digitisation, work order completion rates, asset condition tracking' },
+  { key:'regulatory',  label:'Regulatory Compliance',       tag:'FERC / GRC / USofA',   desc:'Audit trail maturity, FERC USofA account mapping, rate case readiness, NRA exposure' },
+  { key:'realtime',    label:'Real-time Processing',        tag:'Event Mesh / BTP',     desc:'Event-driven vs. batch architecture, streaming capability, API response times' },
+  { key:'ai',          label:'AI/ML Readiness',             tag:'Bedrock / BTP AI',     desc:'Data science team capability, model governance, MLOps maturity, training data quality' },
+  { key:'market_comm', label:'Market Communications',       tag:'IDEX / MSATS / EDI',   desc:'Market messaging standards, settlement system integration, EDIFACT / MSATS compliance' },
+  { key:'compliance',  label:'Sovereign & Data Compliance', tag:'GRC / NERC-CIP / Cloud', desc:'Data residency requirements, NERC-CIP controls, cloud security classification' },
+];
+
+const AGENTS = [
+  /* ── PHASE 1 ── */
+  {
+    id:'billing', name:'Billing AIgent', persona:'Billing Specialist',
+    phase:1, domain:'billing', domain_lbl:'Invoice to Pay',
+    kpi:'40% improvement in billing accuracy',
+    annual_base:11, // $M Avangrid base case
+    value_basis:'Billing dispute reduction + NRA penalty avoidance + supervisor queue FTE freed',
+    what:'Reviews billing exceptions, auto-corrects discrepancies within tolerance rules, auto-reruns billing on data errors, auto-releases bills, eliminates supervisor queue bottlenecks.',
+    modules:['FI-CA','IS-U Billing','Device Mgmt','PM'],
+    aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless'],
+    effort:'Low',
+    requires:{ platform:3.0, customer:3.0, ai:2.5 },
+    util_types:['electric','integrated','gas','water','multi'],
+  },
+  {
+    id:'collection', name:'Collection AIgent', persona:'Collection Specialist',
+    phase:1, domain:'collections', domain_lbl:'Collections',
+    kpi:'20% improvement in payment collection rate',
+    annual_base:18,
+    value_basis:'DPA portfolio recovery (10 pt improvement) — $90M+ DPA portfolio at Avangrid; credit loss reduction',
+    what:'Risk-scores DPA accounts daily, micro-adjusts installment schedules, generates risk-tiered dunning letters, executes escalation steps autonomously.',
+    modules:['FI-CA','FSCM','Collections Mgmt','SAP Service Cloud'],
+    aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless','DynamoDB'],
+    effort:'Low',
+    requires:{ platform:3.0, customer:3.5, ai:3.0 },
+    util_types:['electric','gas','integrated','water','multi','retailer'],
+  },
+  {
+    id:'highbill', name:'High Bill AIgent', persona:'Billing Specialist',
+    phase:1, domain:'billing', domain_lbl:'Invoice to Pay',
+    kpi:'50% reduction in high bill complaint rates',
+    annual_base:5,
+    value_basis:'Formal NYPSC/PURA complaint reduction + NRA penalty avoidance + re-read efficiency',
+    what:'Identifies root causes of high bills before complaints are filed, sends proactive pre-bill notifications when bills exceed prior-year by 20%+, initiates re-read orders autonomously.',
+    modules:['IS-U Billing','MDM / AMI','PM','Weather API'],
+    aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless'],
+    effort:'Low',
+    requires:{ platform:2.5, meter_data:3.0, customer:2.5 },
+    util_types:['electric','gas','integrated','multi'],
+  },
+  {
+    id:'dispute', name:'Dispute Resolution AIgent', persona:'Technical Support Representative',
+    phase:1, domain:'customer', domain_lbl:'CRM',
+    kpi:'20% increase in customer satisfaction (CSAT)',
+    annual_base:3,
+    value_basis:'CSAT improvement + PSC/PURA audit compliance + reduced outside resolution cost',
+    what:'Retrieves complete account event history in seconds, identifies root causes with evidence, prepares audit-ready resolution documentation for representative review.',
+    modules:['FI-CA','IS-U','SAP Service Cloud v2','Case Mgmt'],
+    aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless'],
+    effort:'Low',
+    requires:{ platform:3.0, customer:3.0, ai:2.0 },
+    util_types:'all',
+  },
+  {
+    id:'csupport', name:'Customer Support AIgent', persona:'Customer Service Representative',
+    phase:1, domain:'customer', domain_lbl:'CRM',
+    kpi:'25% reduction in Agent Handling Time (AHT)',
+    annual_base:4.7,
+    value_basis:'Contact center O&M reduction via AHT improvement and self-service deflection',
+    what:'Predicts query category in real time, routes contacts intelligently, surfaces next best actions, enables self-service deflection for high-frequency query types.',
+    modules:['SAP Service Cloud v2','CRM','IS-U','SAP Joule'],
+    aws:['Bedrock Nova Pro','AgentCore','Lambda','ECS Fargate'],
+    effort:'Medium',
+    requires:{ platform:2.5, customer:3.0, ai:3.0, realtime:2.5 },
+    util_types:'all',
+  },
+  /* ── PHASE 2 ── */
+  {
+    id:'reg_acc', name:'Regulatory Accounting AIgent', persona:'Regulatory Affairs Specialist',
+    phase:2, domain:'regulatory', domain_lbl:'Regulatory',
+    kpi:'Full FERC USofA compliance, accurate rate base, earned return defence',
+    annual_base:null,
+    value_basis:'Rate case payback: rate base accuracy + earned return defence + audit-ready regulatory asset tracking. Reduces outside counsel cost.',
+    what:'Auto-maps transactions to FERC accounts, flags mis-postings, prepares regulatory asset schedules, tracks AFUDC, and produces rate case testimony workpapers.',
+    modules:['FI','CO','SAC','GRC','FERC USofA Mapping'],
+    aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless','S3'],
+    effort:'Medium',
+    requires:{ platform:4.0, regulatory:4.0, ai:3.5 },
+    util_types:['electric','gas','integrated','multi'],
+  },
+  {
+    id:'wam', name:'Work & Asset Mgmt AIgent', persona:'Asset Manager / Field Ops Lead',
+    phase:2, domain:'field', domain_lbl:'Field & Asset',
+    kpi:'Capital efficiency, predictive maintenance, O&M vs. capital accuracy',
+    annual_base:null,
+    value_basis:'Rate case payback: CWIP timing, capital vs O&M classification, asset performance documentation for rate case evidence.',
+    what:'Prioritises work orders by risk/cost, tracks capital vs. O&M classification in real time, monitors CWIP aging, flags maintenance priority based on condition data.',
+    modules:['PM (Plant Maintenance)','PS (Project System)','EAM','SAP FSM'],
+    aws:['Bedrock Nova Pro','AgentCore','IoT Core','DynamoDB'],
+    effort:'Medium',
+    requires:{ platform:3.5, ot_it:3.0, field_ops:3.0, ai:3.0 },
+    util_types:['electric','gas','integrated','water','multi'],
+  },
+  {
+    id:'rate_case', name:'Rate Case Support AIgent', persona:'Regulatory Counsel / Finance Director',
+    phase:2, domain:'regulatory', domain_lbl:'Regulatory',
+    kpi:'Faster rate case filings, reduced outside counsel cost, defensible evidence packages',
+    annual_base:null,
+    value_basis:'Directly reduces outside counsel and consultant cost. Accelerates rate case filing preparation. Strengthens regulatory standing.',
+    what:'Aggregates KPI evidence across all deployed agents, produces audit-ready workpapers, flags regulatory data gaps, and prepares testimony packages for rate case proceedings.',
+    modules:['FI/CO','SAC','GRC','Document Intelligence'],
+    aws:['Bedrock Nova Pro','AgentCore','S3','Kendra'],
+    effort:'High',
+    requires:{ platform:4.0, regulatory:4.5, ai:4.0 },
+    util_types:['electric','gas','integrated','multi'],
+  },
+  /* ── PHASE 3 ── */
+  {
+    id:'grid_der', name:'Grid Resilience / DER AIgent', persona:'Grid Operations / DER Program Manager',
+    phase:3, domain:'grid', domain_lbl:'Grid & DER',
+    kpi:'DER enrollment automation, demand response dispatch, SAIFI improvement',
+    annual_base:null,
+    value_basis:'REV/demand response compliance; SAIFI improvement; grid investment justification for rate case; DER program compliance.',
+    what:'Analyses AMI data for outage prediction, optimises DER dispatch, manages demand response enrollment, predicts SAIFI events, and supports grid investment justification.',
+    modules:['SAP Cloud for Energy','MDM/AMI','PM','SCADA Integration'],
+    aws:['Bedrock Nova Pro','AgentCore','IoT Core','Timestream'],
+    effort:'High',
+    requires:{ platform:3.5, meter_data:4.0, ot_it:4.0, realtime:3.5 },
+    util_types:['electric','integrated','multi'],
+  },
+  {
+    id:'prepay', name:'Prepayment & Innovative Programs AIgent', persona:'Customer Programs Manager',
+    phase:3, domain:'customer', domain_lbl:'CRM',
+    kpi:'Voluntary prepay enrollment, bad debt elimination for enrolled accounts',
+    annual_base:null,
+    value_basis:'Bad debt reduction; low-income program compliance; CSAT improvement; demand response engagement revenue.',
+    what:'Screens eligibility for prepay/level-pay/TOU programs, automates enrollment, triggers balance threshold alerts, manages demand response opt-ins and incentive tracking.',
+    modules:['FI-CA','IS-U Contract','CRM','SAP Service Cloud'],
+    aws:['Bedrock Nova Pro','AgentCore','DynamoDB','SNS'],
+    effort:'Medium',
+    requires:{ platform:3.0, customer:3.5, ai:3.0 },
+    util_types:'all',
+  },
+];
+
+const DOMAINS = [
+  { key:'all',        lbl:'All Agents' },
+  { key:'billing',    lbl:'Invoice to Pay' },
+  { key:'collections',lbl:'Collections' },
+  { key:'customer',   lbl:'CRM & Customer' },
+  { key:'regulatory', lbl:'Regulatory' },
+  { key:'field',      lbl:'Field & Asset' },
+  { key:'grid',       lbl:'Grid & DER' },
+];
+
+const ROI_SCALE = { small:0.25, mid:0.60, large:1.00, xl:2.00 };
+
+/* ════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════ */
+let profile = { type:null, customers:'', sap_status:'', regulatory:'', region:'' };
+let scores = { platform:2.5, customer:2.5, meter_data:2.5, ot_it:2.5, field_ops:2.5, regulatory:2.5, realtime:2.5, ai:2.5, market_comm:2.5, compliance:2.5 };
+let activePhase = 1;
+let activeDomain = 'all';
+let radarChart = null;
+
+/* ════════════════════════════════════════════════
+   STEP NAVIGATION
+════════════════════════════════════════════════ */
+function selectType(t) {
+  profile.type = t;
+  document.querySelectorAll('.util-card').forEach(c => c.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+}
+
+function goStep(n) {
+  if (n === 2 && !profile.type) {
+    alert('Please select a utility type to continue.');
+    return;
+  }
+  // Sync profile fields
+  if (n >= 2) {
+    profile.customers   = document.getElementById('p-customers').value;
+    profile.sap_status  = document.getElementById('p-sap').value;
+    profile.regulatory  = document.getElementById('p-regulatory').value;
+    profile.region      = document.getElementById('p-region').value;
+  }
+  // Hide all panels
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  // Update step bar
+  ['1','2','3'].forEach(i => {
+    const el = document.getElementById('si-' + i);
+    el.classList.remove('active','done');
+    if (parseInt(i) < n) el.classList.add('done');
+    if (parseInt(i) === n) el.classList.add('active');
+  });
+  if (n === 2 && !radarChart) initRadar();
+  if (n === 3) renderStep3();
+  window.scrollTo(0, 0);
+}
+
+/* ════════════════════════════════════════════════
+   STEP 2: AXES + RADAR
+════════════════════════════════════════════════ */
+function buildAxes() {
+  const container = document.getElementById('axes-container');
+  container.innerHTML = '';
+  AXES.forEach(ax => {
+    const val = scores[ax.key];
+    const pct = ((val - 1) / 4) * 100;
+    const row = document.createElement('div');
+    row.className = 'axis-row';
+    row.innerHTML = `
+      <div class="axis-hdr">
+        <span class="axis-name">${ax.label} <span class="axis-tag">${ax.tag}</span></span>
+        <span class="axis-score" id="score-${ax.key}">${val.toFixed(1)}</span>
+      </div>
+      <input type="range" class="axis-slider" id="slider-${ax.key}"
+        min="1" max="5" step="0.5" value="${val}"
+        oninput="updateSlider('${ax.key}',parseFloat(this.value))"
+        style="background:linear-gradient(to right,var(--lh-mid) ${pct}%,#e0e0e0 ${pct}%)">
+      <div class="axis-desc">${ax.desc}</div>`;
+    container.appendChild(row);
+  });
+}
+
+function updateSlider(key, val) {
+  scores[key] = val;
+  const pct = ((val - 1) / 4) * 100;
+  const sl = document.getElementById('slider-' + key);
+  if (sl) sl.style.background = `linear-gradient(to right,var(--lh-mid) ${pct}%,#e0e0e0 ${pct}%)`;
+  const sc = document.getElementById('score-' + key);
+  if (sc) sc.textContent = val.toFixed(1);
+  updateRadar();
+  updateOverallTier();
+}
+
+function initRadar() {
+  buildAxes();
+  const ctx = document.getElementById('radar-canvas').getContext('2d');
+  const labels = AXES.map(a => a.label.split(' ').slice(0,2).join(' '));
+  radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Maturity',
+        data: AXES.map(a => scores[a.key]),
+        backgroundColor: 'rgba(26,86,160,0.12)',
+        borderColor: '#1A56A0',
+        borderWidth: 2,
+        pointBackgroundColor: '#1A56A0',
+        pointRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      scales: { r: { min:0, max:5, ticks:{ stepSize:1, font:{size:9} }, pointLabels:{ font:{size:9}, color:'#4A5568' } } },
+      plugins: { legend:{ display:false } }
+    }
+  });
+  updateOverallTier();
+}
+
+function updateRadar() {
+  if (!radarChart) return;
+  radarChart.data.datasets[0].data = AXES.map(a => scores[a.key]);
+  radarChart.update('none');
+}
+
+function updateOverallTier() {
+  const vals = AXES.map(a => scores[a.key]);
+  const avg = vals.reduce((s,v) => s + v, 0) / vals.length;
+  const aiScore = scores.ai;
+  let label, color;
+  if (aiScore < 2.0 && avg >= 3.0) { label='AI Prerequisites Needed'; color='#8B6A1A'; }
+  else if (avg < 2.0) { label='Foundational'; color='#C53030'; }
+  else if (avg < 3.0) { label='Developing';   color='#8B6A1A'; }
+  else if (avg < 3.5) { label='Candidate';    color='#6B5C00'; }
+  else if (avg < 4.5) { label='Primed';       color:'#276749'; }
+  else                { label='Leading';      color='#0A4420'; }
+  document.getElementById('overall-tier').textContent = label;
+  document.getElementById('overall-tier').style.color = color;
+  document.getElementById('avg-score').textContent = `Average: ${avg.toFixed(2)} / 5.0`;
+}
+
+/* ════════════════════════════════════════════════
+   AGENT LOGIC
+════════════════════════════════════════════════ */
+function agentStatus(agent) {
+  const reqs = agent.requires;
+  const keys = Object.keys(reqs);
+  let met = 0;
+  keys.forEach(k => { if (scores[k] >= reqs[k]) met++; });
+  const ratio = met / keys.length;
+  if (ratio === 1) return 'available';
+  if (ratio >= 0.5) return 'partial';
+  return 'blocked';
+}
+
+function isRelevant(agent) {
+  if (agent.util_types === 'all') return true;
+  return agent.util_types.includes(profile.type);
+}
+
+function scaledROI(agent) {
+  if (agent.annual_base === null) return null;
+  const scale = ROI_SCALE[profile.customers] || 1.0;
+  return (agent.annual_base * scale).toFixed(1);
+}
+
+function reqDots(agent) {
+  return Object.entries(agent.requires).map(([k, min]) => {
+    const ax = AXES.find(a => a.key === k);
+    const met = scores[k] >= min;
+    return `<span class="req-i"><span class="rdot ${met ? 'r-met' : 'r-unmet'}"></span><span>${ax ? ax.tag : k} ≥${min}</span></span>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════
+   RENDER STEP 3
+════════════════════════════════════════════════ */
+function renderStep3() {
+  renderMetrics();
+  renderLHC();
+  renderSovereign();
+  renderDomainChips();
+  renderAgents();
+  renderRoadmap();
+  renderWavePlan();
+  renderArch();
+  // Update title
+  const utilLabel = { electric:'Electric Network Operator', retailer:'Energy Retailer', integrated:'Integrated IOU', gas:'Gas Utility', water:'Water Utility', multi:'Multi-utility' };
+  document.getElementById('s3-title').textContent = 'Your Agentic AI Roadmap';
+  const typeStr = utilLabel[profile.type] || 'Your Utility';
+  const sapStr = profile.sap_status ? ` · SAP: ${document.getElementById('p-sap').options[document.getElementById('p-sap').selectedIndex]?.text}` : '';
+  document.getElementById('s3-sub').textContent = `${typeStr}${sapStr}`;
+}
+
+function renderMetrics() {
+  const relevant = AGENTS.filter(isRelevant);
+  const available = relevant.filter(a => agentStatus(a) === 'available');
+  const phase1Avail = available.filter(a => a.phase === 1);
+  const totalROI = phase1Avail.reduce((s, a) => {
+    const r = scaledROI(a);
+    return r ? s + parseFloat(r) : s;
+  }, 0);
+  const avgScore = (AXES.map(a => scores[a.key]).reduce((s,v) => s+v, 0) / AXES.length).toFixed(1);
+
+  const phaseCounts = [1,2,3].map(ph => {
+    const tot = relevant.filter(a => a.phase === ph).length;
+    const av  = available.filter(a => a.phase === ph).length;
+    document.getElementById('pc-' + ph).textContent = `${av}/${tot}`;
+    return { tot, av };
+  });
+
+  document.getElementById('metrics-row').innerHTML = `
+    <div class="m-card"><span class="m-val">${available.length}</span><span class="m-lbl">Agents Available Now</span></div>
+    <div class="m-card"><span class="m-val">${relevant.filter(a=>agentStatus(a)==='partial').length}</span><span class="m-lbl">Partial — Maturity Gap</span></div>
+    <div class="m-card"><span class="m-val">$${totalROI.toFixed(0)}M</span><span class="m-lbl">Est. Phase 1 Annual Value</span></div>
+    <div class="m-card"><span class="m-val">${avgScore}</span><span class="m-lbl">Avg Maturity Score / 5</span></div>
+    <div class="m-card"><span class="m-val">${relevant.length}</span><span class="m-lbl">Agents in Your Roadmap</span></div>`;
+}
+
+function renderLHC() {
+  const eligible = profile.customers && profile.customers !== 'small'
+    && ['migration','live','established'].includes(profile.sap_status)
+    && scores.platform >= 3.0 && scores.customer >= 3.0 && scores.ai >= 2.5;
+  document.getElementById('lhc-callout').style.display = eligible ? 'flex' : 'none';
+}
+
+function renderSovereign() {
+  const show = scores.compliance >= 4.0 || ['eu','ca','apac'].includes(profile.region);
+  document.getElementById('sov-notice').style.display = show ? 'block' : 'none';
+}
+
+function renderDomainChips() {
+  // Only show domains relevant to active phase
+  const relevant = AGENTS.filter(a => a.phase === activePhase && isRelevant(a));
+  const domains = ['all', ...new Set(relevant.map(a => a.domain))];
+  document.getElementById('filter-chips').innerHTML = domains.map(d => {
+    const info = DOMAINS.find(x => x.key === d) || { lbl: d };
+    return `<button class="fchip ${activeDomain === d ? 'active' : ''}" onclick="switchDomain('${d}')">${info.lbl}</button>`;
+  }).join('');
+}
+
+function renderAgents() {
+  let agents = AGENTS.filter(a => a.phase === activePhase && isRelevant(a));
+  if (activeDomain !== 'all') agents = agents.filter(a => a.domain === activeDomain);
+
+  // Sort: available → partial → blocked, then effort asc
+  const effortRank = { Low:0, Medium:1, High:2 };
+  const statusRank = { available:0, partial:1, blocked:2 };
+  agents.sort((a,b) => {
+    const sd = statusRank[agentStatus(a)] - statusRank[agentStatus(b)];
+    if (sd !== 0) return sd;
+    return (effortRank[a.effort] || 0) - (effortRank[b.effort] || 0);
+  });
+
+  if (!agents.length) {
+    document.getElementById('agents-grid').innerHTML = '<div class="empty-state">No agents available for this filter combination.</div>';
+    return;
+  }
+
+  document.getElementById('agents-grid').innerHTML = agents.map(agent => {
+    const status = agentStatus(agent);
+    const roi = scaledROI(agent);
+    const statusClass = { available:'av', partial:'pa', blocked:'bl' }[status];
+    const pillClass   = { available:'sp-av', partial:'sp-pa', blocked:'sp-bl' }[status];
+    const pillLabel   = { available:'Available', partial:'Partial — Gap', blocked:'Blocked' }[status];
+
+    const roiBlock = roi
+      ? `<div class="ag-roi"><div class="roi-val">$${roi}M<span style="font-size:12px">/yr</span></div><div class="roi-basis">${agent.value_basis}</div></div>`
+      : `<div class="ag-roi"><div class="roi-val" style="font-size:14px;color:var(--lh-teal)">Phase ${agent.phase} Value</div><div class="roi-basis">${agent.value_basis}</div></div>`;
+
+    const modTags = agent.modules.map(m => `<span class="mtag">${m}</span>`).join('');
+    const awsTags = agent.aws.map(s => `<span class="mtag aws">${s}</span>`).join('');
+
+    return `
+    <div class="ag-card ${statusClass}">
+      <div class="ag-hdr">
+        <div><div class="ag-name">${agent.name}</div><div class="ag-persona">${agent.persona}</div></div>
+        <span class="sp ${pillClass}">${pillLabel}</span>
+      </div>
+      <div class="ag-kpi">KPI Goal: <strong>${agent.kpi}</strong></div>
+      ${roiBlock}
+      <div class="ag-modules">${modTags}</div>
+      <div class="ag-modules">${awsTags}</div>
+      <div class="ag-reqs">${reqDots(agent)}</div>
+    </div>`;
+  }).join('');
+}
+
+function switchPhase(ph) {
+  activePhase = ph;
+  activeDomain = 'all';
+  ['1','2','3'].forEach(i => {
+    document.getElementById('ptab-' + i).classList.toggle('active', parseInt(i) === ph);
+  });
+  renderDomainChips();
+  renderAgents();
+}
+
+function switchDomain(d) {
+  activeDomain = d;
+  document.querySelectorAll('.fchip').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderAgents();
+}
+
+function renderRoadmap() {
+  [1,2,3].forEach(ph => {
+    const agents = AGENTS.filter(a => a.phase === ph && isRelevant(a));
+    document.getElementById('roadmap-ph' + ph).innerHTML = agents.map(a => {
+      const st = agentStatus(a);
+      const badge = st === 'available' ? '✓' : st === 'partial' ? '~' : '✗';
+      return `<div class="r-agent"><strong>${badge} ${a.name}</strong><em>${a.kpi}</em></div>`;
+    }).join('') || '<div class="r-agent" style="color:var(--lh-gray);font-style:italic;">No agents applicable for your utility type.</div>';
+  });
+}
+
+function renderWavePlan() {
+  const relevant = AGENTS.filter(isRelevant);
+  const rows = [];
+
+  relevant.forEach(agent => {
+    const st = agentStatus(agent);
+    const roi = scaledROI(agent);
+    let wave, waveClass, rationale;
+
+    if (agent.phase === 1) {
+      if (st === 'available' && agent.effort === 'Low') {
+        wave = 1; waveClass = 'wb-1';
+        rationale = 'High readiness, low effort — immediate quick win';
+      } else if (st === 'available') {
+        wave = 2; waveClass = 'wb-2';
+        rationale = 'Ready but requires integration work';
+      } else if (st === 'partial') {
+        wave = 2; waveClass = 'wb-2';
+        rationale = 'Close to ready — address maturity gaps in Wave 1';
+      } else {
+        wave = 3; waveClass = 'wb-3';
+        rationale = 'Maturity gaps to resolve first';
+      }
+    } else if (agent.phase === 2) {
+      wave = st === 'available' ? 2 : 3; waveClass = wave === 2 ? 'wb-2' : 'wb-3';
+      rationale = wave === 2 ? 'Mature enough for Phase 2 delivery' : 'Requires Phase 1 foundation + maturity uplift';
+    } else {
+      wave = 3; waveClass = 'wb-3';
+      rationale = 'Phase 3 — after Phase 1 & 2 foundation established';
+    }
+
+    const timeline = wave === 1 ? 'Months 1–6' : wave === 2 ? 'Months 6–15' : 'Months 15–24+';
+    const roiStr = roi ? `$${roi}M/yr` : 'Phase ' + agent.phase + ' TBD';
+
+    rows.push({ wave, timeline, agent, waveClass, rationale, roiStr });
+  });
+
+  rows.sort((a,b) => a.wave - b.wave || a.agent.phase - b.agent.phase);
+
+  document.getElementById('wave-tbody').innerHTML = rows.map(r => `
+    <tr>
+      <td><span class="wb ${r.waveClass}">Wave ${r.wave}</span></td>
+      <td style="white-space:nowrap;color:var(--lh-gray)">${r.timeline}</td>
+      <td style="font-weight:600;color:var(--lh-blue)">${r.agent.name}</td>
+      <td style="color:var(--lh-gray)">${r.agent.domain_lbl}</td>
+      <td style="font-weight:700;color:var(--lh-mid)">${r.roiStr}</td>
+      <td style="color:var(--lh-gray)">${r.rationale}</td>
+    </tr>`).join('');
+}
+
+function renderArch() {
+  const p = scores.platform, ai = scores.ai, rt = scores.realtime,
+        ot = scores.ot_it, md = scores.meter_data, cu = scores.customer;
+
+  const layers = [
+    {
+      lbl: 'Data Foundation',
+      nodes: [
+        { n:'SAP S/4HANA IS-U', cls: p >= 3.0 ? 'teal' : '' },
+        { n:'FI-CA / FI-CA Collections', cls: cu >= 3.0 ? 'teal' : '' },
+        { n:'MDM / AMI', cls: md >= 3.0 ? 'teal' : 'dim' },
+        { n:'SCADA / OT Feeds', cls: ot >= 3.0 ? 'teal' : 'dim' },
+        { n:'FERC / GRC Data', cls: scores.regulatory >= 3.0 ? '' : 'dim' },
+      ]
+    },
+    {
+      lbl: 'Integration Layer',
+      nodes: [
+        { n:'SAP Event Mesh', cls: rt >= 3.0 ? '' : 'dim' },
+        { n:'SAP BTP', cls: p >= 3.5 ? '' : 'dim' },
+        { n:'BAPI / OData APIs', cls: p >= 2.5 ? '' : 'dim' },
+        { n:'Real-time Streaming', cls: rt >= 3.5 ? '' : 'dim' },
+        { n:'Market Comms (IDEX)', cls: scores.market_comm >= 3.0 ? '' : 'dim' },
+      ]
+    },
+    {
+      lbl: 'AI Platform',
+      nodes: [
+        { n:'AWS Bedrock Nova Pro', cls: ai >= 2.5 ? 'gold' : 'dim' },
+        { n:'AWS AgentCore', cls: ai >= 3.0 ? 'gold' : 'dim' },
+        { n:'OpenSearch Serverless', cls: ai >= 2.5 ? '' : 'dim' },
+        { n:'Amazon DynamoDB', cls: '' },
+        { n:'SAP BTP AI Core', cls: p >= 3.5 ? '' : 'dim' },
+      ]
+    },
+    {
+      lbl: 'Agent Orchestration',
+      nodes: [
+        { n:'Multi-Agent Orchestrator', cls: ai >= 3.0 ? 'gold' : 'dim' },
+        { n:'Tool Registry / MCP', cls: ai >= 3.0 ? '' : 'dim' },
+        { n:'Audit Trail Engine', cls: '' },
+        { n:'Shadow Mode Controller', cls: '' },
+        { n:'Human-in-Loop Gateway', cls: '' },
+      ]
+    },
+    {
+      lbl: 'Engagement Layer',
+      nodes: [
+        { n:'SAP Joule', cls: p >= 3.5 ? '' : 'dim' },
+        { n:'SAP Service Cloud v2', cls: cu >= 3.0 ? '' : 'dim' },
+        { n:'CSR Workbench', cls: '' },
+        { n:'Self-Service Portal', cls: rt >= 3.0 ? '' : 'dim' },
+        { n:'Regulatory Workpapers', cls: scores.regulatory >= 3.5 ? '' : 'dim' },
+      ]
+    },
+  ];
+
+  document.getElementById('arch-layers').innerHTML = layers.map(l => `
+    <div class="arch-layer">
+      <div class="arch-lbl">${l.lbl}</div>
+      <div class="arch-nodes">${l.nodes.map(n => `<span class="anode ${n.cls}">${n.n}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  // Radar built on goStep(2)
+});
+</script>
+</body>
+</html>
