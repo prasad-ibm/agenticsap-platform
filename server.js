@@ -58,17 +58,19 @@ async function initDB() {
   // ── assessments (reference a client) ──────────────────────────────────────
   await pool.query(`
     CREATE TABLE IF NOT EXISTS compass_assessments (
-      id          TEXT PRIMARY KEY,
-      client_id   TEXT REFERENCES compass_clients(id) ON DELETE SET NULL,
-      name        TEXT NOT NULL,
-      sap_version TEXT NOT NULL DEFAULT '',
-      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      id               TEXT PRIMARY KEY,
+      client_id        TEXT REFERENCES compass_clients(id) ON DELETE SET NULL,
+      name             TEXT NOT NULL,
+      sap_version      TEXT NOT NULL DEFAULT '',
+      selected_modules TEXT[] NOT NULL DEFAULT '{}',
+      created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
 
-  // ── migrate: add client_id to old schema if it doesn't exist ─────────────
-  await pool.query(`ALTER TABLE compass_assessments ADD COLUMN IF NOT EXISTS client_id TEXT REFERENCES compass_clients(id) ON DELETE SET NULL`);
+  // ── migrate: add columns to old schema if absent ──────────────────────────
+  await pool.query(`ALTER TABLE compass_assessments ADD COLUMN IF NOT EXISTS client_id        TEXT REFERENCES compass_clients(id) ON DELETE SET NULL`);
+  await pool.query(`ALTER TABLE compass_assessments ADD COLUMN IF NOT EXISTS selected_modules TEXT[] NOT NULL DEFAULT '{}'`);
 
   // ── migrate: promote legacy company/contact rows into compass_clients ──────
   // Only runs if old columns exist and there are unlinked rows.
@@ -296,6 +298,22 @@ app.get('/api/compass/assessments/:id', dbRequired, async (req, res) => {
       [req.params.id]
     );
     res.json({ ...assessment, modules });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Update assessment config (sap_version, selected_modules)
+app.put('/api/compass/assessments/:id', dbRequired, async (req, res) => {
+  const sap_version      = (req.body.sap_version || '').trim();
+  const selected_modules = Array.isArray(req.body.selected_modules) ? req.body.selected_modules : [];
+  try {
+    const { rows, rowCount } = await pool.query(
+      `UPDATE compass_assessments
+       SET sap_version=$2, selected_modules=$3, updated_at=NOW()
+       WHERE id=$1 RETURNING *`,
+      [req.params.id, sap_version, selected_modules]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Assessment not found.' });
+    res.json(rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

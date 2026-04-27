@@ -414,6 +414,19 @@
   </div>
 </nav>
 
+<!-- MODULE PICKER MODAL -->
+<div class="modal-overlay" id="modal-modules">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-title">Configure Modules</div>
+    <div class="modal-sub">Choose which SAP modules to include in this assessment. Already-scored modules remain in the database even if unchecked.</div>
+    <div id="module-picker-body" style="max-height:360px;overflow-y:auto;border:1px solid #e0e0e0;padding:0.75rem;background:#fafafa;"></div>
+    <div class="modal-actions" style="margin-top:1.25rem;">
+      <button class="btn-modal-create" onclick="saveModuleSelection()">Apply Selection</button>
+      <button class="btn-modal-cancel" onclick="closeModulePicker()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- NEW ASSESSMENT MODAL -->
 <div class="modal-overlay" id="modal-new">
   <div class="modal-box">
@@ -461,6 +474,10 @@
         <option value="">— Select assessment —</option>
       </select>
       <button class="btn-new-assessment" onclick="openNewModal()">+ New Assessment</button>
+    </div>
+
+    <div id="module-configure-bar" style="display:none;padding:0.5rem 1rem;border-bottom:1px solid #e0e0e0;background:#fafafa;">
+      <button onclick="openModulePicker()" style="font-family:'IBM Plex Sans',sans-serif;font-size:0.8125rem;background:none;border:none;color:var(--sap-blue);font-weight:600;cursor:pointer;padding:0;">⚙ Configure Modules</button>
     </div>
 
     <div class="sidebar-modules" id="module-list">
@@ -615,6 +632,7 @@ let moduleScores        = {};   // code -> { axis_platform, ... }
 let assessments         = [];
 let radarChart          = null;
 let saveTimer           = null;
+let selectedModules     = [];   // [] means "not yet configured" → show picker
 
 // ── UTILITIES ────────────────────────────────────────────────────────────────
 function avg(scores) {
@@ -676,11 +694,18 @@ async function loadAssessment(id) {
     currentAssessmentId = id;
     moduleScores = {};
     (data.modules || []).forEach(m => { moduleScores[m.module_code] = m; });
+    selectedModules = data.selected_modules || [];
     document.getElementById('assessment-name-display').textContent = data.name;
     document.getElementById('assessment-select').value = id;
+    document.getElementById('module-configure-bar').style.display = 'block';
     renderModuleList();
     document.getElementById('btn-rollup').disabled = false;
-    showWelcome();
+    // Auto-open picker if modules haven't been configured yet
+    if (selectedModules.length === 0) {
+      openModulePicker();
+    } else {
+      showWelcome();
+    }
   } catch (e) { alert('Failed to load assessment: ' + e.message); }
 }
 
@@ -859,23 +884,30 @@ function scheduleSave() {
 }
 
 // ── MODULE LIST ───────────────────────────────────────────────────────────────
+function activeModules() {
+  return selectedModules.length > 0
+    ? MODULES.filter(m => selectedModules.includes(m.code))
+    : MODULES;
+}
+
 function renderModuleList() {
   const list = document.getElementById('module-list');
   list.innerHTML = '';
-  const groups = [...new Set(MODULES.map(m => m.area))];
+  const visible = activeModules();
+  const groups  = [...new Set(visible.map(m => m.area))];
   groups.forEach(area => {
     const label = document.createElement('div');
     label.className = 'mod-group-label';
     label.textContent = area;
     list.appendChild(label);
-    MODULES.filter(m => m.area === area).forEach(mod => {
+    visible.filter(m => m.area === area).forEach(mod => {
       const btn = document.createElement('button');
       btn.className = 'mod-btn';
       btn.id = 'modbtn-' + mod.code;
       btn.onclick = () => selectModule(mod.code, mod.name);
-      const sc = moduleScores[mod.code];
+      const sc    = moduleScores[mod.code];
       const score = sc ? avg(sc).toFixed(1) : null;
-      const t = sc ? tierFromScore(sc) : null;
+      const t     = sc ? tierFromScore(sc) : null;
       btn.innerHTML = `
         <div class="mod-btn-left">
           <span class="mod-code-badge">${mod.code}</span>
@@ -889,6 +921,70 @@ function renderModuleList() {
     });
   });
 }
+
+// ── MODULE PICKER ─────────────────────────────────────────────────────────────
+function openModulePicker() {
+  const body   = document.getElementById('module-picker-body');
+  const areas  = [...new Set(MODULES.map(m => m.area))];
+  const active = selectedModules.length > 0 ? selectedModules : MODULES.map(m => m.code);
+
+  body.innerHTML = areas.map(area => {
+    const mods = MODULES.filter(m => m.area === area);
+    const rows = mods.map(m => {
+      const scored  = !!moduleScores[m.code];
+      const checked = active.includes(m.code) ? 'checked' : '';
+      return `<label style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0.5rem;cursor:pointer;font-size:0.875rem;">
+        <input type="checkbox" data-code="${m.code}" ${checked} style="accent-color:var(--sap-blue);width:14px;height:14px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:#e0e0e0;padding:1px 5px;color:#161616;">${m.code}</span>
+        <span style="color:#161616;">${m.name}</span>
+        ${scored ? '<span style="font-size:10px;color:var(--green);font-weight:700;margin-left:auto;">✓ scored</span>' : ''}
+      </label>`;
+    }).join('');
+
+    const areaId    = 'area-' + area.replace(/\W/g,'');
+    const allCodes  = mods.map(m => m.code);
+    const allActive = allCodes.every(c => active.includes(c));
+    return `<div style="margin-bottom:0.75rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+        <input type="checkbox" id="${areaId}" ${allActive ? 'checked' : ''} onchange="toggleArea('${area}',this.checked)"
+          style="accent-color:var(--sap-blue);width:14px;height:14px;">
+        <label for="${areaId}" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#525252;cursor:pointer;font-family:'IBM Plex Mono',monospace;">${area}</label>
+      </div>
+      <div style="padding-left:1.25rem;border-left:2px solid #e0e0e0;">${rows}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('modal-modules').classList.add('open');
+}
+
+function toggleArea(area, checked) {
+  MODULES.filter(m => m.area === area).forEach(m => {
+    const cb = document.querySelector(`[data-code="${m.code}"]`);
+    if (cb) cb.checked = checked;
+  });
+}
+
+async function saveModuleSelection() {
+  const codes = [...document.querySelectorAll('#module-picker-body input[data-code]:checked')]
+    .map(cb => cb.dataset.code);
+  if (codes.length === 0) { alert('Please select at least one module.'); return; }
+  try {
+    const current = assessments.find(a => a.id === currentAssessmentId);
+    await apiFetch(`/api/compass/assessments/${currentAssessmentId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ selected_modules: codes, sap_version: current?.sap_version || '' })
+    });
+    selectedModules = codes;
+    closeModulePicker();
+    renderModuleList();
+    if (currentModuleCode && !selectedModules.includes(currentModuleCode)) {
+      selectModule(activeModules()[0]?.code, activeModules()[0]?.name);
+    }
+  } catch (e) { alert('Failed to save: ' + e.message); }
+}
+
+function closeModulePicker() { document.getElementById('modal-modules').classList.remove('open'); }
+document.getElementById('modal-modules').addEventListener('click', e => { if (e.target === e.currentTarget) closeModulePicker(); });
 
 function updateModuleSidebarItem(code) {
   const sc = moduleScores[code];
@@ -961,8 +1057,8 @@ function renderRollup() {
       assessment.name + (assessment.company ? ' — ' + assessment.company : '');
   }
 
-  const scored = MODULES.filter(m => moduleScores[m.code]);
-  const unscored = MODULES.filter(m => !moduleScores[m.code]);
+  const scored   = activeModules().filter(m => moduleScores[m.code]);
+  const unscored = activeModules().filter(m => !moduleScores[m.code]);
   const allAvg = scored.length
     ? scored.reduce((s, m) => s + avg(moduleScores[m.code]), 0) / scored.length
     : 0;
