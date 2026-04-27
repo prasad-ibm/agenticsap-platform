@@ -402,6 +402,7 @@
         <a href="#" class="active"><span>Platform</span></a>
         <div class="c-nav-dropdown-menu">
           <a href="/compass.html" class="active"><span>Maturity Compass</span></a>
+          <a href="/compass-clients.html"><span>Client Summary</span></a>
           <a href="/utilities.html"><span>Utilities Recommender</span></a>
           <a href="#"><span>Agent Atlas</span></a>
           <a href="#"><span>Platform Fit</span></a>
@@ -417,15 +418,30 @@
 <div class="modal-overlay" id="modal-new">
   <div class="modal-box">
     <div class="modal-title">New Assessment</div>
-    <div class="modal-sub">Give this assessment a name so you can find it later.</div>
+    <div class="modal-sub">Client details are saved with the assessment and visible on the summary page.</div>
     <div class="form-group">
       <label class="form-label" for="input-name">Assessment Name *</label>
       <input class="form-input" id="input-name" type="text" placeholder="e.g. ACME Corp Q2 2026" maxlength="120"/>
       <div class="form-error" id="name-error">Please enter an assessment name.</div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="input-company">Company</label>
-      <input class="form-input" id="input-company" type="text" placeholder="Optional" maxlength="120"/>
+      <label class="form-label" for="input-company">Company *</label>
+      <input class="form-input" id="input-company" type="text" placeholder="e.g. ACME Corporation" maxlength="120"/>
+      <div class="form-error" id="company-error">Please enter a company name.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" for="input-contact-name">Contact Name</label>
+        <input class="form-input" id="input-contact-name" type="text" placeholder="Jane Smith" maxlength="120"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" for="input-contact-title">Title</label>
+        <input class="form-input" id="input-contact-title" type="text" placeholder="IT Director" maxlength="120"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-contact-email">Email</label>
+      <input class="form-input" id="input-contact-email" type="email" placeholder="jane@example.com" maxlength="200"/>
     </div>
     <div class="form-group">
       <label class="form-label" for="input-version">SAP Landscape</label>
@@ -681,17 +697,24 @@ async function loadAssessment(id) {
 }
 
 async function createAssessment() {
-  const name = document.getElementById('input-name').value.trim();
-  const err  = document.getElementById('name-error');
-  if (!name) { err.style.display = 'block'; return; }
-  err.style.display = 'none';
+  const name    = document.getElementById('input-name').value.trim();
+  const company = document.getElementById('input-company').value.trim();
+  const nameErr = document.getElementById('name-error');
+  const coErr   = document.getElementById('company-error');
+  let valid = true;
+  if (!name)    { nameErr.style.display = 'block'; valid = false; } else nameErr.style.display = 'none';
+  if (!company) { coErr.style.display  = 'block'; valid = false; } else coErr.style.display  = 'none';
+  if (!valid) return;
   try {
     const data = await apiFetch('/api/compass/assessments', {
       method: 'POST',
       body: JSON.stringify({
         name,
-        company:     document.getElementById('input-company').value.trim(),
-        sap_version: document.getElementById('input-version').value,
+        company,
+        sap_version:   document.getElementById('input-version').value,
+        contact_name:  document.getElementById('input-contact-name').value.trim(),
+        contact_title: document.getElementById('input-contact-title').value.trim(),
+        contact_email: document.getElementById('input-contact-email').value.trim(),
       })
     });
     closeModal();
@@ -994,10 +1017,10 @@ function renderRollup() {
 
 // ── MODAL ──────────────────────────────────────────────────────────────────────
 function openNewModal() {
-  document.getElementById('input-name').value = '';
-  document.getElementById('input-company').value = '';
-  document.getElementById('input-version').value = '';
+  ['input-name','input-company','input-contact-name','input-contact-title','input-contact-email','input-version']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   document.getElementById('name-error').style.display = 'none';
+  document.getElementById('company-error').style.display = 'none';
   document.getElementById('modal-new').classList.add('open');
   setTimeout(() => document.getElementById('input-name').focus(), 100);
 }
@@ -1063,7 +1086,10 @@ async function init() {
   }
 
   await loadAssessments();
-  if (assessments.length > 0) {
+  const deepId = new URLSearchParams(location.search).get('id');
+  if (deepId && assessments.find(a => a.id === deepId)) {
+    await loadAssessment(deepId);
+  } else if (assessments.length > 0) {
     await loadAssessment(assessments[0].id);
   }
 }

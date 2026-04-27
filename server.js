@@ -45,14 +45,22 @@ async function initDB() {
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS compass_assessments (
-      id          TEXT PRIMARY KEY,
-      name        TEXT NOT NULL,
-      company     TEXT NOT NULL DEFAULT '',
-      sap_version TEXT NOT NULL DEFAULT '',
-      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      id             TEXT PRIMARY KEY,
+      name           TEXT NOT NULL,
+      company        TEXT NOT NULL DEFAULT '',
+      sap_version    TEXT NOT NULL DEFAULT '',
+      contact_name   TEXT NOT NULL DEFAULT '',
+      contact_title  TEXT NOT NULL DEFAULT '',
+      contact_email  TEXT NOT NULL DEFAULT '',
+      created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
+
+  // Migrate existing tables — add contact columns if absent
+  await pool.query(`ALTER TABLE compass_assessments ADD COLUMN IF NOT EXISTS contact_name  TEXT NOT NULL DEFAULT ''`);
+  await pool.query(`ALTER TABLE compass_assessments ADD COLUMN IF NOT EXISTS contact_title TEXT NOT NULL DEFAULT ''`);
+  await pool.query(`ALTER TABLE compass_assessments ADD COLUMN IF NOT EXISTS contact_email TEXT NOT NULL DEFAULT ''`);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS compass_modules (
@@ -139,9 +147,12 @@ app.get('/api/compass/assessments', dbRequired, async (req, res) => {
 
 // Create assessment
 app.post('/api/compass/assessments', dbRequired, async (req, res) => {
-  const name        = (req.body.name || '').trim();
-  const company     = (req.body.company || '').trim();
-  const sap_version = (req.body.sap_version || '').trim();
+  const name          = (req.body.name || '').trim();
+  const company       = (req.body.company || '').trim();
+  const sap_version   = (req.body.sap_version || '').trim();
+  const contact_name  = (req.body.contact_name || '').trim();
+  const contact_title = (req.body.contact_title || '').trim();
+  const contact_email = (req.body.contact_email || '').trim();
 
   if (!name) return res.status(400).json({ error: 'Assessment name is required.' });
   if (name.length > 200) return res.status(400).json({ error: 'Name must be 200 characters or fewer.' });
@@ -149,9 +160,9 @@ app.post('/api/compass/assessments', dbRequired, async (req, res) => {
   try {
     const id = randomUUID();
     const { rows } = await pool.query(
-      `INSERT INTO compass_assessments(id, name, company, sap_version)
-       VALUES($1,$2,$3,$4) RETURNING *`,
-      [id, name, company, sap_version]
+      `INSERT INTO compass_assessments(id, name, company, sap_version, contact_name, contact_title, contact_email)
+       VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [id, name, company, sap_version, contact_name, contact_title, contact_email]
     );
     res.json(rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -224,6 +235,29 @@ app.put('/api/compass/assessments/:id/modules/:code', dbRequired, async (req, re
     );
     await pool.query('UPDATE compass_assessments SET updated_at=NOW() WHERE id=$1', [id]);
     res.json(rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Client summary — all assessments with avg scores, grouped for the summary page
+app.get('/api/compass/summary', dbRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        a.id, a.name, a.company, a.sap_version,
+        a.contact_name, a.contact_title, a.contact_email,
+        a.created_at, a.updated_at,
+        COUNT(m.id)::int AS module_count,
+        ROUND(AVG(
+          (m.axis_platform + m.axis_custom_code + m.axis_data + m.axis_integration +
+           m.axis_ux + m.axis_process + m.axis_ai_readiness + m.axis_compliance) / 8.0
+        )::numeric, 1) AS avg_score,
+        MIN(m.axis_ai_readiness) AS min_ai_readiness
+      FROM compass_assessments a
+      LEFT JOIN compass_modules m ON m.assessment_id = a.id
+      GROUP BY a.id
+      ORDER BY a.updated_at DESC
+    `);
+    res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

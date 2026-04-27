@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Summary — AgenticSAP Compass</title>
+  <link rel="stylesheet" href="/bpo-theme.css"/>
+  <style>
+    :root {
+      --sap-blue:   #0070C0;
+      --sap-blue-d: #003366;
+      --sap-blue-l: #1e8fd8;
+      --sap-gold:   #E89C00;
+      --green:      #198038;
+      --red:        #da1e28;
+    }
+
+    /* NAV DROPDOWN */
+    .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+    .c-nav-dropdown>a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+    .c-nav-dropdown:hover>a::after{opacity:.85}
+    .c-nav-dropdown-menu{position:absolute!important;top:48px!important;left:0;display:flex!important;flex-direction:column;visibility:hidden!important;opacity:0!important;pointer-events:none!important;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:160px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:opacity .12s ease}
+    .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+    .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+    .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+    .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+    .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+
+    body { background: #f4f4f4; font-family: 'IBM Plex Sans', sans-serif; margin: 0; color: #161616; }
+
+    .page-header {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 2rem 2rem 1.5rem;
+    }
+    .page-header h1 {
+      font-size: 1.5rem; font-weight: 700; color: #161616; margin: 0 0 0.25rem;
+    }
+    .page-header p { font-size: 0.875rem; color: #525252; margin: 0; }
+
+    .page-body { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    /* STATS ROW */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card {
+      background: #fff; border: 1px solid #e0e0e0; border-top: 4px solid var(--sap-blue); padding: 1.25rem 1.5rem;
+    }
+    .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #6f6f6f; margin-bottom: 0.4rem; font-family: 'IBM Plex Mono', monospace; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: #161616; font-family: 'IBM Plex Mono', monospace; line-height: 1; }
+
+    /* CLIENT CARDS */
+    .clients-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+    .client-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-left: 4px solid var(--sap-blue);
+    }
+    .client-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 1.25rem 1.5rem; border-bottom: 1px solid #e0e0e0; gap: 1rem;
+    }
+    .client-meta { flex: 1; min-width: 0; }
+    .client-company { font-size: 1.0625rem; font-weight: 700; color: #161616; margin-bottom: 0.25rem; }
+    .client-contact {
+      display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;
+      font-size: 0.8125rem; color: #525252;
+    }
+    .client-contact span { display: flex; align-items: center; gap: 0.3rem; }
+    .client-contact a { color: var(--sap-blue); text-decoration: none; }
+    .client-contact a:hover { text-decoration: underline; }
+
+    .client-badge {
+      flex-shrink: 0;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      padding: 4px 10px; font-family: 'IBM Plex Mono', monospace; white-space: nowrap;
+    }
+    .tier-Foundational  { background: #f4f4f4; color: #525252; border: 1px solid #c6c6c6; }
+    .tier-Developing    { background: #fff3cd; color: #7d4e00; border: 1px solid #f0b429; }
+    .tier-Candidate     { background: #d0e8ff; color: #0043a4; border: 1px solid #78b4f5; }
+    .tier-Primed        { background: #defbe6; color: #0e6027; border: 1px solid #6fdc8c; }
+    .tier-Leading       { background: #e8daff; color: #4d1fb5; border: 1px solid #be95ff; }
+    .tier-AI-Prereq     { background: #fff1e6; color: #8a3800; border: 1px solid #ffb784; }
+    .tier-None          { background: #f4f4f4; color: #8d8d8d; border: 1px solid #c6c6c6; }
+
+    .client-card-body { padding: 1.25rem 1.5rem; }
+
+    .axes-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .axis-cell { text-align: center; }
+    .axis-bar-wrap {
+      height: 48px; background: #f4f4f4; border: 1px solid #e0e0e0;
+      display: flex; align-items: flex-end; overflow: hidden; margin-bottom: 3px;
+    }
+    .axis-bar { width: 100%; background: var(--sap-blue); transition: height 0.3s; }
+    .axis-score { font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #161616; }
+    .axis-name  { font-size: 9px; color: #6f6f6f; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2; margin-top: 2px; }
+
+    .client-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1.5rem; border-top: 1px solid #e0e0e0;
+      background: #f9f9f9;
+      font-size: 0.8125rem; color: #6f6f6f;
+    }
+    .client-card-footer a {
+      color: var(--sap-blue); text-decoration: none; font-weight: 600; font-size: 0.8125rem;
+    }
+    .client-card-footer a:hover { text-decoration: underline; }
+
+    /* EMPTY / LOADING */
+    .state-msg {
+      text-align: center; padding: 4rem 2rem; color: #6f6f6f; font-size: 0.9375rem;
+    }
+
+    /* Search/filter bar */
+    .filter-bar {
+      display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .filter-input {
+      font-family: 'IBM Plex Sans', sans-serif; font-size: 0.875rem;
+      border: 1px solid #c6c6c6; padding: 0.5rem 0.75rem; flex: 1; min-width: 200px;
+      outline: none; color: #161616; background: #fff;
+    }
+    .filter-input:focus { border-color: var(--sap-blue); box-shadow: 0 0 0 2px rgba(0,112,192,0.15); }
+    .filter-count { font-size: 0.8125rem; color: #6f6f6f; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<nav class="c-nav">
+  <div class="c-nav-inner">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" fill="#0070C0"/><text x="4" y="22" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/"><span>Home</span></a>
+      <div class="c-nav-dropdown">
+        <a href="#" class="active"><span>Platform</span></a>
+        <div class="c-nav-dropdown-menu">
+          <a href="/compass.html"><span>Maturity Compass</span></a>
+          <a href="/compass-clients.html" class="active"><span>Client Summary</span></a>
+          <a href="/utilities.html"><span>Utilities Recommender</span></a>
+          <a href="#"><span>Agent Atlas</span></a>
+          <a href="#"><span>Platform Fit</span></a>
+          <a href="#"><span>ROI Builder</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div style="max-width:1200px;margin:0 auto;">
+    <h1>Client Summary</h1>
+    <p>All Maturity Compass assessments — one card per client engagement.</p>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Clients</div>
+      <div class="stat-value" id="stat-clients">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Modules Scored</div>
+      <div class="stat-value" id="stat-modules">—</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--sap-gold);">
+      <div class="stat-label">Avg Maturity</div>
+      <div class="stat-value" id="stat-avg">—</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--green);">
+      <div class="stat-label">Primed / Leading</div>
+      <div class="stat-value" id="stat-ready">—</div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <input class="filter-input" id="filter-input" type="text" placeholder="Filter by company, contact, or email…" oninput="renderCards()"/>
+    <span class="filter-count" id="filter-count"></span>
+    <a href="/compass.html" style="font-size:0.875rem;color:var(--sap-blue);font-weight:600;text-decoration:none;white-space:nowrap;">+ New Assessment</a>
+  </div>
+
+  <div class="clients-grid" id="clients-grid">
+    <div class="state-msg">Loading…</div>
+  </div>
+
+</div>
+
+<script>
+const AXES = [
+  { key:'axis_platform',     short:'Platform'    },
+  { key:'axis_custom_code',  short:'Custom Code' },
+  { key:'axis_data',         short:'Data'        },
+  { key:'axis_integration',  short:'Integration' },
+  { key:'axis_ux',           short:'UX / Fiori'  },
+  { key:'axis_process',      short:'Process'     },
+  { key:'axis_ai_readiness', short:'AI Ready'    },
+  { key:'axis_compliance',   short:'Compliance'  },
+];
+
+function tier(avg, minAI) {
+  if (avg === null || avg === undefined) return { label: 'Not Scored', cls: 'tier-None' };
+  const a = parseFloat(avg);
+  const ai = parseFloat(minAI);
+  if (a >= 3.0 && ai < 2.0) return { label: 'AI Prereq Needed', cls: 'tier-AI-Prereq' };
+  if (a >= 4.5) return { label: 'Leading',     cls: 'tier-Leading' };
+  if (a >= 3.5) return { label: 'Primed',      cls: 'tier-Primed' };
+  if (a >= 3.0) return { label: 'Candidate',   cls: 'tier-Candidate' };
+  if (a >= 2.0) return { label: 'Developing',  cls: 'tier-Developing' };
+  return         { label: 'Foundational', cls: 'tier-Foundational' };
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+let allData = [];
+
+function renderCards() {
+  const q = document.getElementById('filter-input').value.toLowerCase();
+  const filtered = q
+    ? allData.filter(a =>
+        (a.company||'').toLowerCase().includes(q) ||
+        (a.contact_name||'').toLowerCase().includes(q) ||
+        (a.contact_email||'').toLowerCase().includes(q))
+    : allData;
+
+  document.getElementById('filter-count').textContent =
+    filtered.length === allData.length
+      ? `${allData.length} client${allData.length !== 1 ? 's' : ''}`
+      : `${filtered.length} of ${allData.length}`;
+
+  const grid = document.getElementById('clients-grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="state-msg">No assessments match your filter.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(a => {
+    const t = tier(a.avg_score, a.min_ai_readiness);
+    const hasScores = a.module_count > 0;
+
+    const axesBars = AXES.map(ax => {
+      const val = parseFloat(a[ax.key] || 0);
+      const pct  = hasScores ? Math.round((val / 5) * 100) : 0;
+      return `<div class="axis-cell">
+        <div class="axis-bar-wrap">
+          <div class="axis-bar" style="height:${pct}%;background:${pct >= 70 ? 'var(--green)' : pct >= 50 ? 'var(--sap-blue)' : '#8d8d8d'};"></div>
+        </div>
+        <div class="axis-score">${hasScores ? (val.toFixed(1)) : '—'}</div>
+        <div class="axis-name">${ax.short}</div>
+      </div>`;
+    }).join('');
+
+    const contactParts = [];
+    if (a.contact_name)  contactParts.push(`<span>👤 ${a.contact_name}${a.contact_title ? `, ${a.contact_title}` : ''}</span>`);
+    if (a.contact_email) contactParts.push(`<span>✉ <a href="mailto:${a.contact_email}">${a.contact_email}</a></span>`);
+    if (a.sap_version)   contactParts.push(`<span>🔧 ${a.sap_version}</span>`);
+
+    return `<div class="client-card">
+      <div class="client-card-header">
+        <div class="client-meta">
+          <div class="client-company">${a.company || a.name}</div>
+          ${contactParts.length ? `<div class="client-contact">${contactParts.join('')}</div>` : ''}
+        </div>
+        <span class="client-badge ${t.cls}">${t.label}</span>
+      </div>
+      <div class="client-card-body">
+        ${hasScores
+          ? `<div class="axes-grid">${axesBars}</div>`
+          : `<div style="font-size:0.875rem;color:#8d8d8d;padding:0.5rem 0;">No module scores recorded yet.</div>`}
+      </div>
+      <div class="client-card-footer">
+        <span>${a.module_count} module${a.module_count !== 1 ? 's' : ''} scored · Updated ${fmtDate(a.updated_at)}</span>
+        <a href="/compass.html?id=${a.id}">Open in Compass →</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadSummary() {
+  try {
+    const health = await fetch('/api/health').then(r => r.json());
+    if (!health.db) {
+      document.getElementById('clients-grid').innerHTML =
+        `<div class="state-msg" style="color:var(--red);">Database not connected. <a href="/compass.html">Go to Compass</a> for setup instructions.</div>`;
+      return;
+    }
+
+    // Fetch full assessments list to get per-axis scores
+    const [summary, assessments] = await Promise.all([
+      fetch('/api/compass/summary').then(r => r.json()),
+      fetch('/api/compass/assessments').then(r => r.json()),
+    ]);
+
+    // Merge axis averages from module-level data: fetch each assessment's modules
+    // For the bar chart, compute per-axis averages per assessment
+    const modulesByAssessment = {};
+    await Promise.all(summary.map(async a => {
+      const detail = await fetch(`/api/compass/assessments/${a.id}`).then(r => r.json());
+      modulesByAssessment[a.id] = detail.modules || [];
+    }));
+
+    allData = summary.map(a => {
+      const mods = modulesByAssessment[a.id] || [];
+      const axisAvgs = {};
+      AXES.forEach(ax => {
+        axisAvgs[ax.key] = mods.length
+          ? mods.reduce((s, m) => s + parseFloat(m[ax.key] || 0), 0) / mods.length
+          : 0;
+      });
+      return { ...a, ...axisAvgs };
+    });
+
+    // Stats
+    const total   = allData.length;
+    const totalMod = allData.reduce((s, a) => s + (a.module_count || 0), 0);
+    const scored  = allData.filter(a => a.avg_score !== null);
+    const avgAll  = scored.length ? (scored.reduce((s,a) => s + parseFloat(a.avg_score), 0) / scored.length).toFixed(1) : '—';
+    const ready   = scored.filter(a => {
+      const t = tier(a.avg_score, a.min_ai_readiness);
+      return t.label === 'Primed' || t.label === 'Leading';
+    }).length;
+
+    document.getElementById('stat-clients').textContent = total;
+    document.getElementById('stat-modules').textContent = totalMod;
+    document.getElementById('stat-avg').textContent     = avgAll;
+    document.getElementById('stat-ready').textContent   = ready;
+
+    renderCards();
+  } catch (e) {
+    document.getElementById('clients-grid').innerHTML =
+      `<div class="state-msg" style="color:var(--red);">Failed to load: ${e.message}</div>`;
+  }
+}
+
+// Support ?id= deep-link: open that assessment in compass
+const params = new URLSearchParams(location.search);
+if (params.get('open')) {
+  location.href = `/compass.html?id=${params.get('open')}`;
+}
+
+loadSummary();
+</script>
+</body>
+</html>
