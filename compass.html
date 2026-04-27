@@ -1007,12 +1007,62 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') createAssessment(); });
 
 // ── INIT ───────────────────────────────────────────────────────────────────────
+function showDbSetupBanner(hint) {
+  document.getElementById('main-panel').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;flex:1;padding:3rem;">
+      <div style="max-width:540px;border:1px solid #e0e0e0;border-top:4px solid #da1e28;padding:2rem;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
+                    color:#da1e28;font-family:'IBM Plex Mono',monospace;margin-bottom:0.75rem;">
+          Database Not Connected
+        </div>
+        <div style="font-size:1.0625rem;font-weight:700;color:#161616;margin-bottom:0.5rem;">
+          PostgreSQL service required
+        </div>
+        <div style="font-size:0.875rem;color:#525252;line-height:1.65;margin-bottom:1.5rem;">
+          ${hint || 'DATABASE_URL is not set. The Maturity Compass requires a PostgreSQL database to store assessments.'}
+        </div>
+        <div style="font-size:0.8125rem;font-weight:700;color:#161616;margin-bottom:0.5rem;">
+          To connect a database in Railway:
+        </div>
+        <ol style="font-size:0.8125rem;color:#525252;line-height:1.9;padding-left:1.25rem;margin:0 0 1.5rem;">
+          <li>Open your <a href="https://railway.app/dashboard" target="_blank"
+              style="color:#0070C0;font-weight:600;">Railway project dashboard</a></li>
+          <li>Click <strong>+ New</strong> inside the project</li>
+          <li>Choose <strong>Database → Add PostgreSQL</strong></li>
+          <li>Railway injects <code style="background:#f4f4f4;padding:1px 6px;font-family:'IBM Plex Mono',monospace;">DATABASE_URL</code> automatically</li>
+          <li>Redeploy — tables are created on first boot</li>
+        </ol>
+        <div style="background:#f4f4f4;border:1px solid #e0e0e0;padding:1rem;font-size:0.8125rem;color:#525252;">
+          <strong style="color:#161616;">Schema created automatically:</strong><br/>
+          <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">compass_assessments</code> — assessment header (id, name, company, sap_version)<br/>
+          <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">compass_modules</code> — 8-axis scores per module per assessment
+        </div>
+      </div>
+    </div>`;
+  // Also show a warning in the sidebar
+  document.getElementById('module-list').innerHTML =
+    '<div style="padding:1rem;font-size:0.8125rem;color:#da1e28;">No database connected.</div>';
+  document.getElementById('btn-rollup').disabled = true;
+}
+
 async function init() {
   renderSliders();
   renderBreakdownRows();
   initRadar();
+
+  // Check DB health before attempting any API calls
+  try {
+    const health = await fetch('/api/health').then(r => r.json());
+    if (!health.db) {
+      showDbSetupBanner(health.hint);
+      return;
+    }
+  } catch (e) {
+    showDbSetupBanner('Cannot reach the server API. Check that the app is running correctly.');
+    return;
+  }
+
   await loadAssessments();
-  // auto-load most recent assessment if any
   if (assessments.length > 0) {
     await loadAssessment(assessments[0].id);
   }

@@ -17,80 +17,141 @@ app.use(express.static(path.join(__dirname), {
 }));
 
 // ── DATABASE ───────────────────────────────────────────────────────────────
+
+function sslConfig(url) {
+  if (!url) return false;
+  if (url.includes('localhost') || url.includes('127.0.0.1')) return false;
+  if (url.includes('.railway.internal')) return false; // private networking — no SSL
+  return { rejectUnauthorized: false };               // Railway public URL / other cloud
+}
+
 let pool = null;
 
 if (process.env.DATABASE_URL) {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL.includes('.railway.internal') ? false
-       : process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: sslConfig(process.env.DATABASE_URL),
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+  });
+  pool.on('error', (err) => {
+    console.error('Unexpected pool client error:', err.message);
   });
 }
 
 async function initDB() {
   if (!pool) return;
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS compass_assessments (
       id          TEXT PRIMARY KEY,
       name        TEXT NOT NULL,
-      company     TEXT DEFAULT '',
-      sap_version TEXT DEFAULT '',
-      created_at  TIMESTAMPTZ DEFAULT NOW(),
-      updated_at  TIMESTAMPTZ DEFAULT NOW()
+      company     TEXT NOT NULL DEFAULT '',
+      sap_version TEXT NOT NULL DEFAULT '',
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS compass_modules (
       id                SERIAL PRIMARY KEY,
       assessment_id     TEXT NOT NULL REFERENCES compass_assessments(id) ON DELETE CASCADE,
       module_code       TEXT NOT NULL,
-      module_name       TEXT NOT NULL,
-      axis_platform     NUMERIC(3,1) DEFAULT 0,
-      axis_custom_code  NUMERIC(3,1) DEFAULT 0,
-      axis_data         NUMERIC(3,1) DEFAULT 0,
-      axis_integration  NUMERIC(3,1) DEFAULT 0,
-      axis_ux           NUMERIC(3,1) DEFAULT 0,
-      axis_process      NUMERIC(3,1) DEFAULT 0,
-      axis_ai_readiness NUMERIC(3,1) DEFAULT 0,
-      axis_compliance   NUMERIC(3,1) DEFAULT 0,
-      notes             TEXT DEFAULT '',
-      updated_at        TIMESTAMPTZ DEFAULT NOW(),
+      module_name       TEXT NOT NULL DEFAULT '',
+      axis_platform     NUMERIC(3,1) NOT NULL DEFAULT 0,
+      axis_custom_code  NUMERIC(3,1) NOT NULL DEFAULT 0,
+      axis_data         NUMERIC(3,1) NOT NULL DEFAULT 0,
+      axis_integration  NUMERIC(3,1) NOT NULL DEFAULT 0,
+      axis_ux           NUMERIC(3,1) NOT NULL DEFAULT 0,
+      axis_process      NUMERIC(3,1) NOT NULL DEFAULT 0,
+      axis_ai_readiness NUMERIC(3,1) NOT NULL DEFAULT 0,
+      axis_compliance   NUMERIC(3,1) NOT NULL DEFAULT 0,
+      notes             TEXT NOT NULL DEFAULT '',
+      updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       UNIQUE(assessment_id, module_code)
     )
   `);
+
+  // Indexes — idempotent
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_assessments_updated ON compass_assessments(updated_at DESC)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_modules_assessment  ON compass_modules(assessment_id)`);
+
   console.log('✅ AgenticSAP database ready');
 }
 
 function dbRequired(req, res, next) {
-  if (!pool) return res.status(503).json({ error: 'DATABASE_URL not configured' });
+  if (!pool) {
+    return res.status(503).json({
+      error: 'DATABASE_URL not configured',
+      hint: 'Add a PostgreSQL service in your Railway project. DATABASE_URL is injected automatically once the service is attached.',
+    });
+  }
   next();
 }
+
+// ── HEALTH ─────────────────────────────────────────────────────────────────
+
+app.get('/api/health', async (req, res) => {
+  if (!pool) {
+    return res.json({
+      status: 'degraded',
+      db: false,
+      hint: 'Add a PostgreSQL service in your Railway project and redeploy.',
+    });
+  }
+  try {
+    const { rows: [{ ts }] } = await pool.query('SELECT NOW() AS ts');
+    const { rows: tables }   = await pool.query(`
+      SELECT table_name
+      FROM   information_schema.tables
+      WHERE  table_schema = 'public'
+        AND  table_name   IN ('compass_assessments', 'compass_modules')
+      ORDER  BY table_name
+    `);
+    res.json({
+      status: 'ok',
+      db: true,
+      db_time: ts,
+      tables: tables.map(t => t.table_name),
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', db: false, error: err.message });
+  }
+});
 
 // ── COMPASS API ────────────────────────────────────────────────────────────
 
 // List all assessments
 app.get('/api/compass/assessments', dbRequired, async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      `SELECT a.*, COUNT(m.id)::int AS module_count
-       FROM compass_assessments a
-       LEFT JOIN compass_modules m ON m.assessment_id = a.id
-       GROUP BY a.id ORDER BY a.updated_at DESC`
-    );
+    const { rows } = await pool.query(`
+      SELECT a.*, COUNT(m.id)::int AS module_count
+      FROM   compass_assessments a
+      LEFT JOIN compass_modules m ON m.assessment_id = a.id
+      GROUP  BY a.id
+      ORDER  BY a.updated_at DESC
+    `);
     res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // Create assessment
 app.post('/api/compass/assessments', dbRequired, async (req, res) => {
-  const { name, company, sap_version } = req.body;
-  if (!name) return res.status(400).json({ error: 'name required' });
+  const name        = (req.body.name || '').trim();
+  const company     = (req.body.company || '').trim();
+  const sap_version = (req.body.sap_version || '').trim();
+
+  if (!name) return res.status(400).json({ error: 'Assessment name is required.' });
+  if (name.length > 200) return res.status(400).json({ error: 'Name must be 200 characters or fewer.' });
+
   try {
     const id = randomUUID();
     const { rows } = await pool.query(
       `INSERT INTO compass_assessments(id, name, company, sap_version)
        VALUES($1,$2,$3,$4) RETURNING *`,
-      [id, name, company || '', sap_version || '']
+      [id, name, company, sap_version]
     );
     res.json(rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -100,9 +161,11 @@ app.post('/api/compass/assessments', dbRequired, async (req, res) => {
 app.get('/api/compass/assessments/:id', dbRequired, async (req, res) => {
   try {
     const { rows: [assessment] } = await pool.query(
-      'SELECT * FROM compass_assessments WHERE id=$1', [req.params.id]
+      'SELECT * FROM compass_assessments WHERE id=$1',
+      [req.params.id]
     );
-    if (!assessment) return res.status(404).json({ error: 'Not found' });
+    if (!assessment) return res.status(404).json({ error: 'Assessment not found.' });
+
     const { rows: modules } = await pool.query(
       'SELECT * FROM compass_modules WHERE assessment_id=$1 ORDER BY module_code',
       [req.params.id]
@@ -114,13 +177,27 @@ app.get('/api/compass/assessments/:id', dbRequired, async (req, res) => {
 // Upsert module scores
 app.put('/api/compass/assessments/:id/modules/:code', dbRequired, async (req, res) => {
   const { id, code } = req.params;
-  const {
-    module_name,
-    axis_platform, axis_custom_code, axis_data, axis_integration,
-    axis_ux, axis_process, axis_ai_readiness, axis_compliance,
-    notes
-  } = req.body;
+
+  // Validate axis values are in range
+  const axisKeys = ['axis_platform','axis_custom_code','axis_data','axis_integration',
+                    'axis_ux','axis_process','axis_ai_readiness','axis_compliance'];
+  const vals = {};
+  for (const k of axisKeys) {
+    const v = parseFloat(req.body[k] ?? 0);
+    if (isNaN(v) || v < 0 || v > 5) return res.status(400).json({ error: `${k} must be a number between 0 and 5.` });
+    vals[k] = v;
+  }
+
+  const module_name = (req.body.module_name || code).trim();
+  const notes       = (req.body.notes || '').trim();
+
   try {
+    // Verify assessment exists
+    const { rowCount } = await pool.query(
+      'SELECT 1 FROM compass_assessments WHERE id=$1', [id]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Assessment not found.' });
+
     const { rows } = await pool.query(
       `INSERT INTO compass_modules
          (assessment_id, module_code, module_name,
@@ -141,13 +218,11 @@ app.put('/api/compass/assessments/:id/modules/:code', dbRequired, async (req, re
          updated_at        = NOW()
        RETURNING *`,
       [id, code, module_name,
-       axis_platform || 0, axis_custom_code || 0, axis_data || 0, axis_integration || 0,
-       axis_ux || 0, axis_process || 0, axis_ai_readiness || 0, axis_compliance || 0,
-       notes || '']
+       vals.axis_platform, vals.axis_custom_code, vals.axis_data, vals.axis_integration,
+       vals.axis_ux, vals.axis_process, vals.axis_ai_readiness, vals.axis_compliance,
+       notes]
     );
-    await pool.query(
-      'UPDATE compass_assessments SET updated_at=NOW() WHERE id=$1', [id]
-    );
+    await pool.query('UPDATE compass_assessments SET updated_at=NOW() WHERE id=$1', [id]);
     res.json(rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -155,7 +230,10 @@ app.put('/api/compass/assessments/:id/modules/:code', dbRequired, async (req, re
 // Delete assessment
 app.delete('/api/compass/assessments/:id', dbRequired, async (req, res) => {
   try {
-    await pool.query('DELETE FROM compass_assessments WHERE id=$1', [req.params.id]);
+    const { rowCount } = await pool.query(
+      'DELETE FROM compass_assessments WHERE id=$1', [req.params.id]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Assessment not found.' });
     res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -167,6 +245,11 @@ app.get('/{*path}', (req, res) => {
 
 // ── BOOT ───────────────────────────────────────────────────────────────────
 (async () => {
-  try { await initDB(); } catch (e) { console.error('DB init failed:', e.message); }
+  try {
+    await initDB();
+  } catch (e) {
+    console.error('DB init failed:', e.message);
+    console.error('The app will start but database features will be unavailable.');
+  }
   app.listen(PORT, () => console.log(`AgenticSAP running on port ${PORT}`));
 })();
