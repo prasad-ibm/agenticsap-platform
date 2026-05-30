@@ -1,501 +1,510 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SAP Utilities Agent Recommender | AgenticSAP</title>
-  <link rel="stylesheet" href="/bpo-theme.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <style>
-    /* ── SAP / IBM Carbon tokens ── */
-    :root {
-      --sap-blue:   #0070C0;
-      --sap-blue-d: #003366;
-      --sap-blue-l: #1e8fd8;
-      --sap-gold:   #E89C00;
-      --sap-gold-l: #FFB84D;
-      --ibm-blue:   #0f62fe;
-      --c-01: #161616;
-      --c-02: #393939;
-      --c-03: #525252;
-      --c-04: #6f6f6f;
-      --ui-01: #ffffff;
-      --ui-02: #f4f4f4;
-      --ui-03: #e0e0e0;
-      --ui-04: #8d8d8d;
-      --green:  #198038;
-      --green-l: #defbe6;
-      --green-d: #0e6027;
-      --amber-l: #fff8e1;
-      --amber-d: #8a5e00;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Utilities — Agentic SAP Platform</title>
+<meta name="description" content="Six productized agent use cases for SAP Utilities meter-to-cash: MX-Resolver, BPEM-Triage, MoveOps, EDI-Recon, Collections-Strategist, CSR Co-Agent." />
 
-    body {
-      font-family: 'IBM Plex Sans', system-ui, sans-serif;
-      background: var(--ui-01);
-      color: var(--c-01);
-      margin: 0;
-    }
+<style>
+  :root {
+    --navy:#0A1F44;
+    --navy-2:#0F2A5C;
+    --sap:#006FE6;
+    --teal:#00B4A6;
+    --coral:#FF6B4A;
+    --gold:#F5B506;
+    --slate:#4A5568;
+    --muted:#8B95A8;
+    --light:#F4F6FA;
+    --border:#E2E7F0;
+    --card:#FFFFFF;
+    --bg:#F7F9FC;
+    --shadow: 0 4px 20px rgba(10,31,68,.06);
+    --radius: 12px;
+    --maxw: 1200px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background:var(--bg);
+    color:var(--navy);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--sap);text-decoration:none}
+  a:hover{text-decoration:underline}
 
-    /* ── NAV DROPDOWN ── */
-    .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
-    .c-nav-dropdown>a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
-    .c-nav-dropdown:hover>a::after{opacity:.85}
-    .c-nav-dropdown-menu{position:absolute!important;top:48px!important;left:0;display:flex!important;flex-direction:column;visibility:hidden!important;opacity:0!important;pointer-events:none!important;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:200px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:opacity .12s ease}
-    .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible!important;opacity:1!important;pointer-events:auto!important}
-    .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
-    .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
-    .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
-    .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+  /* ── NAV ────────────────────────────────── */
+  .c-nav{
+    position:sticky;top:0;z-index:1000;
+    background:#fff;
+    border-bottom:1px solid #e0e0e0;
+    height:48px;
+    display:flex;align-items:center;
+  }
+  .c-nav-inner{
+    max-width:var(--maxw);margin:0 auto;
+    padding:0 24px;
+    display:flex;align-items:center;justify-content:space-between;
+    width:100%;
+  }
+  .c-nav-brand{
+    display:flex;align-items:center;gap:10px;
+    font-size:0.875rem;font-weight:600;color:#161616;text-decoration:none;
+  }
+  .c-nav-brand:hover{color:#161616;text-decoration:none}
+  .c-nav-links{display:flex;align-items:center;gap:0}
+  .c-nav-links > a{
+    display:flex;align-items:center;height:48px;padding:0 1rem;
+    font-size:0.875rem;font-weight:400;color:#525252;text-decoration:none;
+    border-bottom:2px solid transparent;white-space:nowrap;
+  }
+  .c-nav-links > a:hover{background:#f4f4f4;color:#161616;text-decoration:none}
+  .c-nav-links > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+  .c-nav-dropdown > a{
+    display:flex;align-items:center;height:48px;padding:0 1rem;
+    font-size:0.875rem;font-weight:400;color:#525252;text-decoration:none;
+    border-bottom:2px solid transparent;white-space:nowrap;
+  }
+  .c-nav-dropdown > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown > a::after{
+    content:'';display:inline-block;width:0;height:0;
+    border-left:3px solid transparent;border-right:3px solid transparent;
+    border-top:4px solid currentColor;margin-left:5px;opacity:.55;
+  }
+  .c-nav-dropdown:hover > a::after{opacity:.85}
+  .c-nav-dropdown-menu{
+    position:absolute;top:48px;left:0;
+    display:flex;flex-direction:column;
+    visibility:hidden;opacity:0;pointer-events:none;
+    background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;
+    min-width:200px;z-index:1010;
+    box-shadow:0 4px 12px rgba(0,0,0,.12);
+    transition:opacity .12s ease;
+  }
+  .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible;opacity:1;pointer-events:auto}
+  .c-nav-dropdown-menu a{
+    display:flex!important;align-items:center!important;height:40px!important;
+    padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;
+    border-left:2px solid transparent!important;font-size:.8125rem!important;
+    white-space:nowrap!important;color:#525252;text-decoration:none;
+  }
+  .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+  .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+  .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .btn-nav{
+    display:inline-flex;align-items:center;padding:0 1rem;height:32px;
+    font-size:0.8125rem;font-weight:600;text-decoration:none;
+    background:var(--sap);color:#fff;border-radius:4px;
+  }
+  .btn-nav:hover{background:#005bbf;text-decoration:none;color:#fff}
 
-    /* ── HERO ── */
-    .util-hero {
-      background: linear-gradient(135deg, var(--sap-blue-d) 0%, var(--sap-blue) 60%, var(--sap-blue-l) 100%);
-      padding: 3rem 0 2.5rem;
-      border-bottom: 1px solid var(--ui-03);
-      position: relative;
-      overflow: hidden;
-    }
-    .util-hero::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0;
-      height: 3px; background: linear-gradient(90deg, var(--sap-gold), var(--sap-gold-l));
-    }
-    .util-hero .container { position: relative; z-index: 1; }
-    .util-eyebrow {
-      font-size: 10px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase;
-      color: rgba(255,255,255,0.7); font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.875rem;
-    }
-    .util-hero h1 {
-      font-size: clamp(1.6rem, 3vw, 2.5rem); font-weight: 700; color: #fff;
-      line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.75rem;
-    }
-    .util-hero h1 span { color: var(--sap-gold-l); }
-    .util-hero p {
-      font-size: 1rem; color: rgba(255,255,255,0.8); line-height: 1.65;
-      max-width: 620px; margin-bottom: 1.5rem;
-    }
-    .hero-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .hero-chip {
-      font-size: 10px; font-weight: 600; letter-spacing: 0.8px;
-      padding: 4px 12px; border: 1px solid rgba(255,255,255,0.3);
-      color: rgba(255,255,255,0.85); font-family: 'IBM Plex Mono', monospace;
-    }
+  /* ── HERO ──────────────────────────────── */
+  .hero{
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, #143b87 100%);
+    color:#fff;
+    padding: 72px 24px 56px;
+  }
+  .hero-inner{max-width:var(--maxw); margin:0 auto}
+  .eyebrow{
+    color:var(--gold);
+    text-transform:uppercase;
+    letter-spacing:2px;
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:14px;
+  }
+  .hero h1{
+    font-size: clamp(28px, 4vw, 44px);
+    line-height:1.15;
+    margin:0 0 14px;
+    font-weight:700;
+  }
+  .hero p.lede{
+    color:#cfd9ee;
+    max-width:820px;
+    font-size:18px;
+    margin:0 0 26px;
+  }
+  .hero-meta{display:flex; gap:18px; flex-wrap:wrap; color:#b9c5e0; font-size:13px}
+  .hero-meta span{display:inline-flex; align-items:center; gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal); display:inline-block}
 
-    /* ── WIZARD SHELL ── */
-    .wizard-shell { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+  /* ── KPI STRIP ─────────────────────────── */
+  .kpis{
+    max-width:var(--maxw);
+    margin: -36px auto 0;
+    padding: 0 24px;
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:14px;
+  }
+  .kpi{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px 18px;
+    box-shadow: var(--shadow);
+  }
+  .kpi .n{font-size:26px;font-weight:700;color:var(--navy)}
+  .kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+  @media (max-width: 800px){.kpis{grid-template-columns: repeat(2, 1fr)}}
 
-    /* ── PROGRESS BAR ── */
-    .wiz-progress { display: flex; align-items: stretch; gap: 0; margin-bottom: 2.5rem; }
-    .wiz-step {
-      display: flex; align-items: center; gap: 0.75rem;
-      flex: 1; padding: 1rem 1.25rem;
-      background: var(--ui-01); border: 1px solid var(--ui-03);
-      border-right: none; cursor: pointer; transition: background 0.15s;
-      position: relative;
-    }
-    .wiz-step:last-child { border-right: 1px solid var(--ui-03); }
-    .wiz-step.active { background: #f0f7fd; border-color: var(--sap-blue); border-bottom: 3px solid var(--sap-blue); }
-    .wiz-step.done   { background: #f3fbf5; border-color: var(--green); }
-    .wiz-step.disabled { cursor: default; opacity: 0.5; }
-    .wiz-step-num {
-      width: 26px; height: 26px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; background: var(--ui-03); color: var(--c-03);
-      font-family: 'IBM Plex Mono', monospace; flex-shrink: 0;
-    }
-    .wiz-step.active .wiz-step-num { background: var(--sap-blue); color: #fff; }
-    .wiz-step.done   .wiz-step-num { background: var(--green); color: #fff; }
-    .wiz-step-label { font-size: 0.8125rem; font-weight: 600; color: var(--c-03); }
-    .wiz-step.active .wiz-step-label { color: var(--sap-blue); }
-    .wiz-step.done   .wiz-step-label { color: var(--green-d); }
+  /* ── SECTION WRAP ──────────────────────── */
+  section.wrap{max-width:var(--maxw); margin:0 auto; padding: 56px 24px}
+  h2.section-title{font-size: clamp(22px, 2.6vw, 28px); margin:0 0 6px;}
+  p.section-sub{color:var(--slate); margin:0 0 28px; max-width:780px}
 
-    /* ── PANEL WRAPPER ── */
-    .wiz-panel { background: var(--ui-01); border: 1px solid var(--ui-03); border-top: 4px solid var(--sap-blue); }
-    .wiz-panel-inner { padding: 2rem; }
-    .panel-title {
-      font-size: 1.25rem; font-weight: 700; color: var(--c-01); margin-bottom: 0.25rem;
-    }
-    .panel-sub { font-size: 0.9375rem; color: var(--c-03); margin-bottom: 2rem; line-height: 1.6; }
+  /* ── TABS ──────────────────────────────── */
+  .tabs{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  .tablist{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    background: linear-gradient(180deg, #fafbfd 0%, #f1f4fa 100%);
+    border-bottom:1px solid var(--border);
+  }
+  .tab{
+    appearance:none;
+    background:transparent;
+    border:0;
+    padding:18px 14px 16px;
+    text-align:left;
+    cursor:pointer;
+    border-right:1px solid var(--border);
+    font-family:inherit;
+    color:var(--slate);
+    transition: background .15s ease, color .15s ease;
+    position:relative;
+  }
+  .tab:last-child{border-right:0}
+  .tab:hover{background:#fff}
+  .tab .name{font-weight:700;color:var(--navy);font-size:14px;display:block}
+  .tab .blurb{font-size:11.5px;color:var(--muted);margin-top:2px;display:block}
+  .tab[aria-selected="true"]{background:#fff; color:var(--navy)}
+  .tab[aria-selected="true"]::after{
+    content:""; position:absolute; left:0; right:0; bottom:-1px; height:3px; background:var(--sap);
+  }
+  @media (max-width: 1000px){
+    .tablist{grid-template-columns: repeat(3, 1fr)}
+    .tab:nth-child(3){border-right:0}
+  }
+  @media (max-width: 600px){
+    .tablist{grid-template-columns: repeat(2, 1fr)}
+    .tab{border-right:1px solid var(--border) !important}
+    .tab:nth-child(2n){border-right:0 !important}
+  }
 
-    /* ── STEP PANELS ── */
-    .step-panel { display: none; }
-    .step-panel.active { display: block; }
+  .panel{display:none; padding: 28px}
+  .panel[aria-hidden="false"]{display:block}
 
-    /* ────────────────────────────────
-       STEP 1: UTILITY PROFILE
-    ──────────────────────────────── */
-    .util-type-eyebrow {
-      font-size: 10.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
-      color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace; margin-bottom: 1rem;
-    }
-    .util-type-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;
-    }
-    @media (max-width: 760px) { .util-type-grid { grid-template-columns: repeat(2, 1fr); } }
+  /* ── USE CASE HEADER ───────────────────── */
+  .uc-head{
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap:20px;
+    align-items:start;
+    border-bottom:1px solid var(--border);
+    padding-bottom:18px;
+    margin-bottom:22px;
+  }
+  .uc-head h3{margin:0 0 6px; font-size:22px}
+  .uc-head .one-liner{color:var(--slate); margin:0 0 10px; max-width:680px}
+  .chips{display:flex; gap:6px; flex-wrap:wrap}
+  .chip{
+    display:inline-block; padding:4px 10px; border-radius:999px;
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+  }
+  .chip.sap{background:#E6F1FE;color:var(--sap)}
+  .chip.teal{background:#E0F7F4;color:#008A80}
+  .chip.gold{background:#FDF3D1;color:#8a6505}
+  .chip.coral{background:#FFE7DF;color:#c0411f}
+  .chip.gray{background:#EEF1F6;color:var(--slate)}
+  .maturity{
+    display:inline-flex; align-items:center; gap:8px;
+    background:#F1F5FB; border:1px solid var(--border);
+    padding:8px 12px; border-radius:8px;
+    font-size:12px; color:var(--slate); white-space:nowrap;
+  }
+  .maturity .pulse{
+    width:8px;height:8px;border-radius:50%; background:var(--teal);
+    box-shadow: 0 0 0 0 rgba(0,180,166,.6);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(0,180,166,.6)}
+    70%{box-shadow:0 0 0 12px rgba(0,180,166,0)}
+    100%{box-shadow:0 0 0 0 rgba(0,180,166,0)}
+  }
 
-    .util-type-card {
-      background: var(--ui-01); border: 1px solid var(--ui-03); border-top: 4px solid var(--ui-03);
-      padding: 1.5rem 1.25rem; cursor: pointer; transition: all 0.15s;
-      display: flex; flex-direction: column; gap: 0.5rem;
-    }
-    .util-type-card:hover { border-color: var(--sap-blue); box-shadow: 0 2px 8px rgba(0,112,192,0.1); }
-    .util-type-card.sel { border-color: var(--sap-blue); border-top-color: var(--sap-blue); background: #f0f7fd; }
-    .utc-icon { font-size: 1.75rem; margin-bottom: 0.25rem; }
-    .utc-name { font-size: 0.9375rem; font-weight: 700; color: var(--c-01); }
-    .utc-desc { font-size: 0.8125rem; color: var(--c-03); line-height: 1.5; }
+  /* ── ARCHITECTURE FLOW ──────────────────── */
+  .arch-section{
+    margin:0 0 22px;
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .arch-section-head{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 16px;
+    background:linear-gradient(180deg,#f4f7fb 0%,#eef2f8 100%);
+    border-bottom:1px solid var(--border);
+    cursor:pointer;
+    user-select:none;
+  }
+  .arch-section-head .arch-label{
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--sap);
+    flex:1;
+  }
+  .arch-section-head .arch-toggle{font-size:12px;color:var(--muted)}
+  .arch-body{padding:16px 20px;overflow-x:auto}
+  .flow-diagram{
+    display:flex;align-items:flex-start;gap:0;
+    min-width:620px;
+  }
+  .flow-col{display:flex;flex-direction:column;align-items:center;gap:0}
+  .flow-node{
+    padding:8px 12px;border-radius:8px;
+    font-size:11.5px;text-align:center;
+    min-width:96px;max-width:120px;flex:0 0 auto;
+    line-height:1.3;
+  }
+  .flow-node .fl{font-weight:700;font-size:11px;display:block}
+  .flow-node .fs{font-size:10px;opacity:.78;display:block;margin-top:2px}
+  .flow-node.trigger{background:#E6F1FE;border:1.5px solid var(--sap);color:#003888}
+  .flow-node.process{background:#E0F7F4;border:1.5px solid var(--teal);color:#004D47}
+  .flow-node.data-node{background:#FDF3D1;border:1.5px dashed var(--gold);color:#5A3E00}
+  .flow-node.action{background:#FFE7DF;border:1.5px solid var(--coral);color:#8A2800}
+  .flow-node.gate{background:#EEF1F6;border:1.5px dashed var(--muted);color:#2D3748}
+  .flow-node.human{background:#FFF8E1;border:1.5px solid var(--gold);color:#5A3E00}
+  .flow-arrow{
+    color:var(--muted);font-size:18px;
+    padding:0 6px;flex:0 0 auto;
+    align-self:center;line-height:1;
+  }
+  .flow-arrow-down{
+    color:var(--muted);font-size:14px;
+    padding:3px 0;text-align:center;
+  }
+  .flow-branch{
+    display:flex;gap:8px;flex-wrap:wrap;
+    margin-top:12px;border-top:1px dashed var(--border);padding-top:10px;
+  }
+  .flow-branch-item{
+    font-size:11.5px;padding:6px 10px;border-radius:6px;
+    color:var(--slate);background:#fff;border:1px solid var(--border);
+    display:flex;gap:6px;align-items:flex-start;
+  }
+  .flow-branch-item .fb-gate{font-weight:700;white-space:nowrap}
+  .flow-branch-item.yes .fb-gate{color:var(--teal)}
+  .flow-branch-item.no .fb-gate{color:var(--coral)}
 
-    .profile-fields-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;
-    }
-    @media (max-width: 640px) { .profile-fields-grid { grid-template-columns: 1fr; } }
-    .pf-label {
-      display: block; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
-      color: var(--c-03); font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.4rem;
-    }
-    .pf-select {
-      width: 100%; padding: 0.625rem 0.75rem; border: none; border-bottom: 1px solid var(--ui-04);
-      background: var(--ui-02); font-size: 0.9375rem; font-family: 'IBM Plex Sans', sans-serif;
-      color: var(--c-01); outline: none; cursor: pointer; appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236f6f6f' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 10px center;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .pf-select:focus { border-bottom-color: var(--sap-blue); background: var(--ui-01); }
+  /* ── BUNDLE GRID ───────────────────────── */
+  .bundle{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:14px;
+    margin-bottom: 22px;
+  }
+  .asset{
+    background:#fbfcfe;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .asset:hover{ transform: translateY(-1px); box-shadow: var(--shadow) }
+  .asset .icn{
+    width:32px;height:32px;border-radius:8px;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:var(--sap); color:#fff; font-weight:700; font-size:14px;
+    margin-bottom:8px;
+  }
+  .asset h4{margin:0 0 4px; font-size:13.5px; color:var(--navy)}
+  .asset p{margin:0; font-size:12.5px; color:var(--slate); line-height:1.45}
+  .asset .status{
+    display:inline-block; margin-top:8px;
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.6px;
+    color:var(--muted); font-weight:700;
+  }
+  .asset .status.ready{color:var(--teal)}
+  .asset .status.wip{color:var(--gold)}
+  .asset .status.plan{color:var(--coral)}
+  @media (max-width: 1000px){ .bundle{grid-template-columns: repeat(2, 1fr)} }
 
-    .step-actions { display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--ui-03); }
+  /* ── TWO-COL DETAILS ───────────────────── */
+  .twocol{display:grid; grid-template-columns: 1.2fr 1fr; gap:20px; margin-top: 4px}
+  @media (max-width: 900px){ .twocol{grid-template-columns: 1fr} }
+  .block{
+    background:#fff; border:1px solid var(--border);
+    border-radius:10px; padding:16px 18px;
+  }
+  .block h5{
+    margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:1px;
+    color:var(--sap);
+  }
+  .block ul{margin:0; padding-left:18px}
+  .block li{margin:5px 0; color:var(--slate); font-size:14px}
+  .block li strong{color:var(--navy)}
 
-    /* ────────────────────────────────
-       STEP 2: MATURITY SCAN
-    ──────────────────────────────── */
-    .scan-layout {
-      display: grid; grid-template-columns: 1fr 360px;
-      min-height: calc(100vh - 48px - 280px);
-    }
-    @media (max-width: 860px) { .scan-layout { grid-template-columns: 1fr; } }
+  /* ── INTEGRATION SPEC TABLE ─────────────── */
+  .int-spec{
+    margin-top:14px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .int-spec-title{
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+    color:var(--sap);padding:8px 12px;
+    background:#f4f7fb;border-bottom:1px solid var(--border);
+  }
+  .int-spec table{width:100%;border-collapse:collapse;font-size:12px}
+  .int-spec th{
+    background:#f8fafc;padding:7px 10px;text-align:left;
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);
+  }
+  .int-spec td{padding:7px 10px;border-bottom:1px solid #f0f3f8;vertical-align:top}
+  .int-spec tr:last-child td{border-bottom:0}
+  .int-spec td.api{font-family:'Courier New',monospace;color:var(--navy);font-weight:600;font-size:11.5px;white-space:nowrap}
+  .int-spec td.dir{font-weight:700;font-size:11px;white-space:nowrap}
+  .dir-in{color:var(--teal)}
+  .dir-out{color:var(--coral)}
+  .dir-read{color:var(--sap)}
+  .int-spec td.params{color:var(--slate);font-size:11.5px;line-height:1.4}
+  .int-spec td.note{color:var(--muted);font-size:11px;font-style:italic}
 
-    .scan-axes {
-      padding: 2rem; border-right: 1px solid var(--ui-03); overflow-y: auto;
-    }
-    .scan-chart-panel {
-      padding: 2rem; background: var(--ui-02);
-      display: flex; flex-direction: column;
-    }
-    .chart-panel-title {
-      font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-      color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.25rem;
-    }
-    .chart-panel-sub { font-size: 0.8125rem; color: var(--c-04); margin-bottom: 1.25rem; }
-    .chart-wrap { flex: 1; position: relative; min-height: 280px; }
+  /* ── OUTCOMES STRIP ────────────────────── */
+  .strip{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;
+    margin-top:16px;
+  }
+  .metric{
+    background: linear-gradient(180deg, #fff 0%, #fbfcfe 100%);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .metric .v{font-size:22px;font-weight:700;color:var(--navy)}
+  .metric .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+  .metric .ctx{font-size:12px;color:var(--slate);margin-top:6px}
+  @media (max-width: 800px){ .strip{grid-template-columns:1fr 1fr} }
 
-    .axis-group { margin-bottom: 1.5rem; }
-    .axis-group-label {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
-      color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace;
-      margin-bottom: 0.875rem; padding-bottom: 4px;
-      border-bottom: 1px solid rgba(0,112,192,0.2);
-    }
-    .axis-row { margin-bottom: 1.125rem; }
-    .axis-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.375rem; }
-    .axis-name { font-size: 0.8125rem; font-weight: 600; color: var(--c-01); }
-    .axis-tag {
-      font-size: 9.5px; color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace;
-      background: rgba(0,112,192,0.08); padding: 1px 7px; margin-left: 6px;
-    }
-    .axis-score {
-      font-size: 0.9375rem; font-weight: 700; color: var(--sap-blue);
-      font-family: 'IBM Plex Mono', monospace; min-width: 28px; text-align: right;
-    }
-    .axis-slider {
-      width: 100%; height: 4px; border-radius: 0; outline: none; cursor: pointer;
-      -webkit-appearance: none; appearance: none; border: none;
-    }
-    .axis-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
-      background: var(--sap-blue); cursor: pointer;
-      border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,112,192,0.4);
-    }
-    .axis-desc { font-size: 0.75rem; color: var(--c-04); margin-top: 0.25rem; line-height: 1.4; }
+  /* ── ROI CALCULATOR ────────────────────── */
+  .roi-calc{
+    background:linear-gradient(180deg,#eef4ff 0%,#e6effe 100%);
+    border:1px solid #c5d5f5;
+    border-radius:12px;
+    padding:20px;
+    margin-top:18px;
+  }
+  .roi-calc-title{
+    font-size:13px;font-weight:700;color:var(--navy);
+    margin:0 0 14px;display:flex;align-items:center;gap:8px;
+  }
+  .roi-calc-title::before{content:"💰";font-size:15px}
+  .roi-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px}
+  @media (max-width:800px){.roi-grid{grid-template-columns:1fr}}
+  .roi-fields{display:flex;flex-direction:column;gap:10px}
+  .roi-field label{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12.5px;color:var(--slate);margin-bottom:4px;
+  }
+  .roi-field .roi-val{
+    font-weight:700;color:var(--navy);font-size:13px;
+    background:#fff;padding:2px 8px;border-radius:4px;border:1px solid var(--border);
+  }
+  .roi-field input[type=range]{
+    width:100%;accent-color:var(--sap);height:4px;cursor:pointer;display:block;
+  }
+  .roi-outputs{display:flex;flex-direction:column;gap:10px;justify-content:center}
+  .roi-out{
+    background:#fff;border:1px solid #c5d5f5;border-radius:10px;
+    padding:12px 14px;
+  }
+  .roi-out .v{font-size:22px;font-weight:700;color:var(--sap)}
+  .roi-out .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+  .roi-note{font-size:11px;color:var(--muted);margin-top:10px;font-style:italic}
 
-    .tier-display {
-      margin-top: 1.5rem; padding: 1rem; background: var(--ui-01);
-      border: 1px solid var(--ui-03); border-left: 4px solid var(--sap-blue);
-    }
-    .tier-label {
-      font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
-      color: var(--c-04); font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.25rem;
-    }
-    .tier-value {
-      font-size: 1rem; font-weight: 700; color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace;
-    }
-    .tier-avg { font-size: 0.8125rem; color: var(--c-04); margin-top: 0.2rem; }
+  /* ── CTA ROW ───────────────────────────── */
+  .cta-row{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;
+    border-top:1px solid var(--border); padding-top:18px;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 16px; border-radius:8px;
+    font-size:13.5px; font-weight:600;
+    border:1px solid transparent; cursor:pointer; font-family:inherit;
+    text-decoration:none;
+  }
+  .btn.primary{background:var(--sap); color:#fff}
+  .btn.primary:hover{background:#005bbf; text-decoration:none}
+  .btn.ghost{background:#fff; color:var(--navy); border-color:var(--border)}
+  .btn.ghost:hover{background:#f5f8fc; text-decoration:none}
+  .btn.gold{background:var(--gold); color:#3b2a00}
+  .btn.gold:hover{background:#dc9d00; text-decoration:none}
 
-    .scan-actions {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 1.25rem 2rem; background: var(--ui-01);
-      border-top: 1px solid var(--ui-03);
-    }
+  /* ── FOUNDATIONS ────────────────────────── */
+  .foundations{
+    background:linear-gradient(180deg, #fff 0%, #fbfcfe 100%);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+    box-shadow: var(--shadow);
+  }
+  .foundations h3{margin:0 0 4px; font-size:18px}
+  .foundations p{margin:0 0 16px; color:var(--slate); font-size:14px}
+  .found-grid{display:grid; grid-template-columns: repeat(3, 1fr); gap:12px}
+  .found-card{
+    border:1px dashed var(--border); border-radius:10px; padding:14px;
+    background:#fff;
+  }
+  .found-card h4{margin:0 0 4px; font-size:13.5px}
+  .found-card p{margin:0; font-size:12.5px; color:var(--slate)}
+  .found-card .found-apis{
+    margin-top:8px;display:flex;gap:4px;flex-wrap:wrap;
+  }
+  .found-api{
+    font-family:'Courier New',monospace;font-size:10px;
+    background:#eef1f6;color:var(--slate);padding:2px 6px;border-radius:4px;
+  }
+  @media (max-width: 800px){ .found-grid{grid-template-columns:1fr} }
 
-    /* ────────────────────────────────
-       STEP 3: RESULTS
-    ──────────────────────────────── */
+  footer{
+    background:var(--navy); color:#cfd9ee; margin-top:60px;
+    padding: 26px 24px;
+  }
+  .foot-inner{max-width:var(--maxw); margin:0 auto; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:13px}
+  .foot-links{display:flex;gap:18px;flex-wrap:wrap}
+  .foot-links a{color:#8B95A8;font-size:13px}
+  .foot-links a:hover{color:#cfd9ee}
 
-    /* Stat bar */
-    .stat-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
-    @media (max-width: 860px) { .stat-bar { grid-template-columns: repeat(2, 1fr); } }
-    .stat-card {
-      background: var(--ui-01); border: 1px solid var(--ui-03);
-      border-top: 4px solid var(--sap-blue); padding: 1.25rem 1rem;
-    }
-    .stat-val {
-      font-size: 2rem; font-weight: 300; color: var(--sap-blue);
-      font-family: 'IBM Plex Mono', monospace; line-height: 1; display: block;
-    }
-    .stat-lbl {
-      font-size: 10.5px; color: var(--c-04); text-transform: uppercase;
-      letter-spacing: 0.8px; margin-top: 0.35rem; display: block;
-    }
-
-    /* LHC callout */
-    .lhc-banner {
-      background: var(--sap-blue-d); border-top: 4px solid var(--sap-gold);
-      padding: 1.5rem 2rem; margin-bottom: 2rem;
-      display: flex; align-items: center; gap: 1.5rem;
-    }
-    .lhc-icon { font-size: 2rem; flex-shrink: 0; }
-    .lhc-body { flex: 1; }
-    .lhc-eyebrow {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
-      color: var(--sap-gold-l); font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.375rem;
-    }
-    .lhc-body h3 { font-size: 1.0625rem; font-weight: 700; color: #fff; margin-bottom: 0.375rem; }
-    .lhc-body p { font-size: 0.875rem; color: rgba(255,255,255,0.75); line-height: 1.55; }
-    .lhc-cta {
-      background: var(--sap-gold); color: var(--sap-blue-d); border: none;
-      padding: 0.75rem 1.5rem; font-size: 0.875rem; font-weight: 700;
-      font-family: 'IBM Plex Sans', sans-serif; cursor: pointer; white-space: nowrap;
-      flex-shrink: 0; transition: background 0.15s;
-    }
-    .lhc-cta:hover { background: var(--sap-gold-l); }
-
-    /* Sovereign notice */
-    .sov-banner {
-      background: var(--amber-l); border: 1px solid #f1c21b; border-left: 4px solid var(--sap-gold);
-      padding: 0.875rem 1.25rem; margin-bottom: 1.5rem;
-      font-size: 0.875rem; color: var(--amber-d);
-    }
-
-    /* Phase tabs */
-    .phase-tabs {
-      display: flex; gap: 0; border-bottom: 2px solid var(--ui-03); margin-bottom: 1.5rem;
-    }
-    .ptab {
-      padding: 0.75rem 1.25rem; font-size: 0.8125rem; font-weight: 600;
-      cursor: pointer; border: none; background: transparent; color: var(--c-03);
-      border-bottom: 3px solid transparent; margin-bottom: -2px;
-      font-family: 'IBM Plex Sans', sans-serif; display: flex; align-items: center; gap: 0.5rem;
-      transition: color 0.15s;
-    }
-    .ptab:hover { color: var(--sap-blue); }
-    .ptab.active { color: var(--sap-blue); border-bottom-color: var(--sap-blue); }
-    .ptab .pc {
-      font-size: 9.5px; font-weight: 700; padding: 1px 7px;
-      background: var(--ui-02); color: var(--c-04);
-      font-family: 'IBM Plex Mono', monospace;
-    }
-    .ptab.active .pc { background: var(--sap-blue); color: #fff; }
-
-    /* Domain filter */
-    .filter-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
-    .ftag {
-      font-size: 11px; font-weight: 600; padding: 4px 12px;
-      border: 1px solid var(--ui-03); background: var(--ui-01);
-      color: var(--c-03); cursor: pointer; font-family: 'IBM Plex Mono', monospace;
-      transition: all 0.12s;
-    }
-    .ftag:hover { border-color: var(--sap-blue); color: var(--sap-blue); }
-    .ftag.active { background: var(--sap-blue); border-color: var(--sap-blue); color: #fff; }
-
-    /* Agent cards */
-    .agents-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.25rem; margin-bottom: 2.5rem;
-    }
-    @media (max-width: 720px) { .agents-grid { grid-template-columns: 1fr; } }
-
-    .agent-card {
-      background: var(--ui-01); border: 1px solid var(--ui-03);
-      border-top: 4px solid var(--ui-03);
-      padding: 1.5rem; display: flex; flex-direction: column; gap: 0.875rem;
-      transition: box-shadow 0.15s;
-    }
-    .agent-card:hover { box-shadow: 0 4px 16px rgba(0,112,192,0.1); }
-    .agent-card.av { border-top-color: var(--green); }
-    .agent-card.pa { border-top-color: var(--sap-gold); }
-    .agent-card.bl { border-top-color: var(--ui-04); opacity: 0.75; }
-
-    .ac-hdr { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
-    .ac-name { font-size: 1rem; font-weight: 700; color: var(--c-01); margin-bottom: 0.2rem; }
-    .ac-persona { font-size: 0.8125rem; color: var(--c-04); }
-    .status-badge {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-      padding: 3px 10px; font-family: 'IBM Plex Mono', monospace; white-space: nowrap; flex-shrink: 0;
-    }
-    .sb-av { background: var(--green-l); color: var(--green-d); }
-    .sb-pa { background: var(--amber-l); color: var(--amber-d); }
-    .sb-bl { background: var(--ui-02); color: var(--c-04); }
-
-    .ac-kpi { font-size: 0.8125rem; color: var(--c-03); }
-    .ac-kpi strong { color: var(--green-d); }
-
-    .ac-roi {
-      background: var(--ui-02); border-left: 3px solid var(--sap-blue);
-      padding: 0.75rem 1rem; display: flex; align-items: flex-start; gap: 0.875rem;
-    }
-    .roi-num {
-      font-size: 1.75rem; font-weight: 300; color: var(--sap-blue);
-      font-family: 'IBM Plex Mono', monospace; line-height: 1; flex-shrink: 0;
-    }
-    .roi-text { font-size: 0.8125rem; color: var(--c-03); line-height: 1.5; }
-
-    .ac-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-    .ac-tag {
-      font-size: 10.5px; font-weight: 600; color: var(--sap-blue);
-      background: rgba(0,112,192,0.08); padding: 2px 9px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-    .ac-tag.aws { color: #7D4E00; background: rgba(232,156,0,0.12); }
-
-    .ac-reqs { font-size: 0.8125rem; color: var(--c-04); display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .req-item { display: inline-flex; align-items: center; gap: 4px; }
-    .rdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-    .r-met   { background: var(--green); }
-    .r-unmet { background: #da1e28; }
-
-    /* Roadmap */
-    .roadmap-section { background: var(--ui-02); border: 1px solid var(--ui-03); border-top: 4px solid var(--sap-gold); margin-bottom: 2rem; }
-    .roadmap-section-hdr { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--ui-03); display: flex; align-items: center; gap: 0.75rem; }
-    .roadmap-eyebrow {
-      font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
-      color: var(--c-04); font-family: 'IBM Plex Mono', monospace;
-    }
-    .roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 760px) { .roadmap-grid { grid-template-columns: 1fr; } }
-
-    .rph-col { border-right: 1px solid var(--ui-03); }
-    .rph-col:last-child { border-right: none; }
-    .rph-col-hdr {
-      padding: 0.875rem 1.25rem; font-size: 11px; font-weight: 700;
-      font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.5px;
-    }
-    .rph-col-hdr.ph1 { background: var(--sap-blue); color: #fff; border-bottom: 1px solid var(--sap-blue-l); }
-    .rph-col-hdr.ph2 { background: var(--green); color: #fff; border-bottom: 1px solid #24a148; }
-    .rph-col-hdr.ph3 { background: var(--sap-gold); color: var(--sap-blue-d); border-bottom: 1px solid var(--sap-gold-l); }
-    .rph-col-body { padding: 1rem 1.25rem; }
-    .r-item { padding: 0.5rem 0; border-bottom: 1px solid var(--ui-03); font-size: 0.8125rem; }
-    .r-item:last-child { border-bottom: none; }
-    .r-item strong { color: var(--c-01); font-weight: 600; display: block; }
-    .r-item span { font-size: 0.75rem; color: var(--c-04); font-style: italic; }
-
-    /* Wave plan */
-    .section-eyebrow {
-      font-size: 10.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
-      color: var(--sap-blue); font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.75rem;
-    }
-    .wave-table-wrap { border: 1px solid var(--ui-03); overflow: hidden; margin-bottom: 2rem; }
-    .wave-tbl { width: 100%; border-collapse: collapse; }
-    .wave-tbl thead tr { background: var(--sap-blue-d); }
-    .wave-tbl thead th { padding: 0.75rem 1rem; font-size: 10.5px; font-weight: 600; text-align: left; color: #fff; font-family: 'IBM Plex Mono', monospace; }
-    .wave-tbl tbody tr:nth-child(even) { background: var(--ui-02); }
-    .wave-tbl tbody td { padding: 0.625rem 1rem; font-size: 0.8125rem; color: var(--c-02); vertical-align: middle; border-bottom: 1px solid var(--ui-03); }
-    .wave-tbl tbody tr:last-child td { border-bottom: none; }
-    .wave-badge {
-      font-size: 9.5px; font-weight: 700; padding: 2px 9px;
-      font-family: 'IBM Plex Mono', monospace; display: inline-block;
-    }
-    .wb-1 { background: var(--green-l); color: var(--green-d); }
-    .wb-2 { background: var(--amber-l); color: var(--amber-d); }
-    .wb-3 { background: var(--ui-02); color: var(--c-04); border: 1px solid var(--ui-03); }
-
-    /* Architecture */
-    .arch-section {
-      background: var(--sap-blue-d); border-top: 4px solid var(--sap-blue);
-      padding: 2rem; margin-bottom: 2rem;
-    }
-    .arch-eyebrow {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
-      color: rgba(255,255,255,0.5); font-family: 'IBM Plex Mono', monospace; margin-bottom: 0.5rem;
-    }
-    .arch-title { font-size: 1.125rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
-    .arch-sub { font-size: 0.8125rem; color: rgba(255,255,255,0.6); margin-bottom: 1.5rem; }
-    .arch-layers { display: flex; flex-direction: column; gap: 0.5rem; }
-    .arch-layer {
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      padding: 0.75rem 1rem; display: flex; align-items: center; gap: 1rem;
-    }
-    .arch-lbl {
-      font-size: 9px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
-      color: var(--sap-blue-l); font-family: 'IBM Plex Mono', monospace; min-width: 120px; flex-shrink: 0;
-    }
-    .arch-nodes { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-    .anode {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-      color: #fff; font-size: 9.5px; font-weight: 600; padding: 3px 9px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-    .anode.hi { background: var(--sap-gold); border-color: var(--sap-gold); color: var(--sap-blue-d); }
-    .anode.gr { background: rgba(25,128,56,0.4); border-color: var(--green); }
-    .anode.dim { opacity: 0.3; }
-
-    /* IBM Garage strip */
-    .garage-strip {
-      background: #f0f7fd; border: 1px solid var(--ui-03); border-left: 4px solid var(--sap-blue);
-      margin-bottom: 2rem;
-    }
-    .garage-strip-hdr { padding: 1rem 1.5rem; border-bottom: 1px solid var(--ui-03); display: flex; align-items: center; gap: 0.75rem; }
-    .garage-badge {
-      font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-      padding: 3px 10px; background: var(--sap-blue); color: #fff; font-family: 'IBM Plex Mono', monospace;
-    }
-    .garage-title { font-size: 0.875rem; font-weight: 600; color: var(--sap-blue); }
-    .garage-steps { display: grid; grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 640px) { .garage-steps { grid-template-columns: 1fr; } }
-    .garage-step { padding: 1.25rem 1.5rem; border-right: 1px solid var(--ui-03); }
-    .garage-step:last-child { border-right: none; }
-    .garage-step-num {
-      font-size: 2rem; font-weight: 700; color: var(--sap-blue); opacity: 0.18;
-      font-family: 'IBM Plex Mono', monospace; line-height: 1; margin-bottom: 0.375rem;
-    }
-    .garage-step-title { font-size: 0.875rem; font-weight: 700; color: var(--sap-blue); margin-bottom: 0.4rem; }
-    .garage-step p { font-size: 0.8125rem; color: var(--c-03); line-height: 1.55; }
-
-    /* Empty */
-    .empty-state { text-align: center; padding: 3rem; color: var(--c-04); font-size: 0.9375rem; }
-
-    /* Buttons */
-    .btn-sap-primary {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.75rem 1.5rem; background: var(--sap-blue); color: #fff;
-      font-size: 0.9375rem; font-weight: 600; border: none; cursor: pointer;
-      font-family: 'IBM Plex Sans', sans-serif; transition: background 0.15s; text-decoration: none;
-    }
-    .btn-sap-primary:hover { background: var(--sap-blue-d); }
-    .btn-sap-ghost {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.75rem 1.5rem; background: transparent; color: var(--sap-blue);
-      font-size: 0.9375rem; font-weight: 600;
-      border: 1.5px solid var(--sap-blue); cursor: pointer;
-      font-family: 'IBM Plex Sans', sans-serif; transition: background 0.15s; text-decoration: none;
-    }
-    .btn-sap-ghost:hover { background: rgba(0,112,192,0.07); }
-  </style>
+  @media print{
+    .tab[aria-selected="false"]{display:none}
+    .panel{display:block !important}
+    .hero{background:#0A1F44}
+  }
+</style>
 </head>
 <body>
 
 <!-- ── NAV ── -->
-<nav class="c-nav" style="position:sticky;top:0;z-index:900;">
+<nav class="c-nav">
   <div class="c-nav-inner">
     <a href="/" class="c-nav-brand">
-      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" fill="#0070C0"/><text x="4" y="22" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="4" fill="#006FE6"/><text x="4" y="22" font-family="Arial" font-size="12" font-weight="700" fill="white">SAP</text></svg>
       AgenticSAP
     </a>
     <div class="c-nav-links">
@@ -511,739 +520,1333 @@
         </div>
       </div>
     </div>
+    <div class="nav-right">
+      <a href="/compass-clients.html" class="btn-nav">Admin</a>
+    </div>
   </div>
 </nav>
 
 <!-- ── HERO ── -->
-<div class="util-hero">
-  <div class="container">
-    <div class="util-eyebrow">AgenticSAP · Utilities Industry</div>
-    <h1>SAP Utilities <span>Agent Recommender</span></h1>
-    <p>Score your maturity across 10 utility-specific dimensions and receive a personalised agentic AI roadmap — with IBM Lighthouse Council agents, ROI estimates, and an AWS + S/4HANA architecture blueprint.</p>
-    <div class="hero-chips">
-      <span class="hero-chip">FI-CA · IS-U · S/4HANA</span>
-      <span class="hero-chip">AWS Bedrock</span>
-      <span class="hero-chip">10 Agents · 3 Phases</span>
-      <span class="hero-chip">$41.7M+ Value Example</span>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Industry · Utilities · Meter-to-Cash</div>
+    <h1>Six productized agents for SAP Utilities meter-to-cash</h1>
+    <p class="lede">
+      A portfolio of goal-driven agents that read SAP context, decide, act, and learn — replacing
+      the fragile RPA layer and reaching into the white space copilots leave behind. Each agent ships
+      as an eight-asset bundle: architecture, data products, integration manifest, evals, sandbox,
+      demo, code, and a sized business case.
+    </p>
+    <div class="hero-meta">
+      <span><span class="dot"></span>10 use cases mapped to M2C</span>
+      <span><span class="dot" style="background:var(--gold)"></span>6 productized agents</span>
+      <span><span class="dot" style="background:var(--coral)"></span>4 white-space zones</span>
+      <span><span class="dot" style="background:#fff;opacity:.5"></span>Live ROI calculators</span>
     </div>
   </div>
+</header>
+
+<!-- ── KPI STRIP ── -->
+<div class="kpis">
+  <div class="kpi"><div class="n">60–75%</div><div class="l">Auto-resolution target</div></div>
+  <div class="kpi"><div class="n">−35%</div><div class="l">CSR handle time</div></div>
+  <div class="kpi"><div class="n">−$12M+</div><div class="l">Annual write-off avoidance</div></div>
+  <div class="kpi"><div class="n">12 wks</div><div class="l">Pilot to first GA agent</div></div>
 </div>
 
-<!-- ── WIZARD SHELL ── -->
-<div class="wizard-shell">
+<!-- ── AGENT PORTFOLIO ── -->
+<section class="wrap">
+  <h2 class="section-title">The agent portfolio</h2>
+  <p class="section-sub">
+    Each tab is a productized agent. Inside you see the eight-asset bundle, the architecture flow,
+    the integration manifest, and an interactive ROI calculator pre-populated with illustrative
+    numbers — adjust the sliders to your utility's scale.
+  </p>
 
-  <!-- PROGRESS -->
-  <div class="wiz-progress">
-    <div class="wiz-step active" id="si-1">
-      <div class="wiz-step-num">1</div>
-      <div class="wiz-step-label">Utility Profile</div>
-    </div>
-    <div class="wiz-step disabled" id="si-2">
-      <div class="wiz-step-num">2</div>
-      <div class="wiz-step-label">Maturity Quick-Scan</div>
-    </div>
-    <div class="wiz-step disabled" id="si-3">
-      <div class="wiz-step-num">3</div>
-      <div class="wiz-step-label">Agent Opportunities</div>
-    </div>
-  </div>
-
-  <!-- ════ STEP 1: PROFILE ════ -->
-  <div id="step1" class="step-panel active">
-    <div class="wiz-panel">
-      <div class="wiz-panel-inner">
-        <div class="panel-title">Tell us about your utility</div>
-        <div class="panel-sub">We'll tailor agent recommendations, ROI estimates, and architecture guidance to your operating context.</div>
-
-        <div class="util-type-eyebrow">Utility Type — select one</div>
-        <div class="util-type-grid" id="util-type-grid">
-          <div class="util-type-card" onclick="selectType('electric',this)">
-            <div class="utc-icon">⚡</div>
-            <div class="utc-name">Electric Network Operator</div>
-            <div class="utc-desc">DSO, ISO, or wires-only distribution utility with AMI and grid assets</div>
-          </div>
-          <div class="util-type-card" onclick="selectType('retailer',this)">
-            <div class="utc-icon">🏷️</div>
-            <div class="utc-name">Energy Retailer / CRO</div>
-            <div class="utc-desc">C&amp;I or mass-market retailer in a competitive market with market comms focus</div>
-          </div>
-          <div class="util-type-card" onclick="selectType('integrated',this)">
-            <div class="utc-icon">🏭</div>
-            <div class="utc-name">Integrated IOU</div>
-            <div class="utc-desc">Investor-owned utility with generation, transmission, and distribution</div>
-          </div>
-          <div class="util-type-card" onclick="selectType('gas',this)">
-            <div class="utc-icon">🔥</div>
-            <div class="utc-name">Gas Utility / LDC</div>
-            <div class="utc-desc">Local distribution company with meter-to-cash and safety compliance focus</div>
-          </div>
-          <div class="util-type-card" onclick="selectType('water',this)">
-            <div class="utc-icon">💧</div>
-            <div class="utc-name">Water / Wastewater</div>
-            <div class="utc-desc">Water authority or municipal utility with billing and field ops focus</div>
-          </div>
-          <div class="util-type-card" onclick="selectType('multi',this)">
-            <div class="utc-icon">🌐</div>
-            <div class="utc-name">Multi-utility / Holding Co.</div>
-            <div class="utc-desc">Multi-commodity or multi-OpCo with complex regulatory environment</div>
-          </div>
-        </div>
-
-        <div class="util-type-eyebrow" style="margin-top:0.25rem;">Operating Context</div>
-        <div class="profile-fields-grid">
-          <div>
-            <label class="pf-label" for="p-customers">Customer Accounts</label>
-            <select class="pf-select" id="p-customers">
-              <option value="">— Select range —</option>
-              <option value="small">&lt; 100K accounts</option>
-              <option value="mid">100K – 500K accounts</option>
-              <option value="large">500K – 2M accounts</option>
-              <option value="xl">2M+ accounts</option>
-            </select>
-          </div>
-          <div>
-            <label class="pf-label" for="p-sap">SAP Landscape Status</label>
-            <select class="pf-select" id="p-sap">
-              <option value="">— Select status —</option>
-              <option value="ecc">Legacy ECC / IS-U (no migration planned)</option>
-              <option value="planning">Migration planning (&gt;18 months out)</option>
-              <option value="migration">Active S/4HANA migration</option>
-              <option value="live">S/4HANA live (&lt;18 months post go-live)</option>
-              <option value="established">S/4HANA established (&gt;18 months)</option>
-            </select>
-          </div>
-          <div>
-            <label class="pf-label" for="p-regulatory">Regulatory Complexity</label>
-            <select class="pf-select" id="p-regulatory">
-              <option value="">— Select —</option>
-              <option value="single">Single jurisdiction (1 state / territory)</option>
-              <option value="multi">Multi-jurisdiction (2–5 states)</option>
-              <option value="complex">Complex multi (6+ states / multi-country)</option>
-              <option value="federal">FERC-jurisdictional / transmission</option>
-            </select>
-          </div>
-          <div>
-            <label class="pf-label" for="p-region">Geographic Region</label>
-            <select class="pf-select" id="p-region">
-              <option value="">— Select —</option>
-              <option value="us">North America (US)</option>
-              <option value="ca">North America (Canada)</option>
-              <option value="eu">Europe / EMEA</option>
-              <option value="apac">Asia-Pacific (AEMO / ANZ)</option>
-              <option value="latam">Latin America</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-        <div class="step-actions">
-          <button class="btn-sap-primary" onclick="goStep(2)">Begin Maturity Scan →</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════ STEP 2: MATURITY SCAN ════ -->
-  <div id="step2" class="step-panel">
-    <div class="wiz-panel">
-      <div class="scan-layout">
-
-        <div class="scan-axes">
-          <div class="panel-title" style="margin-bottom:0.25rem;">Rate Your Maturity — 10 Dimensions</div>
-          <div class="panel-sub" style="margin-bottom:1.5rem;">Score 1 (basic / absent) → 5 (world-class). Scores drive agent availability and your wave plan.</div>
-          <div id="axes-container"></div>
-        </div>
-
-        <div class="scan-chart-panel">
-          <div class="chart-panel-title">Maturity Radar</div>
-          <div class="chart-panel-sub">Hover over axes to explore. Adjust sliders to see agent availability change in Step 3.</div>
-          <div class="chart-wrap">
-            <canvas id="radar-canvas"></canvas>
-          </div>
-          <div class="tier-display">
-            <div class="tier-label">Overall Readiness</div>
-            <div class="tier-value" id="overall-tier">—</div>
-            <div class="tier-avg" id="avg-score"></div>
-          </div>
-        </div>
-
-      </div>
-      <div class="scan-actions">
-        <button class="btn-sap-ghost" onclick="goStep(1)">← Back</button>
-        <button class="btn-sap-primary" onclick="goStep(3)">Generate My Roadmap →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════ STEP 3: RESULTS ════ -->
-  <div id="step3" class="step-panel">
-
-    <!-- Stat bar -->
-    <div class="stat-bar" id="stat-bar"></div>
-
-    <!-- LHC Banner -->
-    <div class="lhc-banner" id="lhc-banner" style="display:none;">
-      <div class="lhc-icon">🏛️</div>
-      <div class="lhc-body">
-        <div class="lhc-eyebrow">IBM Lighthouse Council · Potential Fit</div>
-        <h3>Your profile suggests you may qualify for the IBM Lighthouse Council</h3>
-        <p id="lhc-text">A co-investment program where IBM builds AI agents <em>with</em> your utility at no development cost — co-defined, co-built, and validated on your own operational data. $41.7M+ annual value demonstrated at Avangrid (FY2025 FERC Form 1 actuals). IBM earns more only when you save more: 5% of measured operational savings post-proof.</p>
-      </div>
-      <button class="lhc-cta" onclick="alert('IBM Lighthouse Council interest noted. IBM Consulting will follow up within 2 business days.')">Request Conversation</button>
-    </div>
-
-    <!-- Sovereign Notice -->
-    <div class="sov-banner" id="sov-banner" style="display:none;">
-      <strong>⚠ Sovereign &amp; Data Residency Consideration:</strong> Your compliance profile and/or region indicates potential data residency requirements (NERC-CIP, GDPR, Australian Privacy Act). AWS GovCloud or SAP Private Cloud deployment should be assessed before production AI workloads go live.
-    </div>
-
-    <!-- Phase Tabs -->
-    <div class="phase-tabs" id="phase-tabs">
-      <button class="ptab active" id="ptab-1" onclick="switchPhase(1)">
-        Phase 1 — Invoice to Pay &amp; CRM <span class="pc" id="pc-1">0</span>
+  <div class="tabs" id="useCases">
+    <div class="tablist" role="tablist" aria-label="Utilities use cases">
+      <button class="tab" role="tab" aria-selected="true"  aria-controls="p-mx" id="t-mx">
+        <span class="name">A1 · MX-Resolver</span>
+        <span class="blurb">Meter exception auto-resolution</span>
       </button>
-      <button class="ptab" id="ptab-2" onclick="switchPhase(2)">
-        Phase 2 — Regulatory &amp; Asset <span class="pc" id="pc-2">0</span>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-bpem" id="t-bpem">
+        <span class="name">A2 · BPEM-Triage</span>
+        <span class="blurb">Case classify &amp; auto-clear</span>
       </button>
-      <button class="ptab" id="ptab-3" onclick="switchPhase(3)">
-        Phase 3 — Grid &amp; Innovation <span class="pc" id="pc-3">0</span>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-mo" id="t-mo">
+        <span class="name">A3 · MoveOps</span>
+        <span class="blurb">Move-in / move-out orchestration</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-edi" id="t-edi">
+        <span class="name">A4 · EDI-Recon</span>
+        <span class="blurb">Deregulated market reconciliation</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-coll" id="t-coll">
+        <span class="name">A5 · Collections-Strategist</span>
+        <span class="blurb">Next-best-action for FI-CA</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="p-csr" id="t-csr">
+        <span class="name">A6 · CSR Co-Agent</span>
+        <span class="blurb">In-CIC0 sidekick for the rep</span>
       </button>
     </div>
 
-    <div class="filter-row" id="filter-row"></div>
-    <div class="agents-grid" id="agents-grid"></div>
+    <!-- ════════════════════════════════════════════
+         A1 · MX-RESOLVER
+    ════════════════════════════════════════════ -->
+    <div class="panel" id="p-mx" role="tabpanel" aria-hidden="false" aria-labelledby="t-mx">
+      <div class="uc-head">
+        <div>
+          <div class="chips">
+            <span class="chip sap">M2C: Meter Reading</span>
+            <span class="chip teal">EDM · MDUS · IS-U</span>
+            <span class="chip gray">Replaces RPA failure F1, F2</span>
+          </div>
+          <h3>MX-Resolver — meter data exceptions, closed end-to-end</h3>
+          <p class="one-liner">
+            Classifies implausibles (zero, negative, spike, stuck), reasons over reading history and
+            weather-normalized baselines, proposes a correction, and posts it via BAPI under guardrails.
+            Routes only the genuinely ambiguous to a human queue.
+          </p>
+        </div>
+        <div class="maturity"><span class="pulse"></span> Sandbox-ready · pilot Q3</div>
+      </div>
 
-    <!-- Roadmap -->
-    <div class="section-eyebrow">Agent Roadmap — Priority Sequencing</div>
-    <div class="roadmap-section" style="margin-bottom:2rem;">
-      <div class="roadmap-grid">
-        <div class="rph-col">
-          <div class="rph-col-hdr ph1">Phase 1 · Invoice to Pay &amp; CRM</div>
-          <div class="rph-col-body" id="rph1"></div>
+      <!-- Architecture flow -->
+      <div class="arch-section">
+        <div class="arch-section-head">
+          <span class="arch-label">Architecture · Agent decision loop</span>
+          <span class="arch-toggle">EDM → Classify → Confidence gate → BAPI post / Escalate</span>
         </div>
-        <div class="rph-col">
-          <div class="rph-col-hdr ph2">Phase 2 · Regulatory &amp; Asset</div>
-          <div class="rph-col-body" id="rph2"></div>
+        <div class="arch-body">
+          <div class="flow-diagram">
+            <div class="flow-node trigger"><span class="fl">EDM Exception</span><span class="fs">BAdI fires on creation</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">Feature fetch</span><span class="fs">BDC: history + weather</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">AI Classifier</span><span class="fs">AI Core · zero/spike/stuck</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node gate"><span class="fl">Confidence gate</span><span class="fs">≥ 85% threshold</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node action"><span class="fl">BAPI post</span><span class="fs">EL31 correction + EL35 close</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node data-node"><span class="fl">Audit log</span><span class="fs">IS-U + trace store</span></div>
+          </div>
+          <div class="flow-branch">
+            <div class="flow-branch-item yes"><span class="fb-gate">≥ 85% →</span> Auto-correct via BAPI_METERMEASUREMENT_CHANGE · close exception · write audit</div>
+            <div class="flow-branch-item no"><span class="fb-gate">&lt; 85% →</span> Push to CIC0 exception queue · attach classifier rationale + suggested correction as draft</div>
+            <div class="flow-branch-item"><span class="fb-gate">Always →</span> Outcome captured for online retraining · model drift alarm if auto-resolve rate drops &gt;5 pp</div>
+          </div>
         </div>
-        <div class="rph-col">
-          <div class="rph-col-hdr ph3">Phase 3 · Grid &amp; Innovation</div>
-          <div class="rph-col-body" id="rph3"></div>
+      </div>
+
+      <!-- Bundle -->
+      <div class="bundle">
+        <div class="asset"><div class="icn" style="background:var(--sap)">A</div>
+          <h4>Reference architecture</h4>
+          <p>Joule Studio agent + Generative AI Hub + AI Core, anchored on BDC data products.</p>
+          <span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">D</div>
+          <h4>Data products</h4>
+          <p><code>meter_read_exceptions</code>, <code>premise_consumption_history</code>, <code>weather_baseline</code>.</p>
+          <span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">S</div>
+          <h4>Skill manifest</h4>
+          <p>Classify · retrieve · estimate · propose · post · escalate. Decision policy with confidence gates.</p>
+          <span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">I</div>
+          <h4>SAP integration</h4>
+          <p>BAPI EL31/EL35, CDS for read clusters, BAdI hook on EDM exception creation.</p>
+          <span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--sap)">E</div>
+          <h4>Eval golden set</h4>
+          <p>200 historical implausibles with labeled ground-truth corrections and weather context.</p>
+          <span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">T</div>
+          <h4>Try the agent</h4>
+          <p>Click an exception in the sandbox, watch it reason and propose the BAPI it would post.</p>
+          <span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">V</div>
+          <h4>Demo &amp; walkthrough</h4>
+          <p>3-minute scripted video plus clickable annotated UI tour.</p>
+          <span class="status plan">Planned</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">$</div>
+          <h4>Business case</h4>
+          <p>Inputs: meter count · % implausibles · cost-per-read. Outputs: savings + days-to-bill.</p>
+          <span class="status ready">Ready</span></div>
+      </div>
+
+      <!-- Technical + Integration -->
+      <div class="twocol">
+        <div class="block">
+          <h5>Technical accelerators</h5>
+          <ul>
+            <li><strong>EDM rule extraction:</strong> existing implausibility rules surfaced as features for the classifier.</li>
+            <li><strong>BAPI choreography:</strong> pre-wrapped EL31/EL35 with idempotency keys and reversal path.</li>
+            <li><strong>Synthetic test bed:</strong> 50k-contract IS-U dataset so pilots run without client data.</li>
+            <li><strong>Eval harness:</strong> regression-tested on every prompt or model change.</li>
+          </ul>
+          <div class="int-spec">
+            <div class="int-spec-title">Integration manifest</div>
+            <table>
+              <tr><th>API / Object</th><th>Dir</th><th>Key parameters</th><th>Notes</th></tr>
+              <tr>
+                <td class="api">ISU_EDM_EXCEPTION_HOOK</td>
+                <td class="dir dir-in">BAdI</td>
+                <td class="params">EXCEPTION_ID, PREMISE_ID, INSTALLATION_ID, EXCEPTION_TYPE, READ_DATE</td>
+                <td class="note">Fires synchronously on EDM exception creation</td>
+              </tr>
+              <tr>
+                <td class="api">BAPI_METERMEASUREMENT_CHANGE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">INSTALLATION, MR_DATE, REGISTER_ID, NEW_VALUE, REASON_CODE, AGENT_ID</td>
+                <td class="note">EL31 — posts corrected read with idempotency key</td>
+              </tr>
+              <tr>
+                <td class="api">ISU_METERREAD_EXCEPTION_CLOSE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">EXCEPTION_ID, RESOLUTION_CODE, CORRECTION_DOC_ID, CONFIDENCE_SCORE</td>
+                <td class="note">EL35 — closes exception after correction</td>
+              </tr>
+              <tr>
+                <td class="api">I_MeterReadingException</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">PREMISE_ID, INSTALLATION_ID, EXCEPTION_TYPE, STATUS, AGE_DAYS</td>
+                <td class="note">Classifier feature source</td>
+              </tr>
+              <tr>
+                <td class="api">I_PremiseConsumptionHistory</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">INSTALLATION_ID, FROM_DATE, TO_DATE, READ_VALUE, ESTIMATED_FLAG</td>
+                <td class="note">12-month rolling baseline for spike detection</td>
+              </tr>
+            </table>
+          </div>
         </div>
+        <div class="block">
+          <h5>Business value</h5>
+          <ul>
+            <li><strong>Auto-resolve rate:</strong> target 60–75% of implausibles with no human touch.</li>
+            <li><strong>Days-to-bill:</strong> shrink the long tail of held bills by clearing exceptions in minutes.</li>
+            <li><strong>Estimated reads avoided:</strong> reduce regulatory exposure and rebill volume.</li>
+            <li><strong>Write-off avoidance:</strong> early correction prevents downstream collections work.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div class="metric"><div class="v">62%</div><div class="k">Auto-resolve in pilot</div><div class="ctx">target across top 5 exception types</div></div>
+        <div class="metric"><div class="v">−4.2 days</div><div class="k">Days-to-bill</div><div class="ctx">on contracts with implausibles</div></div>
+        <div class="metric"><div class="v">$1.8M</div><div class="k">Annualized savings</div><div class="ctx">illustrative — 1.2M meter utility</div></div>
+      </div>
+
+      <!-- ROI Calculator -->
+      <div class="roi-calc">
+        <div class="roi-calc-title">ROI Calculator — run your numbers</div>
+        <div class="roi-grid">
+          <div class="roi-fields">
+            <div class="roi-field">
+              <label>Meter count <span class="roi-val" id="mx-meters-val">1,200,000</span></label>
+              <input type="range" id="mx-meters" min="200000" max="5000000" step="100000" value="1200000" oninput="calcMX()">
+            </div>
+            <div class="roi-field">
+              <label>Implausible rate (% of reads) <span class="roi-val" id="mx-rate-val">2.5%</span></label>
+              <input type="range" id="mx-rate" min="0.5" max="8" step="0.25" value="2.5" oninput="calcMX()">
+            </div>
+            <div class="roi-field">
+              <label>Cost per exception (fully loaded) <span class="roi-val" id="mx-cost-val">$25</span></label>
+              <input type="range" id="mx-cost" min="10" max="80" step="5" value="25" oninput="calcMX()">
+            </div>
+            <div class="roi-field">
+              <label>Agent auto-resolve rate <span class="roi-val" id="mx-auto-val">62%</span></label>
+              <input type="range" id="mx-auto" min="40" max="80" step="1" value="62" oninput="calcMX()">
+            </div>
+          </div>
+          <div class="roi-outputs">
+            <div class="roi-out"><div class="v" id="mx-out-savings">$1.9M</div><div class="k">Annual savings</div></div>
+            <div class="roi-out"><div class="v" id="mx-out-resolved">18,600</div><div class="k">Exceptions auto-resolved / yr</div></div>
+            <div class="roi-out"><div class="v" id="mx-out-payback">2.8 mo</div><div class="k">Payback period</div></div>
+          </div>
+        </div>
+        <div class="roi-note">Illustrative model. Implementation cost assumed $450K. Adjust sliders to your utility's scale.</div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn primary" href="#">Open sandbox</a>
+        <a class="btn ghost" href="#">Architecture diagram</a>
+        <a class="btn ghost" href="#">Eval scorecard</a>
+        <a class="btn gold" href="#">Download business case</a>
       </div>
     </div>
 
-    <!-- Wave Plan -->
-    <div class="section-eyebrow">Implementation Wave Plan</div>
-    <div class="wave-table-wrap">
-      <table class="wave-tbl">
-        <thead><tr>
-          <th>Wave</th><th>Timeline</th><th>Agent</th><th>Domain</th><th>Est. Annual Value</th><th>Rationale</th>
-        </tr></thead>
-        <tbody id="wave-tbody"></tbody>
-      </table>
-    </div>
-
-    <!-- Architecture -->
-    <div class="section-eyebrow">Next-Generation Architecture</div>
-    <div class="arch-section">
-      <div class="arch-eyebrow">AWS Bedrock + SAP S/4HANA IS-U · Agentic Stack</div>
-      <div class="arch-title">5-Layer Reference Architecture</div>
-      <div class="arch-sub" id="arch-sub">Nodes highlighted based on your maturity scores — dimmed nodes indicate capability gaps to address</div>
-      <div class="arch-layers" id="arch-layers"></div>
-    </div>
-
-    <!-- IBM Garage -->
-    <div class="garage-strip">
-      <div class="garage-strip-hdr">
-        <span class="garage-badge">IBM Garage</span>
-        <span class="garage-title">Co-build methodology — how we ensure agents generate real value, not just AI activity</span>
+    <!-- ════════════════════════════════════════════
+         A2 · BPEM-TRIAGE
+    ════════════════════════════════════════════ -->
+    <div class="panel" id="p-bpem" role="tabpanel" aria-hidden="true" aria-labelledby="t-bpem">
+      <div class="uc-head">
+        <div>
+          <div class="chips">
+            <span class="chip sap">M2C: Exception Mgmt</span>
+            <span class="chip teal">BPEM · S/4HANA Utilities</span>
+            <span class="chip gray">Replaces RPA failure F2, F3</span>
+          </div>
+          <h3>BPEM-Triage — classify, auto-clear, and route the long tail</h3>
+          <p class="one-liner">
+            A classifier across the BPEM taxonomy with an auto-clear rule pack for the top categories,
+            an escalation router that picks the right group/queue, and a clusterer that surfaces
+            recurring root causes for systemic fixes.
+          </p>
+        </div>
+        <div class="maturity"><span class="pulse"></span> Sandbox-ready · pilot Q3</div>
       </div>
-      <div class="garage-steps">
-        <div class="garage-step">
-          <div class="garage-step-num">01</div>
-          <div class="garage-step-title">Co-Define</div>
-          <p>Utility SMEs and IBM jointly define each agent's goal, KPIs, and success criteria before development begins — grounded in your operational data and financial baseline.</p>
+
+      <!-- Architecture flow -->
+      <div class="arch-section">
+        <div class="arch-section-head">
+          <span class="arch-label">Architecture · Agent decision loop</span>
+          <span class="arch-toggle">BPEM case → Classify → Auto-clear or route → Cluster analysis</span>
         </div>
-        <div class="garage-step">
-          <div class="garage-step-num">02</div>
-          <div class="garage-step-title">Co-Build</div>
-          <p>Three structured feedback gates at Weeks 10, 18, and 22 where your team interacts with working agents on real data. Shadow mode before any agent goes live.</p>
+        <div class="arch-body">
+          <div class="flow-diagram">
+            <div class="flow-node trigger"><span class="fl">BPEM Case Created</span><span class="fs">BAdI EMMA_CASE_CHECK</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">LLM Classifier</span><span class="fs">AI Core · taxonomy label</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node gate"><span class="fl">Rule engine</span><span class="fs">Top-10 auto-clear pack</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node action"><span class="fl">Auto-close / Route</span><span class="fs">BAPI_CASE_CLOSE or UPDATE</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">Root-cause clusterer</span><span class="fs">Pattern → systemic alert</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node data-node"><span class="fl">Audit + metrics</span><span class="fs">Case-aging dashboard</span></div>
+          </div>
+          <div class="flow-branch">
+            <div class="flow-branch-item yes"><span class="fb-gate">Clearable →</span> Auto-close via BAPI_CASE_CLOSE · attach resolution text · write audit trail</div>
+            <div class="flow-branch-item no"><span class="fb-gate">Complex →</span> Score + rank → route to best-fit resolver group with enrichment notes</div>
+            <div class="flow-branch-item"><span class="fb-gate">Cluster →</span> ≥ 5 similar cases in 7 days triggers systemic root-cause alert to CoE team</div>
+          </div>
         </div>
-        <div class="garage-step">
-          <div class="garage-step-num">03</div>
-          <div class="garage-step-title">Co-Validate</div>
-          <p>Outcome baseline agreed jointly at the end of the proof period. IBM's 5%-of-savings subscription starts only after your utility confirms the baseline is fair.</p>
+      </div>
+
+      <div class="bundle">
+        <div class="asset"><div class="icn" style="background:var(--sap)">A</div><h4>Reference architecture</h4><p>BPEM BAdI on case creation invokes agent; AI Core for inference, BDC for case history.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">D</div><h4>Data products</h4><p><code>bpem_cases</code>, <code>case_resolution_history</code>, <code>resolver_skill_matrix</code>.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">S</div><h4>Skill manifest</h4><p>Classify · auto-clear (rule pack) · enrich · route · cluster · alert.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">I</div><h4>SAP integration</h4><p>BAdI <code>EMMA_CASE_CHECK</code>, BAPI for case close/route, CDS I_BPEMCase.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--sap)">E</div><h4>Eval golden set</h4><p>1,000 historical cases with disposition labels and routing ground truth.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">T</div><h4>Try the agent</h4><p>Stream synthetic cases; watch live classification + confidence in real time.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">V</div><h4>Demo &amp; walkthrough</h4><p>Before/after case-aging histogram with a click-through walkthrough.</p><span class="status plan">Planned</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">$</div><h4>Business case</h4><p>Inputs: case volume · avg handle minutes · FTE cost. Outputs: deflection $.</p><span class="status ready">Ready</span></div>
+      </div>
+
+      <div class="twocol">
+        <div class="block">
+          <h5>Technical accelerators</h5>
+          <ul>
+            <li><strong>Case taxonomy:</strong> pre-trained classifier across the standard BPEM categories.</li>
+            <li><strong>Rule pack:</strong> top-10 auto-clear rules shipped as a configurable transport.</li>
+            <li><strong>Routing model:</strong> learns from historical resolver patterns and skill matrix.</li>
+            <li><strong>Root-cause clusterer:</strong> turns repeats into systemic fixes, not more cases.</li>
+          </ul>
+          <div class="int-spec">
+            <div class="int-spec-title">Integration manifest</div>
+            <table>
+              <tr><th>API / Object</th><th>Dir</th><th>Key parameters</th><th>Notes</th></tr>
+              <tr>
+                <td class="api">EMMA_CASE_CHECK</td>
+                <td class="dir dir-in">BAdI</td>
+                <td class="params">CASE_ID, CASE_TYPE, OBJECT_KEY, PROCESS_KEY, CREATION_DATE</td>
+                <td class="note">Intercepts synchronously on BPEM case creation</td>
+              </tr>
+              <tr>
+                <td class="api">BAPI_CASE_CLOSE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CASE_ID, CLOSE_REASON, RESOLUTION_TEXT, AGENT_ID, CONFIDENCE</td>
+                <td class="note">Auto-close for rule-pack-clearable cases</td>
+              </tr>
+              <tr>
+                <td class="api">BAPI_CASE_UPDATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CASE_ID, RESPONSIBLE_GROUP, PRIORITY, NOTES, CATEGORY_CODE</td>
+                <td class="note">Routes complex cases to the correct resolver queue</td>
+              </tr>
+              <tr>
+                <td class="api">CRM_CASE_CLUSTER_UPDATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CLUSTER_ID, CASE_IDS[], ROOT_CAUSE_CODE, ALERT_THRESHOLD</td>
+                <td class="note">Links cases to systemic pattern; triggers CoE alert</td>
+              </tr>
+              <tr>
+                <td class="api">I_BPEMCase</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">CASE_ID, CASE_TYPE, AGE_DAYS, STATUS, ASSIGNED_GROUP, OBJECT_KEY</td>
+                <td class="note">Feature extraction for classifier and clusterer</td>
+              </tr>
+            </table>
+          </div>
         </div>
+        <div class="block">
+          <h5>Business value</h5>
+          <ul>
+            <li><strong>FTE deflection:</strong> 30–50% of case volume cleared without human touch.</li>
+            <li><strong>Aging:</strong> P90 case age drops from days to hours on auto-cleared categories.</li>
+            <li><strong>Repeat-case rate:</strong> falls as systemic causes get fixed rather than re-worked.</li>
+            <li><strong>Compliance:</strong> consistent disposition with full audit trail per case.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div class="metric"><div class="v">42%</div><div class="k">Auto-clear rate</div><div class="ctx">top 10 categories</div></div>
+        <div class="metric"><div class="v">−68%</div><div class="k">P90 case age</div><div class="ctx">vs current process</div></div>
+        <div class="metric"><div class="v">$2.4M</div><div class="k">Annual deflection</div><div class="ctx">illustrative — 200k cases/yr</div></div>
+      </div>
+
+      <!-- ROI Calculator -->
+      <div class="roi-calc">
+        <div class="roi-calc-title">ROI Calculator — run your numbers</div>
+        <div class="roi-grid">
+          <div class="roi-fields">
+            <div class="roi-field">
+              <label>Annual BPEM case volume <span class="roi-val" id="bp-vol-val">200,000</span></label>
+              <input type="range" id="bp-vol" min="20000" max="1000000" step="10000" value="200000" oninput="calcBP()">
+            </div>
+            <div class="roi-field">
+              <label>Avg handle time per case (min) <span class="roi-val" id="bp-hndl-val">18 min</span></label>
+              <input type="range" id="bp-hndl" min="8" max="60" step="1" value="18" oninput="calcBP()">
+            </div>
+            <div class="roi-field">
+              <label>Fully-loaded FTE cost ($/hr) <span class="roi-val" id="bp-fte-val">$45</span></label>
+              <input type="range" id="bp-fte" min="30" max="120" step="5" value="45" oninput="calcBP()">
+            </div>
+            <div class="roi-field">
+              <label>Auto-clear rate <span class="roi-val" id="bp-auto-val">42%</span></label>
+              <input type="range" id="bp-auto" min="20" max="60" step="1" value="42" oninput="calcBP()">
+            </div>
+          </div>
+          <div class="roi-outputs">
+            <div class="roi-out"><div class="v" id="bp-out-savings">$2.3M</div><div class="k">Annual savings</div></div>
+            <div class="roi-out"><div class="v" id="bp-out-cases">84,000</div><div class="k">Cases auto-cleared / yr</div></div>
+            <div class="roi-out"><div class="v" id="bp-out-payback">2.4 mo</div><div class="k">Payback period</div></div>
+          </div>
+        </div>
+        <div class="roi-note">Illustrative model. Implementation cost assumed $380K. BPEM rule-pack transport included in implementation.</div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn primary" href="#">Open sandbox</a>
+        <a class="btn ghost" href="#">Architecture diagram</a>
+        <a class="btn ghost" href="#">Rule pack transport</a>
+        <a class="btn gold" href="#">Download business case</a>
       </div>
     </div>
 
-    <div class="step-actions" style="border-top:1px solid var(--ui-03);padding-top:1.5rem;">
-      <button class="btn-sap-ghost" onclick="goStep(2)">← Adjust Maturity Scores</button>
-      <button class="btn-sap-primary" onclick="alert('A consultant will reach out within 2 business days.')">Book a Strategy Session →</button>
+    <!-- ════════════════════════════════════════════
+         A3 · MOVEOPS
+    ════════════════════════════════════════════ -->
+    <div class="panel" id="p-mo" role="tabpanel" aria-hidden="true" aria-labelledby="t-mo">
+      <div class="uc-head">
+        <div>
+          <div class="chips">
+            <span class="chip sap">M2C: Move In/Out</span>
+            <span class="chip teal">IS-U · DM · FI-CA</span>
+            <span class="chip gray">White-space zone Z2</span>
+          </div>
+          <h3>MoveOps — orchestrating move-in / move-out across the stack</h3>
+          <p class="one-liner">
+            Sequences the choreography: premise lookup, contract creation, meter assignment, deposit
+            decision, fraud signals, document AI for ID and lease, and a CIC0-launchable handoff.
+            Handles the messy edges (occupied premise, mid-cycle, landlord account).
+          </p>
+        </div>
+        <div class="maturity"><span class="pulse"></span> Concept · pilot Q4</div>
+      </div>
+
+      <!-- Architecture flow -->
+      <div class="arch-section">
+        <div class="arch-section-head">
+          <span class="arch-label">Architecture · Agent decision loop</span>
+          <span class="arch-toggle">Request → Doc AI → Premise → Fraud gate → BAPI choreography → Confirm</span>
+        </div>
+        <div class="arch-body">
+          <div class="flow-diagram">
+            <div class="flow-node trigger"><span class="fl">Move-in Request</span><span class="fs">Web / CIC0 / IVR</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">Document AI</span><span class="fs">ID + lease parse + redact</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">Address normalize</span><span class="fs">ISU_ADDRESS_NORMALIZE</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node gate"><span class="fl">Fraud score</span><span class="fs">Identity + address signals</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node action"><span class="fl">BAPI choreography</span><span class="fs">MOVEIN → Meter → Deposit</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node data-node"><span class="fl">Confirmation</span><span class="fs">Channel + CIC0 handoff</span></div>
+          </div>
+          <div class="flow-branch">
+            <div class="flow-branch-item yes"><span class="fb-gate">Risk OK →</span> ISU_S_MOVEIN_CREATE → meter assignment → FKK deposit decision → BAPI_BUPA_CREATE → confirm</div>
+            <div class="flow-branch-item no"><span class="fb-gate">Risk flag →</span> Pause workflow · escalate to CSR with fraud signal detail · offer assisted channel</div>
+            <div class="flow-branch-item"><span class="fb-gate">Edge case →</span> Occupied premise / mid-cycle / landlord account triggers codified exception handler (12 scenarios)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bundle">
+        <div class="asset"><div class="icn" style="background:var(--sap)">A</div><h4>Reference architecture</h4><p>Orchestration agent + document AI microservice; BAPI calls sequenced with rollback logic.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">D</div><h4>Data products</h4><p><code>premises</code>, <code>contract_accounts</code>, <code>identity_signals</code>, <code>address_normalized</code>.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">S</div><h4>Skill manifest</h4><p>Verify · find premise · create contract · assign meter · price deposit · handoff.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">I</div><h4>SAP integration</h4><p>ISU_S_MOVEIN_CREATE, FKK_S_MKKVKP, address service, BAPI_BUPA_CREATE_FROM_DATA.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--sap)">E</div><h4>Eval golden set</h4><p>100 move scenarios incl. occupied, mid-cycle, landlord, fraud signal cases.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">T</div><h4>Try the agent</h4><p>Drop a lease PDF; watch end-to-end move-in unfold step by step with BAPI log.</p><span class="status plan">Planned</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">V</div><h4>Demo &amp; walkthrough</h4><p>Animated flow with the agent narrating each decision and BAPI call.</p><span class="status plan">Planned</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">$</div><h4>Business case</h4><p>Inputs: move volume · CSR minutes · abandon rate. Outputs: same-day-move % uplift.</p><span class="status ready">Ready</span></div>
+      </div>
+
+      <div class="twocol">
+        <div class="block">
+          <h5>Technical accelerators</h5>
+          <ul>
+            <li><strong>BAPI choreography:</strong> sequenced, idempotent, with rollback for partial moves.</li>
+            <li><strong>Document AI:</strong> ID and lease parsing prebuilt with PII redaction.</li>
+            <li><strong>Address normalization:</strong> standard service avoids duplicate premises.</li>
+            <li><strong>Edge-case library:</strong> codified handling for the top 12 awkward move scenarios.</li>
+          </ul>
+          <div class="int-spec">
+            <div class="int-spec-title">Integration manifest</div>
+            <table>
+              <tr><th>API / Object</th><th>Dir</th><th>Key parameters</th><th>Notes</th></tr>
+              <tr>
+                <td class="api">ISU_S_MOVEIN_CREATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">PREMISE_ID, CONTRACT_ACCOUNT_ID, MOVE_DATE, METER_ID, MOVE_REASON</td>
+                <td class="note">Core move-in creation; idempotency via MOVE_REF_ID</td>
+              </tr>
+              <tr>
+                <td class="api">ISU_S_MOVEOUT_CREATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">INSTALLATION_ID, MOVE_DATE, FINAL_READ, REASON, FORWARDING_ADDRESS</td>
+                <td class="note">Move-out and final bill trigger</td>
+              </tr>
+              <tr>
+                <td class="api">FKK_S_MKKVKP_CREATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">BP_ID, DEPOSIT_AMOUNT, DUE_DATE, PAYMENT_METHOD, RISK_SCORE</td>
+                <td class="note">FI-CA deposit management with risk-scored amount</td>
+              </tr>
+              <tr>
+                <td class="api">BAPI_BUPA_CREATE_FROM_DATA</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">BUSINESSPARTNER, ADDRESS, IDENTIFICATION, ROLES[], BANK_DETAIL</td>
+                <td class="note">New BP creation for first-time customers</td>
+              </tr>
+              <tr>
+                <td class="api">ISU_ADDRESS_NORMALIZE</td>
+                <td class="dir dir-out">FM</td>
+                <td class="params">RAW_ADDRESS, COUNTRY, OUTPUT_FORMAT, DEDUP_CHECK</td>
+                <td class="note">Prevents duplicate premise creation</td>
+              </tr>
+              <tr>
+                <td class="api">I_Premise</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">PREMISE_ID, ADDRESS, STATUS, METER_IDS[], ACTIVE_CONTRACTS, OWNER_BP</td>
+                <td class="note">Premise lookup and occupancy check</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="block">
+          <h5>Business value</h5>
+          <ul>
+            <li><strong>Same-day move %:</strong> step-change for self-serve moves — target +22 pp.</li>
+            <li><strong>CSR handle time:</strong> on assisted moves, deep cut on the calls that remain.</li>
+            <li><strong>Abandoned-move rate:</strong> drops as friction is removed from the flow.</li>
+            <li><strong>Fraud loss:</strong> earlier signal → fewer bad accounts opened.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div class="metric"><div class="v">+22 pp</div><div class="k">Same-day move share</div><div class="ctx">target uplift vs current</div></div>
+        <div class="metric"><div class="v">−40%</div><div class="k">Assisted move handle time</div><div class="ctx">on the calls that remain</div></div>
+        <div class="metric"><div class="v">−$X M</div><div class="k">Fraud + abandon savings</div><div class="ctx">scoped per market</div></div>
+      </div>
+
+      <!-- ROI Calculator -->
+      <div class="roi-calc">
+        <div class="roi-calc-title">ROI Calculator — run your numbers</div>
+        <div class="roi-grid">
+          <div class="roi-fields">
+            <div class="roi-field">
+              <label>Annual move volume <span class="roi-val" id="mo-vol-val">50,000</span></label>
+              <input type="range" id="mo-vol" min="5000" max="300000" step="5000" value="50000" oninput="calcMO()">
+            </div>
+            <div class="roi-field">
+              <label>CSR handle time per move (min) <span class="roi-val" id="mo-hndl-val">22 min</span></label>
+              <input type="range" id="mo-hndl" min="8" max="60" step="1" value="22" oninput="calcMO()">
+            </div>
+            <div class="roi-field">
+              <label>CSR fully-loaded cost ($/hr) <span class="roi-val" id="mo-csr-val">$42</span></label>
+              <input type="range" id="mo-csr" min="25" max="100" step="5" value="42" oninput="calcMO()">
+            </div>
+            <div class="roi-field">
+              <label>Handle-time reduction (agent assists) <span class="roi-val" id="mo-red-val">40%</span></label>
+              <input type="range" id="mo-red" min="15" max="65" step="5" value="40" oninput="calcMO()">
+            </div>
+          </div>
+          <div class="roi-outputs">
+            <div class="roi-out"><div class="v" id="mo-out-savings">$1.2M</div><div class="k">Annual savings</div></div>
+            <div class="roi-out"><div class="v" id="mo-out-hrs">15,400 hrs</div><div class="k">CSR hours deflected / yr</div></div>
+            <div class="roi-out"><div class="v" id="mo-out-payback">4.1 mo</div><div class="k">Payback period</div></div>
+          </div>
+        </div>
+        <div class="roi-note">Illustrative model. Implementation cost assumed $520K. Fraud and abandon recovery savings not included — additive upside.</div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn primary" href="#">Open sandbox</a>
+        <a class="btn ghost" href="#">Architecture diagram</a>
+        <a class="btn ghost" href="#">Edge-case library</a>
+        <a class="btn gold" href="#">Download business case</a>
+      </div>
     </div>
 
-  </div><!-- /step3 -->
-</div><!-- /wizard-shell -->
+    <!-- ════════════════════════════════════════════
+         A4 · EDI-RECON
+    ════════════════════════════════════════════ -->
+    <div class="panel" id="p-edi" role="tabpanel" aria-hidden="true" aria-labelledby="t-edi">
+      <div class="uc-head">
+        <div>
+          <div class="chips">
+            <span class="chip sap">M2C: Billing · Settlement</span>
+            <span class="chip teal">IDoc · Market Comms</span>
+            <span class="chip gray">Replaces RPA failure F4 · zone Z3</span>
+          </div>
+          <h3>EDI-Recon — closing the leakage in deregulated market messaging</h3>
+          <p class="one-liner">
+            Parses 814 / 810 / 820 / 867 traffic, detects mismatches between enrollment, billed, and
+            paid, and proposes the corrective transaction. Market-specific rule packs land first for
+            ERCOT and PJM, then NYISO.
+          </p>
+        </div>
+        <div class="maturity"><span class="pulse"></span> Concept · pilot Q4</div>
+      </div>
+
+      <!-- Architecture flow -->
+      <div class="arch-section">
+        <div class="arch-section-head">
+          <span class="arch-label">Architecture · Agent decision loop</span>
+          <span class="arch-toggle">Market message → IDoc parse → BDC compare → Rule pack → Corrective txn → SLA monitor</span>
+        </div>
+        <div class="arch-body">
+          <div class="flow-diagram">
+            <div class="flow-node trigger"><span class="fl">Market Message</span><span class="fs">814/810/820/867 inbound</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">IDoc parser</span><span class="fs">Market variant normalize</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node data-node"><span class="fl">BDC stream</span><span class="fs">edi_messages, enrollment_state</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node gate"><span class="fl">Reconciler</span><span class="fs">Enrolled vs billed vs paid</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node action"><span class="fl">Rule pack + Txn</span><span class="fs">ERCOT / PJM / NYISO</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">SLA monitor</span><span class="fs">Deadline alarm + dispatch</span></div>
+          </div>
+          <div class="flow-branch">
+            <div class="flow-branch-item yes"><span class="fb-gate">Match →</span> Confirm reconciled; update enrollment_state; close message loop in BDC</div>
+            <div class="flow-branch-item no"><span class="fb-gate">Mismatch →</span> Classify dispute type · apply market rule pack · generate ISU_MARKET_COMM_CREATE corrective transaction</div>
+            <div class="flow-branch-item"><span class="fb-gate">SLA risk →</span> Alarm if outbound response approaches market deadline (ERCOT: 3 days, PJM: 2 days)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bundle">
+        <div class="asset"><div class="icn" style="background:var(--sap)">A</div><h4>Reference architecture</h4><p>Stream IDoc + market message corpus into BDC; reconciliation agent sits on top.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">D</div><h4>Data products</h4><p><code>edi_messages</code>, <code>enrollment_state</code>, <code>billed_vs_paid</code>, <code>dispute_log</code>.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">S</div><h4>Skill manifest</h4><p>Parse · normalize · detect mismatch · propose corrective txn · monitor SLA · alert.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">I</div><h4>SAP integration</h4><p>IDoc inbound/outbound, ISU_MARKET_COMM_CREATE, FI-CA dispute objects.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--sap)">E</div><h4>Eval golden set</h4><p>Multi-month message corpus with seeded discrepancies per market (ERCOT, PJM).</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">T</div><h4>Try the agent</h4><p>Pick a market; see live mismatch dashboard; click a mismatch to inspect resolution chain.</p><span class="status plan">Planned</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">V</div><h4>Demo &amp; walkthrough</h4><p>Recorded walkthrough on ERCOT seeded data with real dispute dollar amounts.</p><span class="status plan">Planned</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">$</div><h4>Business case</h4><p>Inputs: customers · market mix · current dispute backlog. Outputs: leakage closed.</p><span class="status ready">Ready</span></div>
+      </div>
+
+      <div class="twocol">
+        <div class="block">
+          <h5>Technical accelerators</h5>
+          <ul>
+            <li><strong>Message schemas:</strong> 814/810/820/867 parsers with market variants pre-built.</li>
+            <li><strong>Market rule packs:</strong> ERCOT, PJM first; NYISO next; configurable, not hard-coded.</li>
+            <li><strong>Dispute templates:</strong> codified, with auto-routing to the right counterparty.</li>
+            <li><strong>SLA monitor:</strong> alarms on outbound responses approaching market deadlines.</li>
+          </ul>
+          <div class="int-spec">
+            <div class="int-spec-title">Integration manifest</div>
+            <table>
+              <tr><th>API / Object</th><th>Dir</th><th>Key parameters</th><th>Notes</th></tr>
+              <tr>
+                <td class="api">IDOC_INBOUND_ASYNCHRONOUS</td>
+                <td class="dir dir-in">In</td>
+                <td class="params">IDOC_TYPE, SEGMENT_DATA[], MARKET_ID, TRANSACTION_TYPE, SENDER_ID</td>
+                <td class="note">814/810/820/867 ingestion into IS-U/EDI layer</td>
+              </tr>
+              <tr>
+                <td class="api">ISU_MARKET_COMM_CREATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">MSG_TYPE, COUNTERPARTY_ID, MARKET_CODE, PAYLOAD, REFERENCE_MSG_ID</td>
+                <td class="note">Corrective transaction back to market counterparty</td>
+              </tr>
+              <tr>
+                <td class="api">FKK_DISPUTE_CREATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, DISPUTE_AMOUNT, DISPUTE_TYPE, REFERENCE, DUE_DATE</td>
+                <td class="note">FI-CA dispute object for revenue leakage tracking</td>
+              </tr>
+              <tr>
+                <td class="api">FKK_DISPUTE_ROUTE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">DISPUTE_ID, RESPONSIBLE_GROUP, SLA_DATE, PRIORITY, MARKET_CODE</td>
+                <td class="note">Routes dispute to market ops team with SLA date</td>
+              </tr>
+              <tr>
+                <td class="api">I_EDIMessage</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">MSG_ID, MSG_TYPE, MARKET_CODE, SEND_DATE, STATUS, COUNTERPARTY</td>
+                <td class="note">Outbound message corpus for SLA monitoring</td>
+              </tr>
+              <tr>
+                <td class="api">I_EnrollmentState</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">CONTRACT_ID, MARKET_CODE, ENROLLED_DATE, SWITCH_STATUS, REP_ID</td>
+                <td class="note">Enrollment vs billed reconciliation source</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="block">
+          <h5>Business value</h5>
+          <ul>
+            <li><strong>Revenue leakage:</strong> mismatches surfaced and corrected on the same billing cycle.</li>
+            <li><strong>Dispute backlog:</strong> step-down as resolutions become same-day not weeks-long.</li>
+            <li><strong>DSO:</strong> reduces meaningfully in deregulated portfolios with high dispute volume.</li>
+            <li><strong>Penalty avoidance:</strong> fewer missed market response windows = fewer fines.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div class="metric"><div class="v">$3.1M</div><div class="k">Leakage recovered</div><div class="ctx">illustrative — 1M REP customers</div></div>
+        <div class="metric"><div class="v">−55%</div><div class="k">Dispute aging</div><div class="ctx">P90 days-to-resolve</div></div>
+        <div class="metric"><div class="v">−2.4 days</div><div class="k">DSO</div><div class="ctx">deregulated customer book</div></div>
+      </div>
+
+      <!-- ROI Calculator -->
+      <div class="roi-calc">
+        <div class="roi-calc-title">ROI Calculator — run your numbers</div>
+        <div class="roi-grid">
+          <div class="roi-fields">
+            <div class="roi-field">
+              <label>REP / deregulated customers <span class="roi-val" id="edi-cust-val">1,000,000</span></label>
+              <input type="range" id="edi-cust" min="50000" max="5000000" step="50000" value="1000000" oninput="calcEDI()">
+            </div>
+            <div class="roi-field">
+              <label>Dispute rate (% of customers/yr) <span class="roi-val" id="edi-rate-val">8.0%</span></label>
+              <input type="range" id="edi-rate" min="1" max="20" step="0.5" value="8" oninput="calcEDI()">
+            </div>
+            <div class="roi-field">
+              <label>Avg dispute value ($) <span class="roi-val" id="edi-val-val">$38</span></label>
+              <input type="range" id="edi-val" min="10" max="200" step="5" value="38" oninput="calcEDI()">
+            </div>
+            <div class="roi-field">
+              <label>Resolution rate improvement <span class="roi-val" id="edi-res-val">55%</span></label>
+              <input type="range" id="edi-res" min="20" max="80" step="5" value="55" oninput="calcEDI()">
+            </div>
+          </div>
+          <div class="roi-outputs">
+            <div class="roi-out"><div class="v" id="edi-out-leakage">$3.0M</div><div class="k">Revenue leakage recovered</div></div>
+            <div class="roi-out"><div class="v" id="edi-out-disputes">44,000</div><div class="k">Disputes resolved / yr</div></div>
+            <div class="roi-out"><div class="v" id="edi-out-payback">2.2 mo</div><div class="k">Payback period</div></div>
+          </div>
+        </div>
+        <div class="roi-note">Illustrative model. Implementation cost assumed $580K. Penalty avoidance savings not included — additive upside per market.</div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn primary" href="#">Open sandbox</a>
+        <a class="btn ghost" href="#">Market rule packs</a>
+        <a class="btn ghost" href="#">Architecture diagram</a>
+        <a class="btn gold" href="#">Download business case</a>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════
+         A5 · COLLECTIONS-STRATEGIST
+    ════════════════════════════════════════════ -->
+    <div class="panel" id="p-coll" role="tabpanel" aria-hidden="true" aria-labelledby="t-coll">
+      <div class="uc-head">
+        <div>
+          <div class="chips">
+            <span class="chip sap">M2C: Collections</span>
+            <span class="chip teal">FI-CA · Dunning</span>
+            <span class="chip gray">White-space zone Z4</span>
+          </div>
+          <h3>Collections-Strategist — next-best-action on every account</h3>
+          <p class="one-liner">
+            A propensity-to-pay model and an NBA policy spanning channel × offer × timing, integrated
+            with FI-CA dunning so the agent doesn't sit beside the system — it operates inside it.
+          </p>
+        </div>
+        <div class="maturity"><span class="pulse"></span> Concept · pilot Q4</div>
+      </div>
+
+      <!-- Architecture flow -->
+      <div class="arch-section">
+        <div class="arch-section-head">
+          <span class="arch-label">Architecture · Agent decision loop</span>
+          <span class="arch-toggle">FI-CA aging → Feature store → Propensity model → NBA policy → Channel dispatch → Learn</span>
+        </div>
+        <div class="arch-body">
+          <div class="flow-diagram">
+            <div class="flow-node trigger"><span class="fl">FI-CA AR Aging</span><span class="fs">Daily batch trigger</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node data-node"><span class="fl">Feature store</span><span class="fs">40+ payment signals</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">Propensity model</span><span class="fs">Pay probability score</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node gate"><span class="fl">NBA policy</span><span class="fs">Channel × offer × timing</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node action"><span class="fl">Channel dispatch</span><span class="fs">SMS / email / IVR / agent</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">Outcome capture</span><span class="fs">FI-CA update + retrain</span></div>
+          </div>
+          <div class="flow-branch">
+            <div class="flow-branch-item yes"><span class="fb-gate">High propensity →</span> Low-friction digital channel (SMS/email) with self-serve payment link; FKK payment plan offer</div>
+            <div class="flow-branch-item no"><span class="fb-gate">Low propensity →</span> Outbound agent call with negotiation script; hardship-flag check before escalation</div>
+            <div class="flow-branch-item"><span class="fb-gate">Hardship flag →</span> Exempt from aggressive dunning; route to hardship program with regulatory compliance check</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bundle">
+        <div class="asset"><div class="icn" style="background:var(--sap)">A</div><h4>Reference architecture</h4><p>Feature store on FI-CA → propensity model → NBA policy → channel orchestrator with A/B harness.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">D</div><h4>Data products</h4><p><code>account_payment_history</code>, <code>contact_outcomes</code>, <code>hardship_flags</code>, <code>dunning_ladder</code>.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">S</div><h4>Skill manifest</h4><p>Score · segment · choose NBA · deliver · capture outcome · retrain quarterly.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">I</div><h4>SAP integration</h4><p>FI-CA dunning procedures, payment plan creation FKK_S_PPLAN, contact log.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--sap)">E</div><h4>Eval golden set</h4><p>Lift over current dunning ladder on holdout, with offline policy evaluation framework.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">T</div><h4>Try the agent</h4><p>Pick an account; see segmentation, propensity score, NBA, and the full rationale.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">V</div><h4>Demo &amp; walkthrough</h4><p>Lift curve and savings calculator side-by-side with A/B experiment dashboard.</p><span class="status plan">Planned</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">$</div><h4>Business case</h4><p>Inputs: AR aging · write-off rate · contact cost. Outputs: bad-debt reduction $.</p><span class="status ready">Ready</span></div>
+      </div>
+
+      <div class="twocol">
+        <div class="block">
+          <h5>Technical accelerators</h5>
+          <ul>
+            <li><strong>Feature store:</strong> the FI-CA features are pre-engineered, not built per project.</li>
+            <li><strong>Baseline propensity model:</strong> trained on synthetic data; client tunes on their own.</li>
+            <li><strong>NBA policy:</strong> pluggable channel × offer × timing action table.</li>
+            <li><strong>A/B harness:</strong> every policy change shipped behind a randomised experiment.</li>
+          </ul>
+          <div class="int-spec">
+            <div class="int-spec-title">Integration manifest</div>
+            <table>
+              <tr><th>API / Object</th><th>Dir</th><th>Key parameters</th><th>Notes</th></tr>
+              <tr>
+                <td class="api">FKK_DUNNING_TRIGGER</td>
+                <td class="dir dir-in">BAdI</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, DUNNING_LEVEL, OVERDUE_AMOUNT, LAST_PAYMENT</td>
+                <td class="note">Intercepts FI-CA dunning run; agent scores before action</td>
+              </tr>
+              <tr>
+                <td class="api">FKK_S_PPLAN_CREATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, INSTALLMENTS[], PLAN_TYPE, TOTAL_AMOUNT, START_DATE</td>
+                <td class="note">Payment plan creation via FI-CA contract account</td>
+              </tr>
+              <tr>
+                <td class="api">FKK_DUNNING_UPDATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, NEXT_ACTION, HOLD_DAYS, CHANNEL, NBA_CODE</td>
+                <td class="note">Overrides dunning procedure with agent NBA decision</td>
+              </tr>
+              <tr>
+                <td class="api">ISU_CONTACT_LOG_CREATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, CONTACT_TYPE, CHANNEL, OUTCOME, PROMISE_AMOUNT</td>
+                <td class="note">Logs each contact attempt for feedback loop</td>
+              </tr>
+              <tr>
+                <td class="api">I_ContractAccountPaymentHistory</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, PERIOD, AMOUNTS[], LATE_FLAGS[], PROMISE_FLAGS[]</td>
+                <td class="note">Core payment pattern feature source (40+ derived features)</td>
+              </tr>
+              <tr>
+                <td class="api">I_CollectionsContactOutcome</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, CHANNEL, DATE, PROMISE_FLAG, OUTCOME, AGENT_ID</td>
+                <td class="note">NBA learning signal for quarterly retraining</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="block">
+          <h5>Business value</h5>
+          <ul>
+            <li><strong>Bad debt:</strong> reductions in the 8–15% range on comparable utility books.</li>
+            <li><strong>Contact-to-promise:</strong> meaningful uplift from precision targeting.</li>
+            <li><strong>Cost per dollar collected:</strong> falls as cheap digital channels handle more volume.</li>
+            <li><strong>Fairness:</strong> hardship-aware policy prevents harmful escalation and regulatory risk.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div class="metric"><div class="v">−12%</div><div class="k">Bad debt</div><div class="ctx">vs current dunning ladder</div></div>
+        <div class="metric"><div class="v">+18%</div><div class="k">Contact-to-promise</div><div class="ctx">on segmented outreach</div></div>
+        <div class="metric"><div class="v">−$0.06</div><div class="k">Cost per $ collected</div><div class="ctx">illustrative</div></div>
+      </div>
+
+      <!-- ROI Calculator -->
+      <div class="roi-calc">
+        <div class="roi-calc-title">ROI Calculator — run your numbers</div>
+        <div class="roi-grid">
+          <div class="roi-fields">
+            <div class="roi-field">
+              <label>Total AR balance ($M) <span class="roi-val" id="cl-ar-val">$50M</span></label>
+              <input type="range" id="cl-ar" min="5" max="500" step="5" value="50" oninput="calcCL()">
+            </div>
+            <div class="roi-field">
+              <label>Annual write-off rate (%) <span class="roi-val" id="cl-wo-val">2.8%</span></label>
+              <input type="range" id="cl-wo" min="0.5" max="8" step="0.1" value="2.8" oninput="calcCL()">
+            </div>
+            <div class="roi-field">
+              <label>Bad-debt reduction from agent (%) <span class="roi-val" id="cl-red-val">12%</span></label>
+              <input type="range" id="cl-red" min="5" max="20" step="1" value="12" oninput="calcCL()">
+            </div>
+            <div class="roi-field">
+              <label>Accounts in dunning ('000s) <span class="roi-val" id="cl-acct-val">15,000</span></label>
+              <input type="range" id="cl-acct" min="1000" max="200000" step="1000" value="15000" oninput="calcCL()">
+            </div>
+          </div>
+          <div class="roi-outputs">
+            <div class="roi-out"><div class="v" id="cl-out-savings">$1.7M</div><div class="k">Bad-debt reduction / yr</div></div>
+            <div class="roi-out"><div class="v" id="cl-out-contact">$0.9M</div><div class="k">Contact cost savings / yr</div></div>
+            <div class="roi-out"><div class="v" id="cl-out-payback">3.1 mo</div><div class="k">Payback period</div></div>
+          </div>
+        </div>
+        <div class="roi-note">Illustrative model. Implementation cost assumed $490K. Contact cost saving assumes $6 saved per contact redirected to digital channel.</div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn primary" href="#">Open sandbox</a>
+        <a class="btn ghost" href="#">Lift curve</a>
+        <a class="btn ghost" href="#">Architecture diagram</a>
+        <a class="btn gold" href="#">Download business case</a>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════
+         A6 · CSR CO-AGENT
+    ════════════════════════════════════════════ -->
+    <div class="panel" id="p-csr" role="tabpanel" aria-hidden="true" aria-labelledby="t-csr">
+      <div class="uc-head">
+        <div>
+          <div class="chips">
+            <span class="chip sap">M2C: Customer Service</span>
+            <span class="chip teal">CIC0 · IC Web Client</span>
+            <span class="chip gray">White-space zone Z1</span>
+          </div>
+          <h3>CSR Co-Agent — the rep's sidekick inside CIC0</h3>
+          <p class="one-liner">
+            Sits in the side panel, listens, retrieves from the knowledge base, drafts answers,
+            proposes the next SAP action (waive late fee, schedule field visit, set up payment plan),
+            and writes the wrap-up note. RAG with guardrails, not free-text generation.
+          </p>
+        </div>
+        <div class="maturity"><span class="pulse"></span> Sandbox-ready · pilot Q3</div>
+      </div>
+
+      <!-- Architecture flow -->
+      <div class="arch-section">
+        <div class="arch-section-head">
+          <span class="arch-label">Architecture · Agent decision loop</span>
+          <span class="arch-toggle">Call starts → CIC0 Account 360 → RAG retrieval → Draft + action propose → Rep approves → Wrap-up</span>
+        </div>
+        <div class="arch-body">
+          <div class="flow-diagram">
+            <div class="flow-node trigger"><span class="fl">Call starts</span><span class="fs">CIC0 session open</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node data-node"><span class="fl">Account 360</span><span class="fs">I_Account360 CDS view</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node process"><span class="fl">RAG retrieval</span><span class="fs">kb_chunks + policy_library</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node gate"><span class="fl">Action proposer</span><span class="fs">Fee waive / plan / dispatch</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node human"><span class="fl">Rep approves</span><span class="fs">One-click confirm</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node action"><span class="fl">IS-U execute</span><span class="fs">BAPI + wrap-up note</span></div>
+          </div>
+          <div class="flow-branch">
+            <div class="flow-branch-item yes"><span class="fb-gate">Rep approves →</span> Execute IS-U action (ISU_LATEFEE_WAIVE / FKK_S_PPLAN / ISU_FIELDWORK_DISPATCH) and write ISU_INTERACTION_LOG</div>
+            <div class="flow-branch-item no"><span class="fb-gate">Rep declines →</span> Surface alternative actions; rep retains full control; all suggestions cited to source</div>
+            <div class="flow-branch-item"><span class="fb-gate">Guardrail →</span> Hallucination check: every answer must cite a kb_chunk or policy doc; refuse-to-answer if no grounded source</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bundle">
+        <div class="asset"><div class="icn" style="background:var(--sap)">A</div><h4>Reference architecture</h4><p>CIC0 plugin scaffold + RAG via Generative AI Hub + IS-U action library with approval gates.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">D</div><h4>Data products</h4><p><code>kb_chunks</code>, <code>account_360</code>, <code>policy_library</code>, <code>action_log</code>.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">S</div><h4>Skill manifest</h4><p>Listen · retrieve · draft · cite · propose action · write wrap-up note.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">I</div><h4>SAP integration</h4><p>CIC0 add-on scaffold, IS-U action library (fee waiver, payment plan, field dispatch).</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--sap)">E</div><h4>Eval golden set</h4><p>300 recorded calls scored for answer accuracy, citation quality, and compliance.</p><span class="status ready">Ready</span></div>
+        <div class="asset"><div class="icn" style="background:var(--teal)">T</div><h4>Try the agent</h4><p>Replay a scripted call; the side panel runs alongside in real time showing all steps.</p><span class="status wip">In build</span></div>
+        <div class="asset"><div class="icn" style="background:var(--gold)">V</div><h4>Demo &amp; walkthrough</h4><p>Before/after AHT slider with a CSR using the co-agent live on screen.</p><span class="status plan">Planned</span></div>
+        <div class="asset"><div class="icn" style="background:var(--coral)">$</div><h4>Business case</h4><p>Inputs: CSR FTE count · AHT · FCR. Outputs: handle-time + ramp-time savings.</p><span class="status ready">Ready</span></div>
+      </div>
+
+      <div class="twocol">
+        <div class="block">
+          <h5>Technical accelerators</h5>
+          <ul>
+            <li><strong>CIC0 scaffold:</strong> plugin shell, security context, telemetry hooks pre-built.</li>
+            <li><strong>KB ingestion pipeline:</strong> SharePoint / Confluence / PDF with chunking + redaction.</li>
+            <li><strong>Action library:</strong> mapped to IS-U transactions with approval rules per action type.</li>
+            <li><strong>Hallucination guardrails:</strong> citations enforced; refuse-to-answer behavior tuned.</li>
+          </ul>
+          <div class="int-spec">
+            <div class="int-spec-title">Integration manifest</div>
+            <table>
+              <tr><th>API / Object</th><th>Dir</th><th>Key parameters</th><th>Notes</th></tr>
+              <tr>
+                <td class="api">ISU_CIC0_ADDON_REGISTER</td>
+                <td class="dir dir-out">FM</td>
+                <td class="params">ADDON_ID, SIDE_PANEL_URL, CONTEXT_FIELDS[], SESSION_TOKEN</td>
+                <td class="note">CIC0 plugin registration; passes account context to agent</td>
+              </tr>
+              <tr>
+                <td class="api">ISU_LATEFEE_WAIVE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, FEE_ID, WAIVE_REASON, AGENT_ID, APPROVAL_REF</td>
+                <td class="note">Late fee waiver with rep approval gate</td>
+              </tr>
+              <tr>
+                <td class="api">FKK_S_PPLAN_CREATE</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, INSTALLMENTS[], PLAN_TYPE, START_DATE, AGENT_ID</td>
+                <td class="note">In-call payment plan from agent action proposal</td>
+              </tr>
+              <tr>
+                <td class="api">ISU_FIELDWORK_DISPATCH</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">PREMISE_ID, WORK_TYPE, PRIORITY, SCHEDULED_DATE, NOTES</td>
+                <td class="note">Field visit dispatch from CIC0 one-click action</td>
+              </tr>
+              <tr>
+                <td class="api">ISU_INTERACTION_LOG</td>
+                <td class="dir dir-out">Out</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, INTERACTION_TYPE, SUMMARY_TEXT, DURATION, ACTIONS[]</td>
+                <td class="note">Auto-written wrap-up note; reduces after-call work by 80%</td>
+              </tr>
+              <tr>
+                <td class="api">I_Account360</td>
+                <td class="dir dir-read">CDS</td>
+                <td class="params">CONTRACT_ACCOUNT_ID, BALANCE, PAYMENT_HISTORY[], OPEN_CASES[], ACTIVE_CONTRACTS</td>
+                <td class="note">Full account context loaded at call start</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="block">
+          <h5>Business value</h5>
+          <ul>
+            <li><strong>AHT:</strong> reductions in the 25–35% band on common call drivers (top 10).</li>
+            <li><strong>FCR:</strong> uplift as the agent surfaces and applies the right action in-call.</li>
+            <li><strong>Ramp time:</strong> new CSRs reach proficiency materially faster with the co-agent.</li>
+            <li><strong>CSAT:</strong> fewer transfers, fewer "let me check on that and call you back."</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div class="metric"><div class="v">−32%</div><div class="k">Average handle time</div><div class="ctx">on top 10 call drivers</div></div>
+        <div class="metric"><div class="v">+9 pp</div><div class="k">First-contact resolution</div><div class="ctx">vs control group</div></div>
+        <div class="metric"><div class="v">−45%</div><div class="k">CSR ramp time</div><div class="ctx">to proficiency for new hires</div></div>
+      </div>
+
+      <!-- ROI Calculator -->
+      <div class="roi-calc">
+        <div class="roi-calc-title">ROI Calculator — run your numbers</div>
+        <div class="roi-grid">
+          <div class="roi-fields">
+            <div class="roi-field">
+              <label>CSR headcount (seats) <span class="roi-val" id="csr-seats-val">200</span></label>
+              <input type="range" id="csr-seats" min="20" max="2000" step="10" value="200" oninput="calcCSR()">
+            </div>
+            <div class="roi-field">
+              <label>Avg AHT (minutes) <span class="roi-val" id="csr-aht-val">8.5 min</span></label>
+              <input type="range" id="csr-aht" min="4" max="20" step="0.5" value="8.5" oninput="calcCSR()">
+            </div>
+            <div class="roi-field">
+              <label>Calls handled per seat per day <span class="roi-val" id="csr-calls-val">50</span></label>
+              <input type="range" id="csr-calls" min="20" max="100" step="5" value="50" oninput="calcCSR()">
+            </div>
+            <div class="roi-field">
+              <label>Fully-loaded CSR cost ($/hr) <span class="roi-val" id="csr-cost-val">$42</span></label>
+              <input type="range" id="csr-cost" min="25" max="100" step="5" value="42" oninput="calcCSR()">
+            </div>
+          </div>
+          <div class="roi-outputs">
+            <div class="roi-out"><div class="v" id="csr-out-savings">$3.7M</div><div class="k">Annual AHT savings</div></div>
+            <div class="roi-out"><div class="v" id="csr-out-hrs">87,100 hrs</div><div class="k">Handle-time hours recovered</div></div>
+            <div class="roi-out"><div class="v" id="csr-out-payback">1.6 mo</div><div class="k">Payback period</div></div>
+          </div>
+        </div>
+        <div class="roi-note">Illustrative model. AHT reduction assumed 32%. Implementation cost assumed $420K. Ramp-time savings for new hires not included — additive upside.</div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn primary" href="#">Open sandbox</a>
+        <a class="btn ghost" href="#">CIC0 plugin scaffold</a>
+        <a class="btn ghost" href="#">Eval scorecard</a>
+        <a class="btn gold" href="#">Download business case</a>
+      </div>
+    </div>
+
+  </div><!-- /tabs -->
+</section>
+
+<!-- ── FOUNDATIONS ── -->
+<section class="wrap" style="padding-top:0">
+  <div class="foundations">
+    <h3>Platform foundations every use case reuses</h3>
+    <p>Built once, reused six ways. Every use case depends on the same six foundations — so reuse stays visible and the cost per additional agent drops materially as the portfolio scales.</p>
+    <div class="found-grid">
+      <div class="found-card">
+        <h4>Agent SDK starter kit</h4>
+        <p>Joule Studio + Agent Builder templates, prompt library, guardrail patterns, and an eval-on-PR pipeline that catches regressions before they reach production.</p>
+        <div class="found-apis">
+          <span class="found-api">AgentBuilder</span>
+          <span class="found-api">JouleStudio</span>
+          <span class="found-api">GenAI Hub</span>
+        </div>
+      </div>
+      <div class="found-card">
+        <h4>SAP integration toolkit</h4>
+        <p>Pre-wrapped BAPIs, OData services, and CDS views for IS-U, FI-CA, BPEM, EDM, and CIC0 — plus a synthetic 50k-contract IS-U dataset for pilots without client data.</p>
+        <div class="found-apis">
+          <span class="found-api">IS-U BAPIs</span>
+          <span class="found-api">FI-CA APIs</span>
+          <span class="found-api">CDS views</span>
+        </div>
+      </div>
+      <div class="found-card">
+        <h4>Semantic + data products on BDC</h4>
+        <p>Curated tables for premises, contracts, reads, exceptions, cases, and payments — with a published glossary and data lineage so every agent knows what it's consuming.</p>
+        <div class="found-apis">
+          <span class="found-api">SAP BDC</span>
+          <span class="found-api">Datasphere</span>
+          <span class="found-api">Glossary</span>
+        </div>
+      </div>
+      <div class="found-card">
+        <h4>Eval &amp; observability</h4>
+        <p>Golden datasets per agent, LLM-as-judge rubrics, online metrics (auto-resolve rate, confidence distribution, escalation rate), and a trace viewer for audit.</p>
+        <div class="found-apis">
+          <span class="found-api">LLM-as-judge</span>
+          <span class="found-api">AI Core metrics</span>
+          <span class="found-api">Trace viewer</span>
+        </div>
+      </div>
+      <div class="found-card">
+        <h4>Governance pack</h4>
+        <p>RBAC matrix, PII redaction pipeline, prompt-injection test suite, audit log schema, and a model-risk template aligned to NIST AI RMF for regulatory submissions.</p>
+        <div class="found-apis">
+          <span class="found-api">RBAC</span>
+          <span class="found-api">PII redact</span>
+          <span class="found-api">NIST RMF</span>
+        </div>
+      </div>
+      <div class="found-card">
+        <h4>Sandbox runtime</h4>
+        <p>Sandboxed agent runner the portal invokes — rate-limited, synthetic data only. "Try the agent" buttons across all six panels call this runtime without touching client systems.</p>
+        <div class="found-apis">
+          <span class="found-api">AI Core</span>
+          <span class="found-api">Synthetic data</span>
+          <span class="found-api">Rate limiter</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="foot-inner">
+    <div>Agentic SAP Platform · Utilities portfolio</div>
+    <div class="foot-links">
+      <a href="/">Home</a>
+      <a href="/compass.html">Maturity Compass</a>
+      <a href="/compass-clients.html">Admin</a>
+    </div>
+    <div>Six agents · ten use cases · one platform</div>
+  </div>
+</footer>
 
 <script>
-/* ═══════════════════════════════════════════
-   DATA
-═══════════════════════════════════════════ */
-const AXES = [
-  { key:'platform',    label:'SAP Platform Maturity',         tag:'S/4HANA / IS-U',      desc:'Data quality, API coverage, migration completeness, BAPI readiness' },
-  { key:'customer',    label:'Customer Data & FI-CA Quality', tag:'FI-CA / CRM',          desc:'Account completeness, DPA portfolio health, billing history, contact records' },
-  { key:'meter_data',  label:'Meter & Usage Data',            tag:'MDM / AMI',            desc:'AMI penetration %, interval data availability, read quality, estimation rates' },
-  { key:'ot_it',       label:'OT/IT Convergence',             tag:'SCADA / IoT / Edge',   desc:'SCADA integration depth, real-time sensor feeds, network segmentation maturity' },
-  { key:'field_ops',   label:'Field Operations',              tag:'FSM / PM / EAM',       desc:'Mobile workforce digitisation, work order completion rates, asset condition tracking' },
-  { key:'regulatory',  label:'Regulatory Compliance',         tag:'FERC / GRC / USofA',   desc:'Audit trail maturity, FERC USofA account mapping, rate case readiness, NRA exposure' },
-  { key:'realtime',    label:'Real-time Processing',          tag:'Event Mesh / BTP',     desc:'Event-driven vs. batch architecture, streaming capability, API response times' },
-  { key:'ai',          label:'AI / ML Readiness',             tag:'Bedrock / BTP AI',     desc:'Data science team capability, model governance, MLOps maturity, training data quality' },
-  { key:'market_comm', label:'Market Communications',         tag:'IDEX / MSATS / EDI',   desc:'Market messaging standards, settlement system integration, EDIFACT / MSATS compliance' },
-  { key:'compliance',  label:'Sovereign & Data Compliance',   tag:'GRC / NERC-CIP / Cloud', desc:'Data residency requirements, NERC-CIP controls, cloud security classification' },
-];
+// ── TAB CONTROLLER ──────────────────────────────────────────────────
+(function(){
+  const root = document.getElementById('useCases');
+  if(!root) return;
+  const tabs = root.querySelectorAll('[role="tab"]');
+  const panels = root.querySelectorAll('[role="tabpanel"]');
 
-const AGENTS = [
-  { id:'billing',   name:'Billing AIgent',              persona:'Billing Specialist',            phase:1, domain:'billing',     domain_lbl:'Invoice to Pay',
-    kpi:'40% improvement in billing accuracy', annual_base:11, effort:'Low',
-    value_basis:'Billing dispute reduction + NRA penalty avoidance + supervisor queue FTE freed (Avangrid base)',
-    modules:['FI-CA','IS-U Billing','Device Mgmt','PM'],      aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless'],
-    requires:{ platform:3.0, customer:3.0, ai:2.5 },
-    util_types:['electric','integrated','gas','water','multi'] },
-
-  { id:'collection', name:'Collection AIgent',          persona:'Collection Specialist',         phase:1, domain:'collections', domain_lbl:'Collections',
-    kpi:'20% improvement in payment collection rate', annual_base:18, effort:'Low',
-    value_basis:'DPA portfolio recovery — 10 pt improvement on $90M+ DPA portfolio (Avangrid base); credit loss reduction',
-    modules:['FI-CA','FSCM','Collections Mgmt','Service Cloud'], aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless','DynamoDB'],
-    requires:{ platform:3.0, customer:3.5, ai:3.0 },
-    util_types:['electric','gas','integrated','water','multi','retailer'] },
-
-  { id:'highbill',  name:'High Bill AIgent',            persona:'Billing Specialist',            phase:1, domain:'billing',     domain_lbl:'Invoice to Pay',
-    kpi:'50% reduction in high bill complaint rates', annual_base:5, effort:'Low',
-    value_basis:'Formal NYPSC/PURA complaint reduction + NRA penalty avoidance + re-read efficiency (Avangrid base)',
-    modules:['IS-U Billing','MDM / AMI','PM','Weather API'],  aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless'],
-    requires:{ platform:2.5, meter_data:3.0, customer:2.5 },
-    util_types:['electric','gas','integrated','multi'] },
-
-  { id:'dispute',   name:'Dispute Resolution AIgent',   persona:'Technical Support Representative', phase:1, domain:'customer', domain_lbl:'CRM',
-    kpi:'20% increase in customer satisfaction (CSAT)', annual_base:3, effort:'Low',
-    value_basis:'CSAT improvement + PSC/PURA audit compliance + reduced resolution cost (Avangrid base)',
-    modules:['FI-CA','IS-U','SAP Service Cloud v2','Case Mgmt'], aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless'],
-    requires:{ platform:3.0, customer:3.0, ai:2.0 },
-    util_types:'all' },
-
-  { id:'csupport',  name:'Customer Support AIgent',     persona:'Customer Service Representative', phase:1, domain:'customer', domain_lbl:'CRM',
-    kpi:'25% reduction in Agent Handling Time (AHT)', annual_base:4.7, effort:'Medium',
-    value_basis:'Contact centre O&M reduction via AHT improvement and self-service deflection (Avangrid base)',
-    modules:['SAP Service Cloud v2','CRM','IS-U','SAP Joule'], aws:['Bedrock Nova Pro','AgentCore','Lambda','ECS Fargate'],
-    requires:{ platform:2.5, customer:3.0, ai:3.0, realtime:2.5 },
-    util_types:'all' },
-
-  { id:'reg_acc',   name:'Regulatory Accounting AIgent', persona:'Regulatory Affairs Specialist', phase:2, domain:'regulatory', domain_lbl:'Regulatory',
-    kpi:'Full FERC USofA compliance, accurate rate base, earned return defence', annual_base:null, effort:'Medium',
-    value_basis:'Rate case payback: rate base accuracy + earned return defence + audit-ready regulatory asset tracking. Reduces outside counsel cost.',
-    modules:['FI','CO','SAC','GRC','FERC USofA Mapping'], aws:['Bedrock Nova Pro','AgentCore','OpenSearch Serverless','S3'],
-    requires:{ platform:4.0, regulatory:4.0, ai:3.5 },
-    util_types:['electric','gas','integrated','multi'] },
-
-  { id:'wam',       name:'Work & Asset Mgmt AIgent',    persona:'Asset Manager / Field Ops Lead', phase:2, domain:'field',      domain_lbl:'Field & Asset',
-    kpi:'Capital efficiency, predictive maintenance, O&M vs. capital accuracy', annual_base:null, effort:'Medium',
-    value_basis:'Rate case payback: CWIP timing, capital vs. O&M classification, asset performance documentation.',
-    modules:['PM (Plant Maintenance)','PS (Project System)','EAM','SAP FSM'], aws:['Bedrock Nova Pro','AgentCore','IoT Core','DynamoDB'],
-    requires:{ platform:3.5, ot_it:3.0, field_ops:3.0, ai:3.0 },
-    util_types:['electric','gas','integrated','water','multi'] },
-
-  { id:'rate_case', name:'Rate Case Support AIgent',    persona:'Regulatory Counsel / Finance Director', phase:2, domain:'regulatory', domain_lbl:'Regulatory',
-    kpi:'Faster rate case filings, reduced outside counsel cost', annual_base:null, effort:'High',
-    value_basis:'Directly reduces outside counsel and consultant cost. Accelerates filings. Strengthens regulatory standing.',
-    modules:['FI/CO','SAC','GRC','Document Intelligence'], aws:['Bedrock Nova Pro','AgentCore','S3','Kendra'],
-    requires:{ platform:4.0, regulatory:4.5, ai:4.0 },
-    util_types:['electric','gas','integrated','multi'] },
-
-  { id:'grid_der',  name:'Grid Resilience / DER AIgent', persona:'Grid Operations / DER Program Manager', phase:3, domain:'grid',  domain_lbl:'Grid & DER',
-    kpi:'DER enrollment, demand response dispatch, SAIFI improvement', annual_base:null, effort:'High',
-    value_basis:'REV/demand response compliance; SAIFI improvement; grid investment justification for rate case.',
-    modules:['SAP Cloud for Energy','MDM/AMI','PM','SCADA Integration'], aws:['Bedrock Nova Pro','AgentCore','IoT Core','Timestream'],
-    requires:{ platform:3.5, meter_data:4.0, ot_it:4.0, realtime:3.5 },
-    util_types:['electric','integrated','multi'] },
-
-  { id:'prepay',    name:'Prepayment & Innovative Programs AIgent', persona:'Customer Programs Manager', phase:3, domain:'customer', domain_lbl:'CRM',
-    kpi:'Voluntary prepay enrollment, bad debt elimination for enrolled accounts', annual_base:null, effort:'Medium',
-    value_basis:'Bad debt reduction; customer satisfaction; low-income program compliance; demand response engagement.',
-    modules:['FI-CA','IS-U Contract','CRM','SAP Service Cloud'], aws:['Bedrock Nova Pro','AgentCore','DynamoDB','SNS'],
-    requires:{ platform:3.0, customer:3.5, ai:3.0 },
-    util_types:'all' },
-];
-
-const DOMAINS = [
-  { key:'all',        lbl:'All' },
-  { key:'billing',    lbl:'Invoice to Pay' },
-  { key:'collections',lbl:'Collections' },
-  { key:'customer',   lbl:'CRM & Customer' },
-  { key:'regulatory', lbl:'Regulatory' },
-  { key:'field',      lbl:'Field & Asset' },
-  { key:'grid',       lbl:'Grid & DER' },
-];
-
-const ROI_SCALE = { small:0.25, mid:0.60, large:1.00, xl:2.00 };
-
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
-let profile = { type:null, customers:'', sap_status:'', regulatory:'', region:'' };
-let scores  = { platform:2.5, customer:2.5, meter_data:2.5, ot_it:2.5, field_ops:2.5,
-                regulatory:2.5, realtime:2.5, ai:2.5, market_comm:2.5, compliance:2.5 };
-let activePhase  = 1;
-let activeDomain = 'all';
-let radarChart   = null;
-
-/* ═══════════════════════════════════════════
-   STEP NAV
-═══════════════════════════════════════════ */
-function selectType(t, el) {
-  profile.type = t;
-  document.querySelectorAll('.util-type-card').forEach(c => c.classList.remove('sel'));
-  el.classList.add('sel');
-}
-
-function goStep(n) {
-  if (n === 2 && !profile.type) { alert('Please select a utility type to continue.'); return; }
-  if (n >= 2) {
-    profile.customers  = document.getElementById('p-customers').value;
-    profile.sap_status = document.getElementById('p-sap').value;
-    profile.regulatory = document.getElementById('p-regulatory').value;
-    profile.region     = document.getElementById('p-region').value;
-  }
-  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('step' + n).classList.add('active');
-  ['1','2','3'].forEach(i => {
-    const el = document.getElementById('si-' + i);
-    el.classList.remove('active','done','disabled');
-    if (parseInt(i) < n)  el.classList.add('done');
-    if (parseInt(i) === n) el.classList.add('active');
-    if (parseInt(i) > n)  el.classList.add('disabled');
-  });
-  if (n === 2 && !radarChart) initRadar();
-  if (n === 3) renderStep3();
-  window.scrollTo(0, 0);
-}
-
-/* ═══════════════════════════════════════════
-   AXES + RADAR
-═══════════════════════════════════════════ */
-const AXIS_GROUPS = [
-  { label:'Customer & Platform', keys:['platform','customer'] },
-  { label:'Metering & Grid',     keys:['meter_data','ot_it','realtime'] },
-  { label:'Field & Regulatory',  keys:['field_ops','regulatory','compliance'] },
-  { label:'AI & Market Comms',   keys:['ai','market_comm'] },
-];
-
-function buildAxes() {
-  const container = document.getElementById('axes-container');
-  container.innerHTML = '';
-  AXIS_GROUPS.forEach(grp => {
-    const g = document.createElement('div');
-    g.className = 'axis-group';
-    g.innerHTML = `<div class="axis-group-label">${grp.label}</div>`;
-    grp.keys.forEach(key => {
-      const ax  = AXES.find(a => a.key === key);
-      const val = scores[key];
-      const pct = ((val - 1) / 4) * 100;
-      const row = document.createElement('div');
-      row.className = 'axis-row';
-      row.innerHTML = `
-        <div class="axis-hdr">
-          <span class="axis-name">${ax.label}<span class="axis-tag">${ax.tag}</span></span>
-          <span class="axis-score" id="score-${key}">${val.toFixed(1)}</span>
-        </div>
-        <input type="range" class="axis-slider" id="slider-${key}"
-          min="1" max="5" step="0.5" value="${val}"
-          oninput="updateSlider('${key}',parseFloat(this.value))"
-          style="background:linear-gradient(to right,var(--sap-blue) ${pct}%,var(--ui-03) ${pct}%)">
-        <div class="axis-desc">${ax.desc}</div>`;
-      g.appendChild(row);
+  function activate(id){
+    tabs.forEach(t => {
+      const sel = t.getAttribute('aria-controls') === id;
+      t.setAttribute('aria-selected', sel ? 'true' : 'false');
+      if(sel) t.focus({preventScroll:true});
     });
-    container.appendChild(g);
-  });
-}
-
-function updateSlider(key, val) {
-  scores[key] = val;
-  const pct = ((val - 1) / 4) * 100;
-  const sl = document.getElementById('slider-' + key);
-  if (sl) sl.style.background = `linear-gradient(to right,var(--sap-blue) ${pct}%,var(--ui-03) ${pct}%)`;
-  const sc = document.getElementById('score-' + key);
-  if (sc) sc.textContent = val.toFixed(1);
-  updateRadar();
-  updateOverallTier();
-}
-
-function initRadar() {
-  buildAxes();
-  const ctx = document.getElementById('radar-canvas').getContext('2d');
-  radarChart = new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: AXES.map(a => a.label.split(' ').slice(0,2).join(' ')),
-      datasets: [{
-        label: 'Maturity',
-        data: AXES.map(a => scores[a.key]),
-        backgroundColor: 'rgba(0,112,192,0.1)',
-        borderColor: '#0070C0',
-        borderWidth: 2,
-        pointBackgroundColor: '#0070C0',
-        pointRadius: 3,
-      }]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false, animation:false,
-      scales:{ r:{ min:0, max:5, ticks:{ stepSize:1, font:{size:9}, color:'#6f6f6f' }, pointLabels:{ font:{size:9}, color:'#525252' }, grid:{ color:'#e0e0e0' }, angleLines:{ color:'#e0e0e0' } } },
-      plugins:{ legend:{ display:false } }
-    }
-  });
-  updateOverallTier();
-}
-
-function updateRadar() {
-  if (!radarChart) return;
-  radarChart.data.datasets[0].data = AXES.map(a => scores[a.key]);
-  radarChart.update('none');
-}
-
-function updateOverallTier() {
-  const vals  = AXES.map(a => scores[a.key]);
-  const avg   = vals.reduce((s,v) => s + v, 0) / vals.length;
-  const aiSc  = scores.ai;
-  let label, color, borderColor;
-  if (aiSc < 2.0 && avg >= 3.0) { label='AI Prerequisites Needed'; color='#8a5e00'; borderColor='var(--sap-gold)'; }
-  else if (avg < 2.0) { label='Foundational';  color='#da1e28'; borderColor='#da1e28'; }
-  else if (avg < 3.0) { label='Developing';    color='#8a5e00'; borderColor='var(--sap-gold)'; }
-  else if (avg < 3.5) { label='Candidate';     color='#525252'; borderColor='var(--sap-blue)'; }
-  else if (avg < 4.5) { label='Primed';        color='#198038'; borderColor='var(--green)'; }
-  else                { label='Leading';       color='#0e6027'; borderColor='#0e6027'; }
-  const td = document.getElementById('overall-tier');
-  const ta = document.getElementById('avg-score');
-  if (td) { td.textContent = label; td.style.color = color; }
-  if (ta) ta.textContent = `Average score: ${avg.toFixed(2)} / 5.0`;
-  const tier = document.querySelector('.tier-display');
-  if (tier) tier.style.borderLeftColor = borderColor;
-}
-
-/* ═══════════════════════════════════════════
-   AGENT LOGIC
-═══════════════════════════════════════════ */
-function agentStatus(agent) {
-  const keys = Object.keys(agent.requires);
-  const met  = keys.filter(k => scores[k] >= agent.requires[k]).length;
-  const ratio = met / keys.length;
-  return ratio === 1 ? 'available' : ratio >= 0.5 ? 'partial' : 'blocked';
-}
-
-function isRelevant(agent) {
-  if (agent.util_types === 'all') return true;
-  return agent.util_types.includes(profile.type);
-}
-
-function scaledROI(agent) {
-  if (agent.annual_base === null) return null;
-  const scale = ROI_SCALE[profile.customers] || 1.0;
-  return (agent.annual_base * scale).toFixed(1);
-}
-
-function reqDots(agent) {
-  return Object.entries(agent.requires).map(([k, min]) => {
-    const ax  = AXES.find(a => a.key === k);
-    const met = scores[k] >= min;
-    return `<span class="req-item"><span class="rdot ${met ? 'r-met' : 'r-unmet'}"></span><span style="font-size:0.75rem;font-family:'IBM Plex Mono',monospace;">${ax ? ax.tag : k} ≥${min}</span></span>`;
-  }).join('');
-}
-
-/* ═══════════════════════════════════════════
-   RENDER STEP 3
-═══════════════════════════════════════════ */
-function renderStep3() {
-  renderStatBar();
-  renderLHC();
-  renderSovereign();
-  renderFilterChips();
-  renderAgents();
-  renderRoadmap();
-  renderWavePlan();
-  renderArch();
-  // Phase counts
-  [1,2,3].forEach(ph => {
-    const rel = AGENTS.filter(a => a.phase===ph && isRelevant(a));
-    const av  = rel.filter(a => agentStatus(a)==='available').length;
-    document.getElementById('pc-' + ph).textContent = `${av}/${rel.length}`;
-  });
-}
-
-function renderStatBar() {
-  const rel  = AGENTS.filter(isRelevant);
-  const avail = rel.filter(a => agentStatus(a)==='available');
-  const p1av  = avail.filter(a => a.phase===1);
-  const totalROI = p1av.reduce((s,a) => {
-    const r = scaledROI(a); return r ? s + parseFloat(r) : s;
-  }, 0);
-  const avg = (AXES.map(a => scores[a.key]).reduce((s,v)=>s+v,0)/AXES.length).toFixed(1);
-  document.getElementById('stat-bar').innerHTML = `
-    <div class="stat-card"><span class="stat-val">${avail.length}</span><span class="stat-lbl">Agents Available Now</span></div>
-    <div class="stat-card" style="border-top-color:var(--sap-gold)"><span class="stat-val" style="color:var(--sap-gold)">${rel.filter(a=>agentStatus(a)==='partial').length}</span><span class="stat-lbl">Partial — Maturity Gap</span></div>
-    <div class="stat-card" style="border-top-color:var(--green)"><span class="stat-val" style="color:var(--green)">$${totalROI.toFixed(0)}M</span><span class="stat-lbl">Est. Phase 1 Annual Value</span></div>
-    <div class="stat-card"><span class="stat-val">${avg}</span><span class="stat-lbl">Avg Maturity Score / 5</span></div>
-    <div class="stat-card"><span class="stat-val">${rel.length}</span><span class="stat-lbl">Agents in Roadmap</span></div>`;
-}
-
-function renderLHC() {
-  const eligible = profile.customers && profile.customers !== 'small'
-    && ['migration','live','established'].includes(profile.sap_status)
-    && scores.platform >= 3.0 && scores.customer >= 3.0 && scores.ai >= 2.5;
-  document.getElementById('lhc-banner').style.display = eligible ? 'flex' : 'none';
-}
-
-function renderSovereign() {
-  const show = scores.compliance >= 4.0 || ['eu','ca','apac'].includes(profile.region);
-  document.getElementById('sov-banner').style.display = show ? 'block' : 'none';
-}
-
-function renderFilterChips() {
-  const rel     = AGENTS.filter(a => a.phase===activePhase && isRelevant(a));
-  const domains = ['all', ...new Set(rel.map(a => a.domain))];
-  document.getElementById('filter-row').innerHTML = domains.map(d => {
-    const info = DOMAINS.find(x => x.key===d) || { lbl:d };
-    return `<button class="ftag ${activeDomain===d?'active':''}" onclick="switchDomain('${d}')">${info.lbl}</button>`;
-  }).join('');
-}
-
-function renderAgents() {
-  let agents = AGENTS.filter(a => a.phase===activePhase && isRelevant(a));
-  if (activeDomain !== 'all') agents = agents.filter(a => a.domain===activeDomain);
-  const efR = { Low:0, Medium:1, High:2 };
-  const stR = { available:0, partial:1, blocked:2 };
-  agents.sort((a,b) => {
-    const sd = stR[agentStatus(a)] - stR[agentStatus(b)];
-    return sd !== 0 ? sd : (efR[a.effort]||0) - (efR[b.effort]||0);
-  });
-  if (!agents.length) {
-    document.getElementById('agents-grid').innerHTML = '<div class="empty-state">No agents match this filter.</div>';
-    return;
+    panels.forEach(p => {
+      p.setAttribute('aria-hidden', p.id === id ? 'false' : 'true');
+    });
+    try { history.replaceState(null, '', '#' + id); } catch(e){}
   }
-  const stCls   = { available:'av', partial:'pa', blocked:'bl' };
-  const badgeCls = { available:'sb-av', partial:'sb-pa', blocked:'sb-bl' };
-  const badgeLbl = { available:'Available', partial:'Partial — Gap', blocked:'Blocked' };
 
-  document.getElementById('agents-grid').innerHTML = agents.map(agent => {
-    const st  = agentStatus(agent);
-    const roi = scaledROI(agent);
-    const roiBlock = roi
-      ? `<div class="ac-roi"><div class="roi-num">$${roi}M<span style="font-size:0.875rem">/yr</span></div><div class="roi-text">${agent.value_basis}</div></div>`
-      : `<div class="ac-roi"><div class="roi-num" style="font-size:0.875rem;color:var(--green-d)">Phase ${agent.phase} TBD</div><div class="roi-text">${agent.value_basis}</div></div>`;
-    const modTags = agent.modules.map(m => `<span class="ac-tag">${m}</span>`).join('');
-    const awsTags = agent.aws.map(s => `<span class="ac-tag aws">${s}</span>`).join('');
-    return `
-    <div class="agent-card ${stCls[st]}">
-      <div class="ac-hdr">
-        <div><div class="ac-name">${agent.name}</div><div class="ac-persona">${agent.persona}</div></div>
-        <span class="status-badge ${badgeCls[st]}">${badgeLbl[st]}</span>
-      </div>
-      <div class="ac-kpi">KPI: <strong>${agent.kpi}</strong></div>
-      ${roiBlock}
-      <div class="ac-tags">${modTags}</div>
-      <div class="ac-tags">${awsTags}</div>
-      <div class="ac-reqs">${reqDots(agent)}</div>
-    </div>`;
-  }).join('');
-}
-
-function switchPhase(ph) {
-  activePhase  = ph;
-  activeDomain = 'all';
-  ['1','2','3'].forEach(i => document.getElementById('ptab-'+i).classList.toggle('active', parseInt(i)===ph));
-  renderFilterChips();
-  renderAgents();
-}
-
-function switchDomain(d) {
-  activeDomain = d;
-  document.querySelectorAll('.ftag').forEach(c => c.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  renderAgents();
-}
-
-function renderRoadmap() {
-  [1,2,3].forEach(ph => {
-    const agents = AGENTS.filter(a => a.phase===ph && isRelevant(a));
-    const el = document.getElementById('rph' + ph);
-    el.innerHTML = agents.map(a => {
-      const st = agentStatus(a);
-      const ic = st==='available' ? '▸' : st==='partial' ? '◦' : '✗';
-      return `<div class="r-item"><strong>${ic} ${a.name}</strong><span>${a.kpi}</span></div>`;
-    }).join('') || '<div class="r-item" style="color:var(--c-04);font-style:italic;">Not applicable for your utility type.</div>';
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => activate(t.getAttribute('aria-controls')));
+    t.addEventListener('keydown', e => {
+      if(e.key === 'ArrowRight'){ activate(tabs[(i+1)%tabs.length].getAttribute('aria-controls')); }
+      if(e.key === 'ArrowLeft'){  activate(tabs[(i-1+tabs.length)%tabs.length].getAttribute('aria-controls')); }
+      if(e.key === 'Home'){ activate(tabs[0].getAttribute('aria-controls')); }
+      if(e.key === 'End'){  activate(tabs[tabs.length-1].getAttribute('aria-controls')); }
+    });
   });
+
+  const hash = (location.hash || '').replace('#','');
+  if(hash && document.getElementById(hash)) activate(hash);
+})();
+
+// ── ROI HELPERS ─────────────────────────────────────────────────────
+function fmt$(n){
+  if(n>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return '$'+(n/1e3).toFixed(0)+'K';
+  return '$'+Math.round(n);
+}
+function fmtN(n){
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(0)+'K';
+  return Math.round(n).toLocaleString();
+}
+function payback(saving, cost){ return saving>0 ? (cost/(saving/12)).toFixed(1)+' mo' : '—'; }
+
+// A1 · MX-Resolver
+function calcMX(){
+  const meters = +document.getElementById('mx-meters').value;
+  const rate   = +document.getElementById('mx-rate').value / 100;
+  const cost   = +document.getElementById('mx-cost').value;
+  const auto   = +document.getElementById('mx-auto').value / 100;
+  document.getElementById('mx-meters-val').textContent = meters.toLocaleString();
+  document.getElementById('mx-rate-val').textContent   = (rate*100).toFixed(1)+'%';
+  document.getElementById('mx-cost-val').textContent   = '$'+cost;
+  document.getElementById('mx-auto-val').textContent   = (auto*100).toFixed(0)+'%';
+  const resolved = meters * rate * auto;
+  const savings  = resolved * cost;
+  document.getElementById('mx-out-savings').textContent  = fmt$(savings);
+  document.getElementById('mx-out-resolved').textContent = fmtN(resolved)+'/yr';
+  document.getElementById('mx-out-payback').textContent  = payback(savings, 450000);
 }
 
-function renderWavePlan() {
-  const rows = [];
-  AGENTS.filter(isRelevant).forEach(agent => {
-    const st  = agentStatus(agent);
-    const roi = scaledROI(agent);
-    let wave, rationale;
-    if (agent.phase === 1) {
-      if (st==='available' && agent.effort==='Low')      { wave=1; rationale='High readiness + low effort — immediate quick win'; }
-      else if (st==='available')                          { wave=2; rationale='Ready — integration work needed'; }
-      else if (st==='partial')                            { wave=2; rationale='Close to ready — address maturity gaps in Wave 1'; }
-      else                                                { wave=3; rationale='Maturity gaps to resolve first'; }
-    } else if (agent.phase === 2) {
-      wave = st==='available' ? 2 : 3;
-      rationale = wave===2 ? 'Mature enough for Phase 2 delivery' : 'Requires Phase 1 foundation + maturity uplift';
-    } else {
-      wave = 3; rationale = 'Phase 3 — after Phase 1 & 2 foundation established';
-    }
-    const timeline = wave===1 ? 'Months 1–6' : wave===2 ? 'Months 6–15' : 'Months 15–24+';
-    const roiStr   = roi ? `$${roi}M/yr` : `Phase ${agent.phase} TBD`;
-    rows.push({ wave, timeline, agent, rationale, roiStr });
-  });
-  rows.sort((a,b) => a.wave - b.wave || a.agent.phase - b.agent.phase);
-  document.getElementById('wave-tbody').innerHTML = rows.map(r => `
-    <tr>
-      <td><span class="wave-badge wb-${r.wave}">Wave ${r.wave}</span></td>
-      <td style="color:var(--c-04);font-family:'IBM Plex Mono',monospace;white-space:nowrap;">${r.timeline}</td>
-      <td style="font-weight:600">${r.agent.name}</td>
-      <td style="color:var(--c-03)">${r.agent.domain_lbl}</td>
-      <td style="font-weight:700;color:var(--sap-blue);font-family:'IBM Plex Mono',monospace;">${r.roiStr}</td>
-      <td style="color:var(--c-04)">${r.rationale}</td>
-    </tr>`).join('');
+// A2 · BPEM-Triage
+function calcBP(){
+  const vol  = +document.getElementById('bp-vol').value;
+  const hndl = +document.getElementById('bp-hndl').value;
+  const fte  = +document.getElementById('bp-fte').value;
+  const auto = +document.getElementById('bp-auto').value / 100;
+  document.getElementById('bp-vol-val').textContent  = vol.toLocaleString();
+  document.getElementById('bp-hndl-val').textContent = hndl+' min';
+  document.getElementById('bp-fte-val').textContent  = '$'+fte;
+  document.getElementById('bp-auto-val').textContent = (auto*100).toFixed(0)+'%';
+  const cleared = vol * auto;
+  const savings = cleared * (hndl/60) * fte;
+  document.getElementById('bp-out-savings').textContent = fmt$(savings);
+  document.getElementById('bp-out-cases').textContent   = fmtN(cleared)+'/yr';
+  document.getElementById('bp-out-payback').textContent = payback(savings, 380000);
 }
 
-function renderArch() {
-  const p=scores.platform, ai=scores.ai, rt=scores.realtime,
-        ot=scores.ot_it, md=scores.meter_data, cu=scores.customer, reg=scores.regulatory;
-  const layers = [
-    { lbl:'Data Foundation', nodes:[
-      { n:'SAP S/4HANA IS-U', c: p>=3.0?'gr':'' }, { n:'FI-CA / Collections', c: cu>=3.0?'gr':'' },
-      { n:'MDM / AMI', c: md>=3.0?'gr':'dim' },     { n:'SCADA / OT Feeds', c: ot>=3.0?'gr':'dim' },
-      { n:'FERC / GRC Data', c: reg>=3.0?'':'dim' } ] },
-    { lbl:'Integration Layer', nodes:[
-      { n:'SAP Event Mesh', c: rt>=3.0?'':'dim' },  { n:'SAP BTP', c: p>=3.5?'':'dim' },
-      { n:'BAPI / OData APIs', c: p>=2.5?'':'' },   { n:'Real-time Streaming', c: rt>=3.5?'':'dim' },
-      { n:'Market Comms (IDEX)', c: scores.market_comm>=3.0?'':'dim' } ] },
-    { lbl:'AI Platform', nodes:[
-      { n:'AWS Bedrock Nova Pro', c: ai>=2.5?'hi':'dim' }, { n:'AWS AgentCore', c: ai>=3.0?'hi':'dim' },
-      { n:'OpenSearch Serverless', c: ai>=2.5?'':'' },     { n:'Amazon DynamoDB', c:'' },
-      { n:'SAP BTP AI Core', c: p>=3.5?'':'dim' } ] },
-    { lbl:'Agent Orchestration', nodes:[
-      { n:'Multi-Agent Orchestrator', c: ai>=3.0?'hi':'dim' }, { n:'Tool Registry / MCP', c: ai>=3.0?'':'dim' },
-      { n:'Audit Trail Engine', c:'' },                         { n:'Shadow Mode Controller', c:'' },
-      { n:'Human-in-Loop Gateway', c:'' } ] },
-    { lbl:'Engagement Layer', nodes:[
-      { n:'SAP Joule', c: p>=3.5?'':'dim' },            { n:'SAP Service Cloud v2', c: cu>=3.0?'':'dim' },
-      { n:'CSR Workbench', c:'' },                       { n:'Self-Service Portal', c: rt>=3.0?'':'dim' },
-      { n:'Regulatory Workpapers', c: reg>=3.5?'':'dim' } ] },
-  ];
-  document.getElementById('arch-layers').innerHTML = layers.map(l => `
-    <div class="arch-layer">
-      <div class="arch-lbl">${l.lbl}</div>
-      <div class="arch-nodes">${l.nodes.map(n=>`<span class="anode ${n.c}">${n.n}</span>`).join('')}</div>
-    </div>`).join('');
+// A3 · MoveOps
+function calcMO(){
+  const vol  = +document.getElementById('mo-vol').value;
+  const hndl = +document.getElementById('mo-hndl').value;
+  const csr  = +document.getElementById('mo-csr').value;
+  const red  = +document.getElementById('mo-red').value / 100;
+  document.getElementById('mo-vol-val').textContent  = vol.toLocaleString();
+  document.getElementById('mo-hndl-val').textContent = hndl+' min';
+  document.getElementById('mo-csr-val').textContent  = '$'+csr;
+  document.getElementById('mo-red-val').textContent  = (red*100).toFixed(0)+'%';
+  const hrsDeflected = vol * (hndl/60) * red;
+  const savings = hrsDeflected * csr;
+  document.getElementById('mo-out-savings').textContent = fmt$(savings);
+  document.getElementById('mo-out-hrs').textContent     = fmtN(hrsDeflected)+' hrs';
+  document.getElementById('mo-out-payback').textContent = payback(savings, 520000);
 }
+
+// A4 · EDI-Recon
+function calcEDI(){
+  const cust = +document.getElementById('edi-cust').value;
+  const rate = +document.getElementById('edi-rate').value / 100;
+  const val  = +document.getElementById('edi-val').value;
+  const res  = +document.getElementById('edi-res').value / 100;
+  document.getElementById('edi-cust-val').textContent = cust.toLocaleString();
+  document.getElementById('edi-rate-val').textContent = (rate*100).toFixed(1)+'%';
+  document.getElementById('edi-val-val').textContent  = '$'+val;
+  document.getElementById('edi-res-val').textContent  = (res*100).toFixed(0)+'%';
+  const disputes = cust * rate;
+  const leakage  = disputes * val * res;
+  document.getElementById('edi-out-leakage').textContent  = fmt$(leakage);
+  document.getElementById('edi-out-disputes').textContent = fmtN(disputes * res)+'/yr';
+  document.getElementById('edi-out-payback').textContent  = payback(leakage, 580000);
+}
+
+// A5 · Collections-Strategist
+function calcCL(){
+  const ar   = +document.getElementById('cl-ar').value * 1e6;
+  const wo   = +document.getElementById('cl-wo').value / 100;
+  const red  = +document.getElementById('cl-red').value / 100;
+  const acct = +document.getElementById('cl-acct').value;
+  document.getElementById('cl-ar-val').textContent   = '$'+(ar/1e6).toFixed(0)+'M';
+  document.getElementById('cl-wo-val').textContent   = (wo*100).toFixed(1)+'%';
+  document.getElementById('cl-red-val').textContent  = (red*100).toFixed(0)+'%';
+  document.getElementById('cl-acct-val').textContent = acct.toLocaleString();
+  const badDebtSavings = ar * wo * red;
+  const contactSavings = acct * 0.3 * 6; // 30% redirected to digital, $6 saved each
+  const total = badDebtSavings + contactSavings;
+  document.getElementById('cl-out-savings').textContent = fmt$(badDebtSavings);
+  document.getElementById('cl-out-contact').textContent = fmt$(contactSavings);
+  document.getElementById('cl-out-payback').textContent = payback(total, 490000);
+}
+
+// A6 · CSR Co-Agent
+function calcCSR(){
+  const seats = +document.getElementById('csr-seats').value;
+  const aht   = +document.getElementById('csr-aht').value;
+  const calls = +document.getElementById('csr-calls').value;
+  const cost  = +document.getElementById('csr-cost').value;
+  document.getElementById('csr-seats-val').textContent = seats;
+  document.getElementById('csr-aht-val').textContent   = aht+' min';
+  document.getElementById('csr-calls-val').textContent = calls;
+  document.getElementById('csr-cost-val').textContent  = '$'+cost;
+  const callsPerYear = seats * calls * 250;
+  const ahtReduction = 0.32;
+  const hrsSaved = callsPerYear * (aht/60) * ahtReduction;
+  const savings  = hrsSaved * cost;
+  document.getElementById('csr-out-savings').textContent = fmt$(savings);
+  document.getElementById('csr-out-hrs').textContent     = fmtN(hrsSaved)+' hrs';
+  document.getElementById('csr-out-payback').textContent = payback(savings, 420000);
+}
+
+// ── INIT CALCULATORS ────────────────────────────────────────────────
+calcMX(); calcBP(); calcMO(); calcEDI(); calcCL(); calcCSR();
 </script>
+
 </body>
 </html>
