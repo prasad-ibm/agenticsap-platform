@@ -496,6 +496,130 @@
     .panel{display:block !important}
     .hero{background:#0A1F44}
   }
+
+  /* ── MODAL ─────────────────────────────────────── */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:2000;
+    background:rgba(10,31,68,.55);
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .modal-overlay.open{opacity:1;pointer-events:auto}
+  .modal-box{
+    background:#fff;border-radius:16px;
+    width:100%;max-width:800px;max-height:90vh;
+    display:flex;flex-direction:column;
+    box-shadow:0 20px 60px rgba(10,31,68,.25);
+    transform:translateY(16px);
+    transition:transform .2s ease;
+  }
+  .modal-overlay.open .modal-box{transform:translateY(0)}
+  .modal-header{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    padding:20px 24px 16px;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .modal-agent-badge{
+    display:inline-block;padding:3px 10px;border-radius:999px;
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+    color:#fff;margin-bottom:6px;
+  }
+  .modal-title{margin:0;font-size:20px;color:var(--navy);line-height:1.2}
+  .modal-close-btn{
+    background:none;border:none;cursor:pointer;
+    font-size:22px;color:var(--muted);padding:2px 8px;
+    border-radius:6px;flex-shrink:0;margin-top:-2px;font-family:inherit;
+  }
+  .modal-close-btn:hover{background:#f0f4fa;color:var(--navy)}
+  .modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+  .modal-foot{
+    padding:14px 24px;border-top:1px solid var(--border);
+    display:flex;gap:10px;flex-wrap:wrap;
+    flex-shrink:0;background:#f8fafc;border-radius:0 0 16px 16px;
+  }
+
+  /* arch layers */
+  .arch-layers{display:flex;flex-direction:column;gap:5px}
+  .arch-layer{border-radius:10px;padding:11px 14px}
+  .arch-layer-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+  .arch-components{display:flex;gap:6px;flex-wrap:wrap}
+  .arch-comp{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600}
+  .arch-connector{text-align:center;font-size:12px;color:var(--muted);padding:1px 0;line-height:1}
+  .layer-sap{background:#E6F1FE}.layer-sap .arch-layer-label{color:#003888}.layer-sap .arch-comp{background:#006FE6;color:#fff}
+  .layer-btp{background:#E0F7F4}.layer-btp .arch-layer-label{color:#004D47}.layer-btp .arch-comp{background:#00B4A6;color:#fff}
+  .layer-ai{background:#FDF3D1}.layer-ai .arch-layer-label{color:#5A3E00}.layer-ai .arch-comp{background:#F5B506;color:#3b2a00}
+  .layer-data{background:#FFF0EB}.layer-data .arch-layer-label{color:#8A2800}.layer-data .arch-comp{background:#FF6B4A;color:#fff}
+  .layer-out{background:#F0F4FF}.layer-out .arch-layer-label{color:#003888}.layer-out .arch-comp{background:#0A1F44;color:#fff}
+
+  /* sandbox trace */
+  .sandbox-input{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:12px}
+  .si-label{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:4px}
+  .si-value{color:var(--navy);font-family:'Courier New',monospace;font-size:12px;line-height:1.5}
+  .trace-steps{display:flex;flex-direction:column;gap:6px}
+  .trace-step{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-radius:8px;font-size:13px;background:#fbfcfe;border:1px solid var(--border)}
+  .ts-icon{font-size:16px;flex-shrink:0;line-height:1.45}
+  .ts-text{color:var(--slate);line-height:1.45}
+  .ts-text strong{color:var(--navy)}
+  .trace-step.ts-decision{background:#FDF3D1;border-color:#F5B506}
+  .trace-step.ts-action{background:#E0F7F4;border-color:#00B4A6}
+  .trace-step.ts-output{background:#E6F1FE;border-color:#006FE6}
+
+  /* eval scorecard */
+  .eval-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  @media(max-width:600px){.eval-grid{grid-template-columns:1fr}}
+  .eval-card{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:13px}
+  .eval-card-title{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:8px}
+  .eval-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f0f3f8;font-size:13px}
+  .eval-row:last-child{border-bottom:0}
+  .er-label{color:var(--slate)}
+  .er-val{font-weight:700;color:var(--navy)}
+  .er-val.good{color:var(--teal)}
+  .rubric-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f0f3f8;font-size:13px}
+  .rubric-row:last-child{border-bottom:0}
+  .rubric-dim{color:var(--slate);flex:1;min-width:0}
+  .rubric-bar-wrap{width:80px;height:8px;background:#eef1f6;border-radius:4px;flex-shrink:0}
+  .rubric-bar{height:8px;border-radius:4px;background:var(--teal)}
+  .rubric-score{font-weight:700;color:var(--navy);font-size:12px;width:26px;text-align:right;flex-shrink:0}
+
+  /* business case */
+  .biz-section{margin-bottom:14px}
+  .biz-section h4{margin:0 0 7px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--sap)}
+  .biz-section ul{margin:0;padding-left:17px}
+  .biz-section li{margin:3px 0;font-size:13.5px;color:var(--slate)}
+  .biz-section li strong{color:var(--navy)}
+  .biz-table{width:100%;border-collapse:collapse;font-size:13px}
+  .biz-table th{background:#f4f6fa;padding:7px 10px;text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)}
+  .biz-table td{padding:7px 10px;border-bottom:1px solid #f0f3f8;color:var(--slate)}
+  .biz-table tr:last-child td{border-bottom:0}
+  .biz-table td.td-bold{font-weight:700;color:var(--navy)}
+  .biz-table td.td-good{color:var(--teal);font-weight:700}
+  .biz-phases{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+  .biz-phase{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px}
+  .biz-phase-num{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700}
+  .biz-phase-title{font-size:13px;font-weight:700;color:var(--navy);margin:2px 0 1px}
+  .biz-phase-dur{font-size:12px;color:var(--teal);font-weight:700}
+  .biz-phase-desc{font-size:12px;color:var(--slate);margin-top:4px}
+  .biz-kpis{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+  .biz-kpi{background:#E6F1FE;border:1px solid #c5d5f5;border-radius:8px;padding:10px 14px;flex:1;min-width:120px}
+  .biz-kpi .v{font-size:20px;font-weight:700;color:var(--sap)}
+  .biz-kpi .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-top:2px}
+
+  /* detail list (rule packs, edge cases, etc.) */
+  .detail-list{display:flex;flex-direction:column;gap:8px}
+  .detail-item{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:11px 13px}
+  .di-num{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .di-title{font-size:13.5px;font-weight:700;color:var(--navy);margin:2px 0}
+  .di-desc{font-size:13px;color:var(--slate)}
+  .di-api{font-family:'Courier New',monospace;font-size:11px;color:var(--sap);margin-top:5px}
+
+  @media print{
+    .modal-overlay{position:relative;background:none;padding:0;opacity:1;pointer-events:auto}
+    .modal-box{box-shadow:none;max-height:none;border-radius:0}
+    .modal-close-btn,.modal-foot .btn.ghost{display:none}
+  }
 </style>
 </head>
 <body>
@@ -772,10 +896,10 @@
       </div>
 
       <div class="cta-row">
-        <a class="btn primary" href="#">Open sandbox</a>
-        <a class="btn ghost" href="#">Architecture diagram</a>
-        <a class="btn ghost" href="#">Eval scorecard</a>
-        <a class="btn gold" href="#">Download business case</a>
+        <a class="btn primary" href="#" onclick="openModal('mx','sandbox');return false">Open sandbox</a>
+        <a class="btn ghost" href="#" onclick="openModal('mx','arch');return false">Architecture diagram</a>
+        <a class="btn ghost" href="#" onclick="openModal('mx','eval');return false">Eval scorecard</a>
+        <a class="btn gold" href="#" onclick="openModal('mx','biz');return false">Download business case</a>
       </div>
     </div>
 
@@ -934,10 +1058,10 @@
       </div>
 
       <div class="cta-row">
-        <a class="btn primary" href="#">Open sandbox</a>
-        <a class="btn ghost" href="#">Architecture diagram</a>
-        <a class="btn ghost" href="#">Rule pack transport</a>
-        <a class="btn gold" href="#">Download business case</a>
+        <a class="btn primary" href="#" onclick="openModal('bp','sandbox');return false">Open sandbox</a>
+        <a class="btn ghost" href="#" onclick="openModal('bp','arch');return false">Architecture diagram</a>
+        <a class="btn ghost" href="#" onclick="openModal('bp','rulepack');return false">Rule pack transport</a>
+        <a class="btn gold" href="#" onclick="openModal('bp','biz');return false">Download business case</a>
       </div>
     </div>
 
@@ -1102,10 +1226,10 @@
       </div>
 
       <div class="cta-row">
-        <a class="btn primary" href="#">Open sandbox</a>
-        <a class="btn ghost" href="#">Architecture diagram</a>
-        <a class="btn ghost" href="#">Edge-case library</a>
-        <a class="btn gold" href="#">Download business case</a>
+        <a class="btn primary" href="#" onclick="openModal('mo','sandbox');return false">Open sandbox</a>
+        <a class="btn ghost" href="#" onclick="openModal('mo','arch');return false">Architecture diagram</a>
+        <a class="btn ghost" href="#" onclick="openModal('mo','edgecase');return false">Edge-case library</a>
+        <a class="btn gold" href="#" onclick="openModal('mo','biz');return false">Download business case</a>
       </div>
     </div>
 
@@ -1270,10 +1394,10 @@
       </div>
 
       <div class="cta-row">
-        <a class="btn primary" href="#">Open sandbox</a>
-        <a class="btn ghost" href="#">Market rule packs</a>
-        <a class="btn ghost" href="#">Architecture diagram</a>
-        <a class="btn gold" href="#">Download business case</a>
+        <a class="btn primary" href="#" onclick="openModal('edi','sandbox');return false">Open sandbox</a>
+        <a class="btn ghost" href="#" onclick="openModal('edi','rulepacks');return false">Market rule packs</a>
+        <a class="btn ghost" href="#" onclick="openModal('edi','arch');return false">Architecture diagram</a>
+        <a class="btn gold" href="#" onclick="openModal('edi','biz');return false">Download business case</a>
       </div>
     </div>
 
@@ -1437,10 +1561,10 @@
       </div>
 
       <div class="cta-row">
-        <a class="btn primary" href="#">Open sandbox</a>
-        <a class="btn ghost" href="#">Lift curve</a>
-        <a class="btn ghost" href="#">Architecture diagram</a>
-        <a class="btn gold" href="#">Download business case</a>
+        <a class="btn primary" href="#" onclick="openModal('cl','sandbox');return false">Open sandbox</a>
+        <a class="btn ghost" href="#" onclick="openModal('cl','lift');return false">Lift curve</a>
+        <a class="btn ghost" href="#" onclick="openModal('cl','arch');return false">Architecture diagram</a>
+        <a class="btn gold" href="#" onclick="openModal('cl','biz');return false">Download business case</a>
       </div>
     </div>
 
@@ -1605,10 +1729,10 @@
       </div>
 
       <div class="cta-row">
-        <a class="btn primary" href="#">Open sandbox</a>
-        <a class="btn ghost" href="#">CIC0 plugin scaffold</a>
-        <a class="btn ghost" href="#">Eval scorecard</a>
-        <a class="btn gold" href="#">Download business case</a>
+        <a class="btn primary" href="#" onclick="openModal('csr','sandbox');return false">Open sandbox</a>
+        <a class="btn ghost" href="#" onclick="openModal('csr','cic0');return false">CIC0 plugin scaffold</a>
+        <a class="btn ghost" href="#" onclick="openModal('csr','eval');return false">Eval scorecard</a>
+        <a class="btn gold" href="#" onclick="openModal('csr','biz');return false">Download business case</a>
       </div>
     </div>
 
@@ -1691,6 +1815,21 @@
     <div>Six agents · ten use cases · one platform</div>
   </div>
 </footer>
+
+<!-- ── MODAL OVERLAY ── -->
+<div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <span class="modal-agent-badge" id="modal-badge"></span>
+        <h2 class="modal-title" id="modal-title"></h2>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
 
 <script>
 // ── TAB CONTROLLER ──────────────────────────────────────────────────
@@ -1846,6 +1985,363 @@ function calcCSR(){
 
 // ── INIT CALCULATORS ────────────────────────────────────────────────
 calcMX(); calcBP(); calcMO(); calcEDI(); calcCL(); calcCSR();
+
+// ── MODAL SYSTEM ─────────────────────────────────────────────────────
+const AGENTS = {
+  mx:  { name:'A1 · MX-Resolver',             badge:'Meter Reading',     color:'#006FE6' },
+  bp:  { name:'A2 · BPEM-Triage',             badge:'Exception Mgmt',    color:'#00B4A6' },
+  mo:  { name:'A3 · MoveOps',                 badge:'Move In / Out',     color:'#F5B506' },
+  edi: { name:'A4 · EDI-Recon',               badge:'Billing/Settlement', color:'#FF6B4A' },
+  cl:  { name:'A5 · Collections-Strategist',  badge:'Collections',       color:'#006FE6' },
+  csr: { name:'A6 · CSR Co-Agent',            badge:'Customer Service',   color:'#00B4A6' },
+};
+
+function lyr(cls,label,comps){
+  return `<div class="arch-layer ${cls}"><div class="arch-layer-label">${label}</div><div class="arch-components">${comps.map(c=>`<span class="arch-comp">${c}</span>`).join('')}</div></div>`;
+}
+function conn(txt){ return `<div class="arch-connector">${txt||'↕'}</div>`; }
+
+// ── ARCHITECTURE DATA ─────────────────────────────────────────────
+const ARCH = {
+  mx:`<p style="font-size:13px;color:var(--slate);margin:0 0 12px">Full component stack showing how MX-Resolver is wired across IS-U, BTP, and BDC.</p><div class="arch-layers">
+${lyr('layer-sap','SAP IS-U / EDM — source systems',['EDM Exception Engine','IS-U Billing Module','MDUS / AMI Interface','Premise Master Data'])}
+${conn('↕ &nbsp;BAdI ISU_EDM_EXCEPTION_HOOK &nbsp;+&nbsp; CDS I_MeterReadingException')}
+${lyr('layer-btp','SAP BTP — Integration & Eventing',['Event Mesh (async trigger)','API Management','Integration Suite','Cloud Connector'])}
+${conn('↕ &nbsp;Async event + REST callback')}
+${lyr('layer-ai','SAP BTP — AI Core & Agent Runtime',['AI Core (LLM inference)','Generative AI Hub','Joule Studio / Agent Builder','Prompt Cache + Guardrails'])}
+${conn('↕ &nbsp;Tool calls: feature fetch, confidence gate, BAPI write')}
+${lyr('layer-data','BDC — Data Products',['meter_read_exceptions','premise_consumption_history','weather_baseline','correction_audit_log'])}
+${conn('↕ &nbsp;BAPI write-back to IS-U')}
+${lyr('layer-out','IS-U — Output actions',['BAPI_METERMEASUREMENT_CHANGE (EL31)','ISU_METERREAD_EXCEPTION_CLOSE (EL35)','CIC0 Escalation Queue','Audit Log Store'])}
+</div>`,
+
+  bp:`<p style="font-size:13px;color:var(--slate);margin:0 0 12px">BPEM-Triage intercepts case creation and operates between the BPEM engine and the resolver workforce.</p><div class="arch-layers">
+${lyr('layer-sap','SAP S/4HANA Utilities / BPEM — source',['BPEM Case Management','Exception Work Items','S/4HANA Utilities Module','FI-CA Master Data'])}
+${conn('↕ &nbsp;BAdI EMMA_CASE_CHECK (synchronous on case creation)')}
+${lyr('layer-btp','SAP BTP — Integration',['Integration Suite','API Management','Cloud Connector'])}
+${conn('↕ &nbsp;REST API invocation')}
+${lyr('layer-ai','SAP BTP — AI Core & Agent Runtime',['AI Core (LLM classifier + clusterer)','Generative AI Hub','Rule-Pack Engine (top-10 auto-clear)','Agent Builder skill manifest'])}
+${conn('↕ &nbsp;Tool calls: rule check, route lookup, cluster update')}
+${lyr('layer-data','BDC — Data Products',['bpem_cases','case_resolution_history','resolver_skill_matrix','cluster_pattern_store'])}
+${conn('↕ &nbsp;BAPI write-back')}
+${lyr('layer-out','SAP BPEM — Output actions',['BAPI_CASE_CLOSE (auto-clear)','BAPI_CASE_UPDATE (re-route)','CRM_CASE_CLUSTER_UPDATE','CoE Dashboard Notification'])}
+</div>`,
+
+  mo:`<p style="font-size:13px;color:var(--slate);margin:0 0 12px">MoveOps is an orchestration agent that sequences 6 BAPI calls with idempotency and rollback on failure.</p><div class="arch-layers">
+${lyr('layer-sap','SAP IS-U / FI-CA / BUPA — target systems',['IS-U Premise & Installation','FI-CA Contract Account','Business Partner (BUPA)','Address Master Data'])}
+${conn('↕ &nbsp;REST trigger from channel (web / CIC0 / IVR) + OData reads')}
+${lyr('layer-btp','SAP BTP — Integration & Document AI',['Document AI microservice (ID/lease parse + PII redact)','Integration Suite (orchestration)','Address Normalization Service','Event Mesh (async steps)'])}
+${conn('↕ &nbsp;Step-by-step BAPI choreography — rollback state machine on any error')}
+${lyr('layer-ai','SAP BTP — AI Core & Agent Runtime',['AI Core (fraud score + document extraction)','Agent Builder (6-step orchestration plan)','Edge-Case Handler (12 scenarios)','Rollback State Machine'])}
+${conn('↕ &nbsp;Data reads: premises, identity_signals, address_normalized')}
+${lyr('layer-data','BDC — Data Products',['premises (I_Premise CDS)','contract_accounts','identity_signals','address_normalized'])}
+${conn('↕ &nbsp;BAPI create / write')}
+${lyr('layer-out','Output — IS-U / FI-CA / BUPA',['ISU_S_MOVEIN_CREATE','ISU_S_MOVEOUT_CREATE','FKK_S_MKKVKP_CREATE (deposit)','BAPI_BUPA_CREATE_FROM_DATA','Confirmation channel dispatch'])}
+</div>`,
+
+  edi:`<p style="font-size:13px;color:var(--slate);margin:0 0 12px">EDI-Recon streams market messages into BDC and runs continuous reconciliation against enrollment and billing state.</p><div class="arch-layers">
+${lyr('layer-sap','SAP IS-U / EDI / IDoc — source',['IDoc Inbound/Outbound Engine','IS-U Market Communications','FI-CA Contract Accounts','Billing & Settlement Module'])}
+${conn('↕ &nbsp;IDOC_INBOUND_ASYNCHRONOUS + streaming to BDC')}
+${lyr('layer-btp','SAP BTP — Integration',['Integration Suite (IDoc parser)','Market-Variant Normalizer (ERCOT / PJM / NYISO)','SLA Clock Service','Message Routing'])}
+${conn('↕ &nbsp;Normalized message events to agent runtime')}
+${lyr('layer-ai','SAP BTP — AI Core & Agent Runtime',['AI Core (mismatch classifier + rule-pack engine)','Agent Builder (reconcile → detect → propose)','Market Rule Packs (configurable YAML)','SLA Monitor with deadline alarms'])}
+${conn('↕ &nbsp;Read: edi_messages, enrollment_state, billed_vs_paid')}
+${lyr('layer-data','BDC — Data Products',['edi_messages (streaming)','enrollment_state','billed_vs_paid','dispute_log'])}
+${conn('↕ &nbsp;Write corrective transactions + dispute objects')}
+${lyr('layer-out','Output — IS-U / FI-CA',['ISU_MARKET_COMM_CREATE (corrective txn)','FKK_DISPUTE_CREATE','FKK_DISPUTE_ROUTE','SLA Alarm → Market Ops team'])}
+</div>`,
+
+  cl:`<p style="font-size:13px;color:var(--slate);margin:0 0 12px">Collections-Strategist intercepts the FI-CA dunning run and replaces the static ladder with AI-driven NBA decisions — operating inside the system, not beside it.</p><div class="arch-layers">
+${lyr('layer-sap','SAP FI-CA — source',['Contract Account AR Aging','Dunning Procedures (FKK)','Payment History','Hardship Flags / Assistance Programs'])}
+${conn('↕ &nbsp;BAdI FKK_DUNNING_TRIGGER (intercepts dunning run)')}
+${lyr('layer-btp','SAP BTP — Integration & Feature Pipeline',['Integration Suite (feature extraction)','Event Mesh (batch trigger)','Channel Orchestrator (SMS / email / IVR / agent)','A/B Experiment Harness'])}
+${conn('↕ &nbsp;Feature store population + model inference')}
+${lyr('layer-ai','SAP BTP — AI Core & Agent Runtime',['AI Core (propensity-to-pay GBM model)','NBA Policy Engine (channel × offer × timing)','Hardship-Aware Guardrails','Feedback Loop / Quarterly Retraining'])}
+${conn('↕ &nbsp;Read: payment history, contact outcomes, hardship flags')}
+${lyr('layer-data','BDC — Data Products',['account_payment_history (40+ features)','contact_outcomes','hardship_flags','dunning_ladder_override'])}
+${conn('↕ &nbsp;Write dunning update + payment plan + contact log')}
+${lyr('layer-out','Output — FI-CA / IS-U',['FKK_DUNNING_UPDATE (override procedure)','FKK_S_PPLAN_CREATE (payment plan)','ISU_CONTACT_LOG_CREATE','Channel dispatch (SMS / email / IVR)'])}
+</div>`,
+
+  csr:`<p style="font-size:13px;color:var(--slate);margin:0 0 12px">CSR Co-Agent is a CIC0 plugin that gives reps RAG-grounded answers and one-click IS-U actions — with hallucination guardrails and auto wrap-up.</p><div class="arch-layers">
+${lyr('layer-sap','SAP CRM / IS-U / CIC0 — source',['CIC0 Interaction Center','IC Web Client (side-panel host)','IS-U Account & Billing','Business Partner Master'])}
+${conn('↕ &nbsp;ISU_CIC0_ADDON_REGISTER (plugin scaffold + security context)')}
+${lyr('layer-btp','SAP BTP — Integration & KB Pipeline',['Integration Suite (KB ingestion)','SharePoint / Confluence / PDF connector','Chunking + PII Redaction Pipeline','Account 360 CDS view (I_Account360)'])}
+${conn('↕ &nbsp;Session context + real-time query to agent runtime')}
+${lyr('layer-ai','SAP BTP — AI Core & Agent Runtime',['Generative AI Hub (RAG + LLM)','AI Core (intent + action proposer)','Hallucination Guardrails (citation enforced)','Action Approval Gate (rep must confirm)'])}
+${conn('↕ &nbsp;Read: kb_chunks, account_360, policy_library')}
+${lyr('layer-data','BDC — Data Products',['kb_chunks (vector-indexed)','account_360','policy_library','action_log / call_summary'])}
+${conn('↕ &nbsp;Write IS-U actions + interaction log')}
+${lyr('layer-out','Output — IS-U / CIC0',['ISU_LATEFEE_WAIVE','FKK_S_PPLAN_CREATE','ISU_FIELDWORK_DISPATCH','ISU_INTERACTION_LOG (auto wrap-up)'])}
+</div>`
+};
+
+// ── SANDBOX DATA ──────────────────────────────────────────────────
+function traceStep(icon,cls,html){ return `<div class="trace-step ${cls?'ts-'+cls:''}"><span class="ts-icon">${icon}</span><span class="ts-text">${html}</span></div>`; }
+
+const SANDBOX = {
+  mx:{
+    input:'Exception #MX-4821 &nbsp;|&nbsp; Installation 9800123 &nbsp;|&nbsp; Read date: 2024-11-15 &nbsp;|&nbsp; Reported value: <strong>0 kWh</strong> &nbsp;|&nbsp; Previous: 847 kWh &nbsp;|&nbsp; Type: ZERO_READ',
+    steps:[
+      traceStep('🔍','','<strong>Feature fetch</strong> from BDC: 12-month rolling avg 831 kWh, σ=62. Last 3 reads: 839, 847, 0 kWh.'),
+      traceStep('🌤️','','<strong>Weather baseline check:</strong> Nov 15 temp 52°F, HDD 8.2. No extreme demand event. Seasonal expected band: [741, 865] kWh.'),
+      traceStep('🧠','decision','<strong>Classification:</strong> ZERO_READ_NO_WEATHER_CAUSE. Hypothesis: meter access failure or transmission error. Confidence: <strong>0.94</strong>.'),
+      traceStep('📐','','<strong>Correction estimate:</strong> seasonal average for November = 803 kWh. Weather-adjusted: 798 kWh. Proposed value: <code>803 kWh</code>.'),
+      traceStep('⚖️','decision','<strong>Confidence gate:</strong> 0.94 ≥ 0.85 threshold → <strong>AUTO-CORRECT</strong> path selected.'),
+      traceStep('✅','action','<strong>BAPI_METERMEASUREMENT_CHANGE</strong> posted → value=803, reason_code=EST_SEASONAL, idempotency_key=MX4821-CORR-001.'),
+      traceStep('✅','output','<strong>ISU_METERREAD_EXCEPTION_CLOSE</strong> → resolution=AUTO_CORRECTED, confidence=0.94. Exception cleared in <strong>1.2 seconds</strong>.'),
+    ]
+  },
+  bp:{
+    input:'Case #BPEM-77421 &nbsp;|&nbsp; Type: <strong>BILLING_BLOCK</strong> &nbsp;|&nbsp; Object: Contract 4400123456 &nbsp;|&nbsp; Created: 2024-11-15 09:23 &nbsp;|&nbsp; Age: 0 days',
+    steps:[
+      traceStep('🧠','','<strong>Classification:</strong> BILLING_BLOCK / sub-type: NO_METER_READING. Confidence: 0.97. Matched to Rule Pack top-10 category.'),
+      traceStep('🔍','','<strong>Rule Pack check — Rule #1:</strong> "BILLING_BLOCK-NO_READ → auto-clear if current period reading exists." Looking up...'),
+      traceStep('🔍','','<strong>Meter reading lookup</strong> for installation 8800045621 → Found: read 2024-11-14 23:59, value <strong>1,247 kWh</strong>. ✓ Reading exists.'),
+      traceStep('⚖️','decision','<strong>Rule match confirmed:</strong> block is stale — reading present but EDM notification missed the billing engine. Auto-clear eligible.'),
+      traceStep('✅','action','<strong>BAPI_CASE_CLOSE</strong> → case_id=BPEM-77421, reason=AUTO_CLEARED_READ_FOUND, resolution_text attached.'),
+      traceStep('✅','output','Case closed in <strong>0.8 seconds</strong>. Billing engine notified. Cluster check: 3 similar cases in 7 days (threshold: 5) — monitoring.'),
+    ]
+  },
+  mo:{
+    input:'Move-in request &nbsp;|&nbsp; Customer: Jane A. Smith &nbsp;|&nbsp; Address: 1842 Oak St #2B, Dallas TX 75201 &nbsp;|&nbsp; Move date: 2024-12-01 &nbsp;|&nbsp; Channel: Web',
+    steps:[
+      traceStep('📄','','<strong>Document AI — lease PDF parsed:</strong> Tenant: Jane A. Smith, Start: Dec 1 2024, Unit 2B. PII redacted in store.'),
+      traceStep('📍','','<strong>Address normalized:</strong> → PRE-4420187. Status: Vacant. ✓ No duplicate premise.'),
+      traceStep('🔍','','<strong>Identity signals:</strong> Credit score 712. No fraud flags. Risk tier: <strong>LOW</strong>. Deposit: $150 (standard tier).'),
+      traceStep('⚖️','decision','<strong>Fraud gate: CLEAR.</strong> Proceeding with BAPI choreography — 6-step sequence.'),
+      traceStep('✅','action','<strong>ISU_S_MOVEIN_CREATE</strong> → premise=PRE-4420187, date=2024-12-01, meter=MTR-00128812. Contract CA-9923441 created.'),
+      traceStep('✅','action','<strong>FKK_S_MKKVKP_CREATE</strong> → deposit=$150, due=2024-12-15. &nbsp;<strong>BAPI_BUPA_CREATE_FROM_DATA</strong> → BP-1000842345 created.'),
+      traceStep('✅','output','Move-in complete in <strong>4.1 seconds</strong>. Confirmation email dispatched. Same-day move: ✓'),
+    ]
+  },
+  edi:{
+    input:'814 Switch Notice &nbsp;|&nbsp; Market: ERCOT &nbsp;|&nbsp; ESI ID: 1008901234567890123 &nbsp;|&nbsp; New REP: Constellation Energy &nbsp;|&nbsp; Switch date: 2024-11-20',
+    steps:[
+      traceStep('📨','','<strong>IDoc parsed (814 ERCOT variant):</strong> ESI 1008901234567890123, effective 2024-11-20, new REP: Constellation Energy.'),
+      traceStep('🔍','','<strong>Enrollment state:</strong> Current REP: TXU Energy (since 2023-04-01). Final bill through Nov 07 ($187.42). Status: <strong>Unbilled through Nov 19</strong>.'),
+      traceStep('⚠️','decision','<strong>Mismatch detected:</strong> Switch Nov 20, TXU final bill not yet issued. Gap: 12 days. Dispute type: <strong>FINAL_BILL_TIMING</strong>.'),
+      traceStep('🔍','','<strong>ERCOT rule pack applied:</strong> Rule ERCOT-814-FBT — incumbent must issue final bill within 5 business days. SLA remaining: 4 days. OK.'),
+      traceStep('✅','action','<strong>ISU_MARKET_COMM_CREATE:</strong> 814 acknowledgment + billing dispute flag dispatched to Constellation. Ref: DISP-ERCOT-20241120-4821.'),
+      traceStep('✅','output','<strong>FKK_DISPUTE_CREATE:</strong> amount=$187.42, type=FINAL_BILL_TIMING, sla_date=2024-11-27. SLA monitor armed.'),
+    ]
+  },
+  cl:{
+    input:'Account CA-5512340 &nbsp;|&nbsp; Balance: $284.50 overdue &nbsp;|&nbsp; Days overdue: 32 &nbsp;|&nbsp; Dunning level: 1 &nbsp;|&nbsp; Last payment: 2024-10-03',
+    steps:[
+      traceStep('🔍','','<strong>Feature store:</strong> 40 features loaded. Payment history: 8/12 on-time (67%). Avg days late: 12. Previous promise: kept.'),
+      traceStep('🧠','','<strong>Propensity model:</strong> P(pay within 14 days) = <strong>0.71</strong>. Segment: MODERATE_RISK. No hardship flag.'),
+      traceStep('🔍','','<strong>Hardship check:</strong> No LIHEAP, no low-income flag, no medical baseline. Safe for standard contact channels.'),
+      traceStep('⚖️','decision','<strong>NBA policy:</strong> MODERATE_RISK + prior promise kept → <strong>SMS + self-serve payment link</strong>. Hold aggressive dunning 7 days.'),
+      traceStep('✅','action','<strong>FKK_DUNNING_UPDATE:</strong> hold_days=7, channel=SMS, nba_code=SMS_PAYLINK_MODERATE_PRIOR_PROMISE.'),
+      traceStep('✅','output','<strong>ISU_CONTACT_LOG_CREATE:</strong> contact_type=SMS_OUTBOUND, outcome=PENDING. Contact cost: $0.18 vs $8.50 agent call. A/B variant B.'),
+    ]
+  },
+  csr:{
+    input:'Rep: Sarah K. &nbsp;|&nbsp; CIC0 session opened &nbsp;|&nbsp; Account: CA-8834221 &nbsp;|&nbsp; Caller: Michael Torres &nbsp;|&nbsp; Reason: High bill — $342.80',
+    steps:[
+      traceStep('📊','','<strong>Account 360 loaded:</strong> Last 3 bills $287/$298/$343. Usage ↑12% Jul–Aug. No open disputes. Last contact: 90 days ago.'),
+      traceStep('🔍','','<strong>RAG retrieval:</strong> "high bill summer AC tariff tier" → chunk: "Tier 2 threshold 600 kWh — Aug heat advisory" (score 0.94). Source: Tariff FAQ v2.3.'),
+      traceStep('💬','','<strong>Draft answer:</strong> "Mr. Torres, your August usage increased 12% year-on-year, consistent with the Aug 3–7 heat event. You crossed the Tier 2 threshold (600 kWh) on Aug 8, which applies a higher rate to 187 kWh." <em>[cited §4.2]</em>'),
+      traceStep('🎬','decision','<strong>Action proposed:</strong> Waive late fee $8.50 as goodwill gesture (within rep authority $25). Fee ID: FEE-3341. One-click confirm.'),
+      traceStep('✅','action','Rep approved. <strong>ISU_LATEFEE_WAIVE:</strong> fee_id=FEE-3341, amount=$8.50, reason=GOODWILL_COMPLAINT_RESOLUTION.'),
+      traceStep('✅','output','<strong>ISU_INTERACTION_LOG (auto wrap-up):</strong> "High Aug bill disputed. Explained heat event + Tier 2. Waived $8.50 goodwill. Satisfied — no escalation." AHT: <strong>3m22s</strong> vs avg 8m30s.'),
+    ]
+  }
+};
+
+// ── EVAL DATA ─────────────────────────────────────────────────────
+function evalCard(title, rows){
+  return `<div class="eval-card"><div class="eval-card-title">${title}</div>${rows.map(r=>`<div class="eval-row"><span class="er-label">${r[0]}</span><span class="er-val ${r[2]||''}">${r[1]}</span></div>`).join('')}</div>`;
+}
+function rubricRows(items){
+  return items.map(([dim,score])=>`<div class="rubric-row"><span class="rubric-dim">${dim}</span><div class="rubric-bar-wrap"><div class="rubric-bar" style="width:${score/5*100}%"></div></div><span class="rubric-score">${score}/5</span></div>`).join('');
+}
+
+const EVAL = {
+  mx:`<div class="eval-grid">
+${evalCard('Golden set',[ ['Size','200 implausibles',''],['Breakdown','Zero: 80 | Neg: 30 | Spike: 60 | Stuck: 30',''],['Source','Historical IS-U with human-labeled ground truth',''] ])}
+${evalCard('Performance metrics',[['Classification accuracy (4 types)','96.5%','good'],['Auto-resolve accuracy vs human GT','91.2%','good'],['False auto-resolve rate','3.1%',''],['Confidence calibration (Brier)','0.041','good'],['Escalation appropriateness','97.4%','good']])}
+</div><div class="eval-card"><div class="eval-card-title">LLM-as-judge rubric</div>${rubricRows([['Reasoning trace completeness',4.7],['Correction value accuracy',4.5],['Confidence calibration quality',4.3],['Audit trail completeness',5.0],['Escalation decision appropriateness',4.8]])}</div>
+<div style="margin-top:10px;font-size:12.5px;color:var(--slate)"><strong>Online metrics:</strong> Auto-resolve rate · Confidence distribution · Escalation rate · Model drift alarm (&gt;5 pp drop triggers retraining)</div>`,
+
+  bp:`<div class="eval-grid">
+${evalCard('Golden set',[['Size','1,000 cases',''],['Breakdown','30 BPEM categories, ~33 each',''],['Source','18 months IS-U production, labeled by 3 SMEs','']])}
+${evalCard('Performance metrics',[['Top-1 classification accuracy','91.4%','good'],['Top-3 classification accuracy','97.8%','good'],['Auto-clear precision','94.2%','good'],['Routing accuracy (vs human)','88.6%','good'],['Cluster assignment accuracy','86.1%','']])}
+</div><div class="eval-card"><div class="eval-card-title">LLM-as-judge rubric</div>${rubricRows([['Category label correctness',4.6],['Auto-clear justification quality',4.4],['Routing rationale clarity',4.2],['Cluster assignment logic',4.0],['Audit trail quality',4.8]])}</div>
+<div style="margin-top:10px;font-size:12.5px;color:var(--slate)"><strong>Online:</strong> Case auto-clear rate · P90 case age · Repeat-case rate · False-clear alarm triggers rule-pack review</div>`,
+
+  mo:`<div class="eval-grid">
+${evalCard('Golden set',[['Size','100 move scenarios',''],['Breakdown','Standard: 40 | Occupied: 15 | Mid-cycle: 20 | Landlord: 15 | Fraud: 10',''],['Source','Synthetic scenarios from real exception logs','']])}
+${evalCard('Performance metrics',[['End-to-end success (all scenarios)','87%','good'],['Standard move success','100%','good'],['Edge-case success','72%',''],['Fraud detection recall','90%','good'],['BAPI sequence accuracy','95.4%','good']])}
+</div><div class="eval-card"><div class="eval-card-title">LLM-as-judge rubric</div>${rubricRows([['BAPI choreography correctness',4.8],['Document extraction accuracy',4.5],['Fraud signal interpretation',4.3],['Edge-case handling quality',3.9],['Rollback on partial failure',4.6]])}</div>`,
+
+  edi:`<div class="eval-grid">
+${evalCard('Golden set',[['Size','3mo ERCOT + 2mo PJM',''],['Seeded discrepancies','500 (FINAL_BILL_TIMING 180, ENROLLMENT_GAP 140, PAYMENT_MISMATCH 120, OTHER 60)',''],['Source','Market message corpus with controlled seeded errors','']])}
+${evalCard('Performance metrics',[['Mismatch detection precision','93.7%','good'],['Mismatch detection recall','91.2%','good'],['Transaction type classification','89.4%','good'],['SLA alarm precision','97.8%','good'],['Corrective txn accuracy','88.9%','good']])}
+</div><div class="eval-card"><div class="eval-card-title">LLM-as-judge rubric</div>${rubricRows([['Message parsing accuracy',4.8],['Mismatch classification logic',4.4],['Rule pack application accuracy',4.5],['SLA monitoring reliability',4.9],['Dispute object completeness',4.3]])}</div>`,
+
+  cl:`<div class="eval-grid">
+${evalCard('Offline policy evaluation',[['Holdout set','2,000 FI-CA accounts, 6-month period',''],['Ground truth','Actual payment outcome within 14 days',''],['Method','Doubly-robust OPE estimator','']])}
+${evalCard('Model & policy metrics',[['Propensity model AUC-ROC','0.78','good'],['Precision @ 70% recall','0.74','good'],['Policy lift vs current ladder','+18%','good'],['Bad debt reduction (simulated)','−11.8%','good'],['Hardship compliance','100%','good']])}
+</div><div class="eval-card"><div class="eval-card-title">LLM-as-judge rubric</div>${rubricRows([['Propensity score calibration',4.3],['NBA policy logic transparency',4.1],['Hardship-aware policy compliance',5.0],['A/B experiment instrumentation',4.5],['Feedback loop / retraining cadence',4.2]])}</div>`,
+
+  csr:`<div class="eval-grid">
+${evalCard('Golden set',[['Size','300 call transcripts',''],['Labelers','3 senior CSRs with adjudication',''],['Source','Real recordings, PII redacted','']])}
+${evalCard('Performance metrics',[['Answer accuracy (grounded to KB)','94.2%','good'],['Citation quality','91.7%','good'],['Action proposal accuracy','89.4%','good'],['Hallucination rate','0.8%','good'],['Compliance (0 regulatory breaches)','100%','good']])}
+</div><div class="eval-card"><div class="eval-card-title">LLM-as-judge rubric</div>${rubricRows([['Answer groundedness (no hallucination)',4.9],['Citation relevance quality',4.6],['Action proposal appropriateness',4.5],['Wrap-up note accuracy',4.7],['Tone and rep experience quality',4.4]])}</div>`
+};
+
+// ── BUSINESS CASE DATA ────────────────────────────────────────────
+function bizTable(rows){ return `<table class="biz-table"><tr><th>Metric</th><th>Current state</th><th>Target</th><th>Value impact</th></tr>${rows.map(r=>`<tr><td class="td-bold">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="td-good">${r[3]}</td></tr>`).join('')}</table>`; }
+function bizPhases(p){ return `<div class="biz-phases">${p.map(x=>`<div class="biz-phase"><div class="biz-phase-num">${x[0]}</div><div class="biz-phase-title">${x[1]}</div><div class="biz-phase-dur">${x[2]}</div><div class="biz-phase-desc">${x[3]}</div></div>`).join('')}</div>`; }
+function bizKPIs(k){ return `<div class="biz-kpis">${k.map(x=>`<div class="biz-kpi"><div class="v">${x[0]}</div><div class="k">${x[1]}</div></div>`).join('')}</div>`; }
+
+const BIZ = {
+  mx:`<div class="biz-section"><h4>Problem</h4><ul><li><strong>Meter implausibles</strong> pile up in IS-U EDM, delaying billing — each costs $15–50 in manual review and drives estimated reads with regulatory exposure.</li><li><strong>RPA failures:</strong> existing scripts break on novel exception types and every IS-U release, requiring constant re-scripting.</li><li><strong>Rebill cost:</strong> estimated reads disputed by customers carry rework cost and NPS damage.</li></ul></div>
+<div class="biz-section"><h4>Value drivers</h4>${bizTable([['Auto-resolve rate','< 5% (manual)','60–75%','Eliminates $15–50/exception labor'],['Days-to-bill','+4.2 days avg','< 4 hours','Cash flow + customer experience'],['Estimated reads','Uncontrolled','−40% volume','Regulatory exposure + rebill cost']])}</div>
+<div class="biz-section"><h4>Sizing & returns</h4>${bizKPIs([['$1.8M','Annual savings (1.2M meters)'],['2.8 mo','Payback period'],['$450K','Implementation investment'],['$90K/yr','Run-and-maintain']])}</div>
+<div class="biz-section"><h4>Delivery timeline</h4>${bizPhases([['Phase 1','Pilot','Wks 1–8','Top 2 exception types. Synthetic IS-U data. Eval harness wired.'],['Phase 2','Scale','Wks 9–16','All 5 types live. Client IS-U data. A/B vs current process.'],['Phase 3','GA','Wk 17+','Full production. Drift monitoring. Retraining pipeline active.']])}</div>`,
+
+  bp:`<div class="biz-section"><h4>Problem</h4><ul><li><strong>Case backlog grows faster than headcount</strong> — P90 case age exceeds 5 days in peak periods.</li><li><strong>Misrouting:</strong> 15–20% of cases bounce between resolver groups, inflating actual handle time to 2–3× the theoretical minimum.</li><li><strong>No pattern detection:</strong> systemic root causes are buried in individual cases — no alerting to the CoE.</li></ul></div>
+<div class="biz-section"><h4>Value drivers</h4>${bizTable([['FTE deflection','~0% automated','42% auto-clear','$2.4M annual labor avoided'],['P90 case age','5+ days','< 4 hours','SLA compliance + customer outcome'],['Repeat-case rate','Untracked','−30%','CoE fixes root causes vs re-working']])}</div>
+<div class="biz-section"><h4>Sizing & returns</h4>${bizKPIs([['$2.3M','Annual savings (200k cases/yr)'],['2.4 mo','Payback period'],['$380K','Implementation investment'],['$75K/yr','Run-and-maintain']])}</div>
+<div class="biz-section"><h4>Delivery timeline</h4>${bizPhases([['Phase 1','Pilot','Wks 1–8','Classifier + rule pack. 1,000-case golden set.'],['Phase 2','Scale','Wks 9–16','Full taxonomy. Routing model + clusterer. Client data.'],['Phase 3','GA','Wk 17+','Production. Systemic alert dashboard. Rule-pack updates via transport.']])}</div>`,
+
+  mo:`<div class="biz-section"><h4>Problem</h4><ul><li><strong>Move-in requires 6+ sequential SAP transactions</strong> — all CSR-handled at 18–25 min each, with no automation.</li><li><strong>Edge-case failures:</strong> occupied premises, mid-cycle moves, and landlord accounts cause high abandon rates when self-serve hits a wall.</li><li><strong>Late fraud detection:</strong> typically caught at first delinquency — costing the write-off rather than preventing the account.</li></ul></div>
+<div class="biz-section"><h4>Value drivers</h4>${bizTable([['Same-day move share','~40%','+22 pp → 62%','NPS + call-back volume reduction'],['Assisted move AHT','22 min avg','< 13 min','$1.2M CSR time savings'],['Fraud detection','Post-delinquency','Pre-activation (90% recall)','Avg $180 write-off prevented per account']])}</div>
+<div class="biz-section"><h4>Sizing & returns</h4>${bizKPIs([['$1.2M','Annual savings (50k moves/yr)'],['4.1 mo','Payback period'],['$520K','Implementation investment'],['Additive','Fraud + abandon savings on top']])}</div>
+<div class="biz-section"><h4>Delivery timeline</h4>${bizPhases([['Phase 1','Pilot','Wks 1–10','Standard moves. Document AI + address normalize. Synthetic data.'],['Phase 2','Scale','Wks 11–18','Edge-case handler. Fraud scoring. Self-serve channel live.'],['Phase 3','GA','Wk 19+','All move types. IVR + web + CIC0. Fraud dashboard.']])}</div>`,
+
+  edi:`<div class="biz-section"><h4>Problem</h4><ul><li><strong>Revenue leakage</strong> from deregulated market reconciliation errors runs at $3M+ annually on a 1M-customer REP book — often invisible until quarter-end.</li><li><strong>Dispute resolution</strong> takes 30–60 days due to manual message parsing and counterparty back-and-forth.</li><li><strong>SLA penalties</strong> accumulate when market response windows are missed — no one is watching the outbound queue in real time.</li></ul></div>
+<div class="biz-section"><h4>Value drivers</h4>${bizTable([['Revenue leakage recovery','~30% caught','90% same-cycle','$3.1M recovered (1M customer book)'],['Dispute aging P90','45+ days','< 20 days','DSO −2.4 days on deregulated book'],['SLA penalty breaches','$X00K/yr','−80% breaches','Direct per-market penalty avoidance']])}</div>
+<div class="biz-section"><h4>Sizing & returns</h4>${bizKPIs([['$3.1M','Revenue recovered / yr'],['2.2 mo','Payback period'],['$580K','Implementation investment'],['Config','Additional markets via YAML rule pack']])}</div>
+<div class="biz-section"><h4>Delivery timeline</h4>${bizPhases([['Phase 1','Pilot','Wks 1–10','ERCOT rule pack. Historical corpus. Mismatch detection eval.'],['Phase 2','Scale','Wks 11–18','PJM rule pack. Live stream. Corrective txn write-back.'],['Phase 3','GA','Wk 19+','NYISO + additional markets. SLA monitor. Dispute dashboard.']])}</div>`,
+
+  cl:`<div class="biz-section"><h4>Problem</h4><ul><li><strong>Static dunning ladder</strong> applies the same escalation path to every overdue account — regardless of propensity, history, or hardship status.</li><li><strong>Wasted contacts:</strong> expensive agent calls on accounts that would self-cure; gentle nudges missed on high-risk accounts that need them.</li><li><strong>No feedback loop:</strong> the dunning ladder never learns from outcomes. Same misallocations repeat every cycle.</li></ul></div>
+<div class="biz-section"><h4>Value drivers</h4>${bizTable([['Bad debt / write-off rate','2.8%','−12% → 2.5%','$1.7M reduction on $50M AR book'],['Contact-to-promise rate','Baseline','+18%','Higher efficiency per outbound contact'],['Cost per $ collected','Baseline','−$0.06','Digital channels handling 30% more volume']])}</div>
+<div class="biz-section"><h4>Sizing & returns</h4>${bizKPIs([['$1.7M','Bad-debt saving / yr'],['3.1 mo','Payback period'],['$490K','Implementation investment'],['$85K/yr','Run-and-maintain']])}</div>
+<div class="biz-section"><h4>Delivery timeline</h4>${bizPhases([['Phase 1','Pilot','Wks 1–10','Propensity model (synthetic). NBA policy on 2 segments. A/B holdout.'],['Phase 2','Scale','Wks 11–18','Client FI-CA data. All segments. Hardship guardrails live.'],['Phase 3','GA','Wk 19+','Full dunning override. Quarterly retraining. Fairness monitor.']])}</div>`,
+
+  csr:`<div class="biz-section"><h4>Problem</h4><ul><li><strong>35% of AHT</strong> is spent looking up account info, policy docs, and working out the right IS-U action — all manual, all repetitive.</li><li><strong>New CSR ramp time</strong> is 8–12 weeks; high attrition means this cost repeats constantly.</li><li><strong>Knowledge base</strong> is stale and fragmented — reps give inconsistent answers on tariff questions and exception policies.</li></ul></div>
+<div class="biz-section"><h4>Value drivers</h4>${bizTable([['Average handle time (AHT)','8.5 min avg','−32% → 5.8 min','$3.7M on 200-seat centre at $42/hr'],['First-contact resolution','Baseline','+9 pp','Fewer callbacks, higher CSAT'],['CSR ramp time','10 weeks','−45% → 5.5 wks','$2,200 saved per new hire on ramp cost']])}</div>
+<div class="biz-section"><h4>Sizing & returns</h4>${bizKPIs([['$3.7M','Annual AHT savings'],['1.6 mo','Payback period'],['$420K','Implementation investment'],['Additive','Ramp-time savings on top']])}</div>
+<div class="biz-section"><h4>Delivery timeline</h4>${bizPhases([['Phase 1','Pilot','Wks 1–8','KB ingestion (top 3 domains). RAG live. 20-seat pilot cohort.'],['Phase 2','Scale','Wks 9–16','Full KB. CIC0 action library. IS-U write-back. All seats.'],['Phase 3','GA','Wk 17+','Wrap-up auto-write live. Eval scorecard online. FCR tracking.']])}</div>`
+};
+
+// ── SPECIAL DETAIL CONTENT ────────────────────────────────────────
+function detailItem(num,title,desc,api){
+  return `<div class="detail-item"><div class="di-num">${num}</div><div class="di-title">${title}</div><div class="di-desc">${desc}</div><div class="di-api">${api}</div></div>`;
+}
+
+const DETAIL = {
+  bp_rulepack:{title:'BPEM Auto-Clear Rule Pack — top 10 rules',items:[
+    detailItem('Rule 1','BILLING_BLOCK-READ_EXISTS','Billing block present but IS-U has a valid current-period reading → auto-clear the block.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_READ_FOUND'),
+    detailItem('Rule 2','BILLING_BLOCK-TARIFF_UPDATE','Block triggered by pending tariff change that has since been activated in IS-U → auto-clear.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_TARIFF_ACTIVE'),
+    detailItem('Rule 3','PAYMENT_MISMATCH-WITHIN_TOLERANCE','FI-CA payment allocation mismatch ≤$0.50 (rounding) → auto-clear with tolerance note.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_ROUNDING_TOLERANCE'),
+    detailItem('Rule 4','MASTER_DATA-ADDRESS_UPDATED','Address mismatch case where BUPA address was updated within 24 hrs → auto-clear.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_BUPA_UPDATED'),
+    detailItem('Rule 5','DUNNING-NO_OPEN_ITEMS','Dunning case raised on account with no open items (payment cleared) → auto-clear.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_NO_OPEN_ITEMS'),
+    detailItem('Rule 6','EDM_EXCEPTION-ZERO_READ_ESTIMATED','EDM-linked case where meter reading was already auto-estimated by EDM → auto-clear.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_EDM_ESTIMATED'),
+    detailItem('Rule 7','CONTRACT-INACTIVE_PREMISE','Case raised on inactive premise with no active installation → close as obsolete.','BAPI_CASE_CLOSE reason=AUTO_CLOSED_INACTIVE_PREMISE'),
+    detailItem('Rule 8','MARKET_COMM-ACKNOWLEDGED','Market communication case where counterparty acknowledgment is on file → auto-clear.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_MARKET_ACK'),
+    detailItem('Rule 9','DEPOSIT-WAIVER_APPROVED','Deposit exception where waiver was approved by credit team → auto-clear exception.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_DEPOSIT_WAIVER'),
+    detailItem('Rule 10','DEBIT_ENTRY-REVERSED','Debit entry case where a reversal document exists in FI-CA → auto-clear.','BAPI_CASE_CLOSE reason=AUTO_CLEARED_REVERSAL_PRESENT'),
+  ]},
+  mo_edgecase:{title:'MoveOps Edge-Case Library — 12 scenarios',items:[
+    detailItem('EC-01','Occupied premise','Previous tenant still active on installation → trigger move-out for previous tenant first, then move-in with 1-day gap.','ISU_S_MOVEOUT_CREATE (prev tenant) → 24hr hold → ISU_S_MOVEIN_CREATE'),
+    detailItem('EC-02','Mid-billing-cycle move','Move date falls mid-cycle → pro-rate final bill for departing tenant; create split billing period for new tenant.','ISU_S_MOVEOUT_CREATE with PRO_RATE=Y + billing split flag'),
+    detailItem('EC-03','Landlord / master account','Premise linked to a landlord master account → notify landlord BP, create sub-account for new tenant.','BAPI_BUPA_ADDR_CHANGE (landlord notify) + sub-account creation'),
+    detailItem('EC-04','Duplicate premise detected','Address normalizer matches to an existing premise → abort creation, link contract to existing PRE-ID.','ISU_S_MOVEIN_CREATE with existing PREMISE_ID (no new PRE created)'),
+    detailItem('EC-05','Fraud score above threshold','Identity signals trigger fraud hold → pause BAPI choreography, escalate to CSR with full fraud detail.','No BAPI writes; CIC0 escalation with fraud_detail payload attached'),
+    detailItem('EC-06','Same-day move-in and move-out','Back-to-back moves on same day → sequence move-out at 23:59, move-in at 00:00 next day.','ISU_S_MOVEOUT_CREATE TIME=23:59 → ISU_S_MOVEIN_CREATE TIME=00:00+1'),
+    detailItem('EC-07','No meter assigned to premise','Premise exists but no active meter → trigger meter assignment workflow; hold move-in pending provisioning.','ISU_METER_ASSIGN + async move-in trigger on provisioning complete'),
+    detailItem('EC-08','High-risk deposit required','Fraud score in medium-risk band → deposit elevated to Tier 2; offer bank direct debit to waive.','FKK_S_MKKVKP_CREATE with RISK_TIER=HIGH + waiver offer flag'),
+    detailItem('EC-09','International ID document','Document AI cannot parse foreign ID format → flag for CSR manual ID verification; rest of flow proceeds.','Partial flow: address + contract creation proceeds; ID hold on contract'),
+    detailItem('EC-10','Assistance program eligible','Customer qualifies for LIHEAP or low-income tariff → enrol in program before deposit calculation.','ISU_ASSISTANCE_ENROLL → FKK deposit waiver applied'),
+    detailItem('EC-11','Rollback on partial BAPI failure','Any BAPI in sequence returns error → rollback all preceding writes using reversal BAPIs; notify CSR.','ISU_S_MOVEIN_REVERSE + FKK_MKKVKP_REVERSE + BUPA reversal'),
+    detailItem('EC-12','Multi-commodity premise','Premise has gas and electric installations → run move-in choreography for each in parallel; confirm both.','Parallel ISU_S_MOVEIN_CREATE calls for each INSTALLATION_ID'),
+  ]},
+  edi_rulepacks:{title:'EDI-Recon Market Rule Packs',items:[
+    detailItem('ERCOT','ERCOT Rule Pack — 814/810/820/867','Texas deregulated market. 814 Switch: 3-business-day acknowledge window. Final bill: 5 days post-switch. 867 usage: daily for AMI, monthly for non-AMI. TDSP metering data governs disputes.','Market code: ERCOT | SLA: 3 business days | Penalty: $500/violation'),
+    detailItem('PJM','PJM Rule Pack — EDI X12 variants','Mid-Atlantic ISO. 814 enroll: 2-business-day acknowledge. 810 billing must match PJM settlement statement. 820 payment: ACH 5-day cycle. Dispute portal: PJM OASIS.','Market code: PJM | SLA: 2 business days | Penalty: $250/violation'),
+    detailItem('NYISO','NYISO Rule Pack — planned Q2 2026','New York ISO. 814 uses NYISO-specific segment extensions. ESCO billing governed by PSC tariff. Dispute resolution via NYISO Market Issues portal.','Market code: NYISO | Status: In build | Target: Q2 2026'),
+    detailItem('CUSTOM','Custom Market Rule Pack framework','For unlisted markets: configure message type variants, SLA windows, counterparty routing, and dispute templates via YAML — no custom development required.','Config: market_rule_pack.yaml | Deploy: transport, no code change'),
+  ]},
+  cl_lift:{title:'Collections-Strategist — Propensity Lift & Policy Detail',items:[
+    detailItem('Model','Propensity-to-pay (Gradient Boosted Machine)','40+ FI-CA features: payment recency/frequency/amounts, contact outcomes, dunning history, seasonal patterns, account tenure, hardship flags. Target: P(payment within 14 days).','AUC-ROC: 0.78 | Precision@70% recall: 0.74 | Quarterly retraining'),
+    detailItem('Lift','Policy lift over current dunning ladder','Offline policy evaluation (doubly-robust OPE) on 6-month holdout: +18% contact-to-promise and −11.8% write-off vs static ladder. Lift concentrated in MODERATE_RISK segment (propensity 0.40–0.75).','Holdout: 2,000 accounts | OPE method: doubly-robust estimator'),
+    detailItem('NBA','NBA policy — channel × offer × timing','HIGH_RISK (P<0.40): outbound agent call + payment plan within 24hrs. MODERATE_RISK (P 0.40–0.75): SMS + self-serve link, 7-day hold. LOW_RISK (P>0.75): email only, 14-day hold. HARDSHIP: exempt from escalation.','Policy table configurable per utility — no code change required'),
+    detailItem('Fairness','Hardship-aware fairness monitor','LIHEAP, low-income, and medical-baseline accounts are never escalated beyond SMS/email without 30-day hold and supervisor approval. Monitor checks compliance per run: 0 violations in evaluation set.','Fairness metric: Hardship Escalation Rate = 0% (target: 0%)'),
+  ]},
+  csr_cic0:{title:'CIC0 Plugin Scaffold — what ships with the implementation',items:[
+    detailItem('Shell','CIC0 side-panel plugin shell','Pre-built HTML/JS panel registered via ISU_CIC0_ADDON_REGISTER. Receives account context (contract account, BP, installation) on session open. Hosted on SAP BTP; session token passed for security.','ISU_CIC0_ADDON_REGISTER → ADDON_ID, SIDE_PANEL_URL, CONTEXT_FIELDS[]'),
+    detailItem('RAG','Knowledge base ingestion pipeline','Connectors for SharePoint, Confluence, and PDF. Chunking: 512-token overlapping. Embeddings via Generative AI Hub (text-embedding-3-small). PII redaction before indexing. Re-index nightly or on-demand.','BDC: kb_chunks (vector + metadata) | Re-index: nightly or on-demand'),
+    detailItem('Actions','IS-U action library (12 pre-mapped actions)','ISU_LATEFEE_WAIVE (rep authority: ≤$25, supervisor ≤$100), FKK_S_PPLAN_CREATE (standard/custom), ISU_FIELDWORK_DISPATCH (priority + work type), ISU_INTERACTION_LOG (auto wrap-up). Approval rules configurable.','Action manifest: 12 actions | Approval rules: configurable per utility'),
+    detailItem('Guardrails','Hallucination guardrails & compliance rules','Every answer must cite a kb_chunk with relevance score >0.75. No chunk above threshold → refuse-to-answer response. Regulated language (tariff quotes, legal terms) flagged for supervisor review.','Citation threshold: 0.75 | Refuse-to-answer: enabled by default'),
+    detailItem('Telemetry','Telemetry + eval hooks','Every session logs: query, retrieved chunks, answer, cited source, action proposed, rep decision, AHT delta. LLM-as-judge runs daily. AHT and FCR tracked in live dashboard.','Eval: daily LLM-as-judge | Dashboard: AI Core metrics + CIC0 session log'),
+  ]}
+};
+
+// ── MODAL OPEN / CLOSE ─────────────────────────────────────────────
+function openModal(agentId, type){
+  const agent = AGENTS[agentId];
+  const overlay = document.getElementById('modal-overlay');
+  const badge   = document.getElementById('modal-badge');
+  const titleEl = document.getElementById('modal-title');
+  const bodyEl  = document.getElementById('modal-body');
+  const footEl  = document.getElementById('modal-foot');
+
+  badge.textContent = agent.badge;
+  badge.style.background = agent.color;
+
+  let title='', body='', foot='';
+
+  if(type==='arch'){
+    title = agent.name + ' — Architecture';
+    body  = ARCH[agentId];
+    foot  = `<a class="btn ghost" onclick="closeModal()">Close</a>`;
+  } else if(type==='sandbox'){
+    const d = SANDBOX[agentId];
+    title = agent.name + ' — Sandbox simulation';
+    body  = `<div class="sandbox-input"><div class="si-label">Input event</div><div class="si-value">${d.input}</div></div><div class="trace-steps">${d.steps.join('')}</div>`;
+    foot  = `<a class="btn ghost" onclick="closeModal()">Close</a>`;
+  } else if(type==='eval'){
+    title = agent.name + ' — Eval scorecard';
+    body  = EVAL[agentId];
+    foot  = `<a class="btn ghost" onclick="closeModal()">Close</a>`;
+  } else if(type==='biz'){
+    title = agent.name + ' — Business case';
+    body  = BIZ[agentId];
+    foot  = `<a class="btn primary" onclick="window.print()">🖨 Print to PDF</a><a class="btn ghost" onclick="closeModal()">Close</a>`;
+  } else {
+    // special: rulepack, edgecase, rulepacks, lift, cic0
+    const key = agentId+'_'+type;
+    const det = DETAIL[key];
+    if(!det){ closeModal(); return; }
+    title = det.title;
+    body  = `<div class="detail-list">${det.items.join('')}</div>`;
+    foot  = `<a class="btn ghost" onclick="closeModal()">Close</a>`;
+  }
+
+  titleEl.innerHTML = title;
+  bodyEl.innerHTML  = body;
+  footEl.innerHTML  = foot;
+
+  overlay.setAttribute('aria-hidden','false');
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(e){
+  if(e && e.target !== document.getElementById('modal-overlay')) return;
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+
+document.getElementById('modal-overlay').addEventListener('click', closeModal);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 </script>
 
 </body>
