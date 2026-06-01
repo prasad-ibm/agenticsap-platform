@@ -385,6 +385,8 @@
     }
     .btn-modal-cancel:hover { background: #e0e0e0; }
     .form-error { font-size: 11px; color: #da1e28; margin-top: 0.25rem; display: none; }
+    .btn-nav{display:inline-flex;align-items:center;padding:0 1rem;height:32px;font-size:0.8125rem;font-weight:600;text-decoration:none;background:var(--sap-blue);color:#fff;border-radius:4px;white-space:nowrap}
+    .btn-nav:hover{background:var(--sap-blue-d);text-decoration:none;color:#fff}
   </style>
 </head>
 <body>
@@ -413,7 +415,10 @@
         </div>
       </div>
     </div>
-    <div id="assessment-name-display" style="font-size:0.75rem;color:#525252;font-family:'IBM Plex Mono',monospace;"></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="assessment-name-display" style="font-size:0.75rem;color:#525252;font-family:'IBM Plex Mono',monospace;"></div>
+      <a href="/compass-clients.html" class="btn-nav">Admin</a>
+    </div>
   </div>
 </nav>
 
@@ -753,6 +758,22 @@ async function saveModule() {
     );
     moduleScores[currentModuleCode] = saved;
     updateModuleSidebarItem(currentModuleCode);
+    // Mirror aggregated scores to localStorage so Peer Benchmark "Pre-fill from Compass" works
+    try {
+      const lsPayload = {};
+      Object.entries(moduleScores).forEach(([code, ms]) => {
+        AXES.forEach(a => {
+          if (lsPayload[a.key] === undefined) lsPayload[a.key] = [];
+          lsPayload[a.key].push(parseFloat(ms[a.key] || 0));
+        });
+      });
+      // Average across modules per axis
+      const averaged = {};
+      Object.entries(lsPayload).forEach(([k, vals]) => {
+        averaged[k] = vals.reduce((s, v) => s + v, 0) / vals.length;
+      });
+      localStorage.setItem('asap_compass_scores', JSON.stringify(averaged));
+    } catch (_) {}
     setSaveStatus('saved', '✓ Saved');
     setTimeout(() => setSaveStatus('', ''), 2500);
   } catch (e) {
