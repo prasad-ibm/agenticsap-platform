@@ -99,14 +99,28 @@
   .lang-badge{padding:4px 9px;border-radius:4px;font-size:11px;font-weight:700;font-family:ui-monospace,monospace}
   .file-info{font-size:11.5px;color:var(--muted)}
 
-  /* Code viewer */
-  .code-area{flex:1;overflow:hidden;display:flex;flex-direction:column;background:var(--code-bg);min-height:0}
-  .code-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:auto}
-  .code-pre{margin:0;padding:16px 0;font-family:ui-monospace,"Cascadia Code","Fira Code",Consolas,monospace;font-size:12.5px;line-height:1.72;color:var(--code-fg);counter-reset:line;min-width:100%}
+  /* Code viewer — card layout */
+  .code-area{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0;background:var(--bg)}
+  .asset-card{padding:24px 28px;display:flex;flex-direction:column;gap:18px;max-width:860px}
+  .asset-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .asset-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.4px}
+  .asset-title{font-size:18px;font-weight:700;color:var(--navy);font-family:ui-monospace,"Cascadia Code",monospace;margin-top:2px}
+  .asset-summary{font-size:14px;color:var(--slate);line-height:1.65;border-left:3px solid var(--sap);padding-left:12px}
+  .asset-bullets{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .asset-bullets li{font-size:13px;color:var(--slate);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+  .asset-bullets li::before{content:'›';color:var(--sap);font-weight:700;flex-shrink:0;margin-top:1px}
+  .snippet-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--code-bg);border-radius:6px 6px 0 0;border-bottom:1px solid #30363d}
+  .snippet-label{font-size:11px;font-weight:600;color:#8b949e;font-family:ui-monospace,monospace}
+  .snippet-gh-link{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:#58a6ff;text-decoration:none;white-space:nowrap}
+  .snippet-gh-link:hover{color:#79c0ff;text-decoration:none}
+  .snippet-block{background:var(--code-bg);border-radius:0 0 6px 6px;overflow-x:auto}
+  .code-pre{margin:0;padding:10px 0;font-family:ui-monospace,"Cascadia Code","Fira Code",Consolas,monospace;font-size:12px;line-height:1.72;color:var(--code-fg);min-width:100%}
   .code-line{display:flex;min-height:1.72em}
   .code-line:hover{background:rgba(255,255,255,.03)}
-  .ln{display:inline-block;min-width:44px;padding-left:12px;padding-right:14px;color:#484f58;user-select:none;text-align:right;flex-shrink:0;font-size:12px}
-  .lc{padding-right:24px;white-space:pre;flex:1}
+  .ln{display:inline-block;min-width:38px;padding-left:10px;padding-right:12px;color:#484f58;user-select:none;text-align:right;flex-shrink:0;font-size:11.5px}
+  .lc{padding-right:20px;white-space:pre;flex:1}
+  .asset-gh-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:#24292f;color:#fff;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;align-self:flex-start;transition:background .15s}
+  .asset-gh-cta:hover{background:#1c2128;text-decoration:none;color:#fff}
 
   /* Syntax token colours */
   .t-cmt{color:#8b949e;font-style:italic}
@@ -124,10 +138,10 @@
   .t-tag{color:#7ee787}
 
   /* N/A panel */
-  .na-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--code-bg);gap:12px}
-  .na-panel .na-icon{font-size:40px;opacity:.4}
-  .na-panel .na-title{color:#484f58;font-size:15px;font-weight:600}
-  .na-panel .na-sub{color:#484f58;font-size:13px;max-width:340px;text-align:center;line-height:1.5}
+  .na-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px 20px;background:#f7f9fc;border-radius:8px;border:1px dashed var(--border)}
+  .na-panel .na-icon{font-size:36px;opacity:.5}
+  .na-panel .na-title{color:var(--navy);font-size:14px;font-weight:600}
+  .na-panel .na-sub{color:var(--muted);font-size:13px;max-width:340px;text-align:center;line-height:1.5}
 
   /* ── BOTTOM PANEL ── */
   .bottom-panel{border-top:1px solid var(--border);background:#fff;flex-shrink:0;max-height:220px;overflow-y:auto}
@@ -2262,6 +2276,58 @@ function getLang(layer){
   return {skill:'yaml',handlers:'javascript',prompts:'jinja2',cds:'abap',pipeline:'yaml',evals:'python'}[layer]||'text';
 }
 
+// ── ASSET DESCRIPTIONS (shown in card view) ──────────────────────────────────
+const DESCS = {
+  mx:{
+    skill:    { title:'skill.yaml', summary:'Declares agent identity, runtime parameters, SAP tool bindings (OData + BAPI), guardrails, and observability config for deployment on SAP AI Core.', bullets:['Trigger: BTP Event Mesh — sap/isu/edm/exception/created','Tools: get_exception_detail · post_corrected_reading · close_workcase · escalate_to_human','Guardrails: max 2.5% auto-correction · circuit breaker at 5 000 closes / day','Observability: trace-ID header · metrics topic · INFO log level'] },
+    handlers: { title:'closeWorkcase.js', summary:'Validates the exception ID, calls ISU_METERREAD_EXCEPTION_CLOSE BAPI, writes pre- and post-action audit logs, and verifies the BAPI return — the agent\'s write path into SAP.', bullets:['Input schema validated before any SAP write','Audit log written before AND after every BAPI call','BAPI return code checked — non-zero throws and rolls back','All writes produce a SAP change document'] },
+    prompts:  { title:'system.j2', summary:'System prompt that injects live SAP context via a JSON block, defines the AUTO_CORRECT / ESCALATE / CLOSE_NO_ACTION decision space, and enforces a JSON response schema.', bullets:['Role: meter-exception specialist with GDPR / billing constraints','Context: exception detail · trailing 6-month σ · tariff category injected at runtime','Decision space: 3 paths — AUTO_CORRECT · ESCALATE · CLOSE_NO_ACTION','Response schema enforced — invalid JSON triggers automatic retry'] },
+    cds:      { title:'I_MeterReadingExceptionContext.cds', summary:'Virtual data product joining the exception table with installation, premise, tariff, and a 6-month reading window including trailing average and standard deviation window functions.', bullets:['Joins: isu_t_edmx_e + isu_t_anlage + isu_t_premise + isu_t_tarif + isu_t_mrhist','Window functions: Trailing6mAvg · Trailing6mStd (ROWS BETWEEN 5 PRECEDING AND CURRENT ROW)','Key: exception_id — unique per workcase','Exposed as OData via IS_U_MX_SRV service'] },
+    pipeline: null,
+    evals:    { title:'test_mx_resolver.py', summary:'pytest harness covering 6 assertions across a 200-case golden set labelled by a domain expert. Blocks CI promotion if any gate fails.', bullets:['decision_matches_label — parametrized across all 200 cases','overall_accuracy_gate — ≥ 80% match rate required','never_overcorrects — auto-corrections always within tolerance','sigma_flag_always_escalates — σ > threshold never auto-corrects','blocked_types_never_auto_correct — MR99 always escalates to human','p95_latency_gate — 95th-percentile response < 2 000 ms'] }
+  },
+  bpem:{
+    skill:    { title:'skill.yaml', summary:'Configures BPEM-Triage for SAP AI Core — event-driven trigger on case creation, three tool bindings, and a confidence-threshold circuit breaker preventing mis-classification at scale.', bullets:['Trigger: BTP Event Mesh — sap/bpem/case/created','Tools: get_case_detail · classify_and_route · close_resolved_case','Guardrails: confidence threshold 0.80 · max 3 000 auto-closes / day','Model: gpt-4o · prompt_version 1.1.0'] },
+    handlers: { title:'classifyAndRoute.js', summary:'Calls EMMA_CASE_CHECK BAdI to retrieve case context, runs classification, routes to the correct resolution handler, and closes simple cases via BAPI_CASE_CLOSE.', bullets:['Reads case context via EMMA_CASE_CHECK BAdI','Routes to 5 resolution handlers by root-cause category','Auto-closes single-cause billing discrepancies directly','Audit trail written to BPEM case notes on every action'] },
+    prompts:  { title:'system.j2', summary:'System prompt providing the 5-category BPEM classification framework with confidence scoring and escalation rules for multi-cause and chronic cases.', bullets:['5 root-cause categories: tariff · master-data · EDI · payment · manual','Confidence score required in every response','Multi-cause cases always escalated — never auto-resolved','Reasoning chain included for compliance audit trail'] },
+    cds:      { title:'I_BPEMCaseContext.cds', summary:'Virtual data product joining the BPEM case table with contract account, BP master data, and 90-day case frequency to provide classification context.', bullets:['Joins: bpem_case + but000 + fkkvkp + bpem_history','Frequency flag: > 3 occurrences in 90 days tagged as chronic','Key: case_guid','Exposed as OData service for AI Core consumption'] },
+    pipeline: null,
+    evals:    { title:'test_bpem_triage.py', summary:'pytest harness validating classification accuracy across a 500-case labelled set covering all 5 root-cause categories.', bullets:['classification_accuracy — ≥ 85% across all categories','per_category_accuracy — no single category below 70%','chronic_flag_always_escalates — high-frequency cases never auto-closed','confidence_threshold_respected — low-confidence always escalated','p95_latency_gate — < 1 500 ms'] }
+  },
+  coll:{
+    skill:    { title:'skill.yaml', summary:'Configures Collections-Strategist with propensity model integration, FI-CA tool bindings, and a weekly retraining schedule for the XGBoost payment-risk scoring model.', bullets:['Trigger: scheduled daily 06:00 UTC + event on overdue posting','Tools: get_account_risk_score · apply_collection_strategy · log_action','Guardrails: max risk-score delta 20 pts / cycle · human review above €50 k','Pipeline: weekly XGBoost retraining on 24-month payment history'] },
+    handlers: { title:'applyCollectionStrategy.js', summary:'Reads the propensity model score, maps it to one of 5 collection strategy tiers, calls FI-CA promise-to-pay or dunning APIs, and writes the action log.', bullets:['Score buckets: 0-20 low · 21-40 medium · 41-60 high · 61-80 urgent · 81-100 legal','FI-CA APIs: BAPI_COLL_PROMISE_CREATE · BAPI_DUNNING_NOTICE_SEND','Human hand-off triggered above €50 k or risk delta > 20','Action logged to FI-CA collection case notes'] },
+    prompts:  { title:'system.j2', summary:'System prompt providing the 5-tier collections decision framework, regulatory constraints (GDPR, debt-collection law), and escalation rules for vulnerable customers.', bullets:['5 strategy tiers mapped to propensity score buckets','Regulatory: 30-day notice period · vulnerable customer flag blocks automation','Never applies legal strategy without explicit human approval','Response includes strategy rationale for compliance audit'] },
+    cds:      { title:'I_ContractAccountPaymentHistory.cds', summary:'Virtual data product aggregating 24 months of FI-CA payment history with statistical features used as inputs to the XGBoost propensity model.', bullets:['24-month rolling window of payment events per contract account','Features: days_late_avg · promise_kept_rate · dunning_level_max · balance_trend','Joins: fkkvkp + dfkkop + dfkkzp + dfkkmahnvor','Key: contract_account_id'] },
+    pipeline: { title:'pipeline.yaml', summary:'SAP AI Core ML pipeline: ingest → feature engineering → XGBoost GPU training → AUC evaluation gate → model registry. Runs on a weekly Sunday schedule.', bullets:['Step 1 — ingest: pull 24-month FI-CA history to object store','Step 2 — feature-eng: compute 12 statistical features per account','Step 3 — train: XGBoost (500 trees · max_depth 6) on GPU instance','Step 4 — evaluate: AUC ≥ 0.78 gate — fails pipeline if not met','Step 5 — register: promote model to SAP AI Core model registry'] },
+    evals:    { title:'test_collections_strategist.py', summary:'pytest harness validating strategy accuracy, model AUC, and regulatory compliance rules across a 1 000-account labelled set.', bullets:['strategy_matches_label — ≥ 82% accuracy','auc_gate — AUC ≥ 0.78 on held-out test set','never_applies_legal_without_approval — zero violations tolerated','vulnerable_flag_always_escalates — 100% compliance required','p95_latency_gate — < 3 000 ms including model inference'] }
+  },
+  csr:{
+    skill:    { title:'skill.yaml', summary:'Configures CSR Co-Agent as a real-time CIC0 sidebar assistant — streaming tool calls for account lookup, next-best-action scoring, and interaction logging.', bullets:['Trigger: CIC0 session-start event','Tools: get_account_summary · get_nba_recommendation · log_interaction_note','Streaming: enabled — tokens stream to CIC0 overlay in real time','Model: gpt-4o · max_tokens 512 (concise sidebar responses)'] },
+    handlers: { title:'getNBARecommendation.js', summary:'Calls the NBA scoring model endpoint on SAP AI Core with the current interaction context, returns the top-3 next-best actions ranked by score, and logs the recommendation.', bullets:['Sends context: account balance · open cases · recent dunning level','Returns top-3 NBA items with score and script text','Scoring model hosted on SAP AI Core deployment endpoint','Recommendation logged to CRM interaction record'] },
+    prompts:  { title:'system.j2', summary:'System prompt for the CSR sidebar: brevity rules (max 3 bullets), account context injection, empathy constraints, and NBA recommendation formatting.', bullets:['Role: silent co-pilot — CSR speaks, agent suggests','Max 3 bullet points per response — sidebar UX constraint','Account risk, balance, open cases injected from CDS view','NBA items formatted as ready-to-read script snippets'] },
+    cds:      { title:'I_CustomerInteractionContext.cds', summary:'Virtual data product joining CRM interaction, FI-CA account status, and recent case history to provide the CSR sidebar with a real-time 360° customer view.', bullets:['Joins: crmd_orderadm_h + fkkvkp + crm_jest + dfkkop','Fields: open_balance · last_payment_date · active_cases · dunning_level','Refreshed on each CIC0 session start — real-time read','Key: bp_number + interaction_id'] },
+    pipeline: null,
+    evals:    { title:'test_csr_coagent.py', summary:'pytest harness validating NBA accuracy, response brevity, empathy constraints, and latency against a 300-interaction golden set rated by senior CSR agents.', bullets:['nba_top1_accuracy — ≥ 75% match to CSR expert rating','response_length — always ≤ 3 bullets and ≤ 120 words','never_reveals_internal_scores — no raw model scores in response','empathy_constraint — no debt-collection language in sidebar copy','p95_latency_gate — < 1 200 ms (streaming first token)'] }
+  },
+  mo:{
+    skill:    { title:'skill.yaml', summary:'Configures MoveOps to orchestrate the full move-in / move-out lifecycle: CRM notification → address validation → IS-U contract creation → device assignment.', bullets:['Trigger: CRM service order created with MOVEIN / MOVEOUT type','Tools: validate_address · create_contract · assign_device · notify_completion','Guardrails: address match score ≥ 0.85 required · human review on overlap conflicts','SLA: contract creation within 2 hours of CRM notification'] },
+    handlers: { title:'createContract.js', summary:'Validates the incoming move request, calls ISU_S_MOVEIN_CREATE BAPI, assigns the meter device from MDU, and updates the CRM service order to COMPLETED.', bullets:['Pre-validation: address score ≥ 0.85 · no active contract overlap on premise','BAPI: ISU_S_MOVEIN_CREATE with full premise and installation context','Device assignment: BAPI_DEVICE_ASSIGN with meter serial from MDU','Completion: CRM service order status set to COMPLETED'] },
+    prompts:  { title:'system.j2', summary:'System prompt defining the move orchestration decision tree: validation rules, overlap resolution logic, and escalation conditions for complex service addresses.', bullets:['Decision tree: validate → check overlap → create → assign → notify','Overlap rule: same premise + overlapping dates → always escalate','MDU mismatch: address found but device unassigned → create manual task','Response must include all BAPI call results for audit'] },
+    cds:      { title:'I_PremiseContext.cds', summary:'Virtual data product joining premise, installation, device assignment, and active contract data to support move-in / move-out validation.', bullets:['Joins: isu_t_premise + isu_t_anlage + isu_t_geraet + fkkvkp','Active contract flag + overlap date-range calculation','Device status: ACTIVE · UNASSIGNED · DECOMMISSIONED','Key: premise_id'] },
+    pipeline: null,
+    evals:    { title:'test_moveops.py', summary:'pytest harness validating end-to-end move orchestration across 400 test cases covering standard moves, date overlaps, MDU mismatches, and multi-premise scenarios.', bullets:['move_completes_end_to_end — ≥ 95% success rate on clean data','overlap_always_escalates — zero auto-completions on date overlaps','address_threshold_enforced — score < 0.85 always triggers human review','bapi_return_checked — non-zero return never silently succeeds','p95_latency_gate — < 4 000 ms (multi-BAPI orchestration)'] }
+  },
+  edi:{
+    skill:    { title:'skill.yaml', summary:'Configures EDI-Recon to detect and resolve IDoc / market communication mismatches: inbound IDoc validation → enrollment state reconciliation → auto-dispute or escalation.', bullets:['Trigger: IDOC_INBOUND_ASYNCHRONOUS BAdI on market comms IDocs','Tools: get_idoc_detail · reconcile_enrollment_state · create_dispute · escalate','Guardrails: tolerance window ± 1 business day · max 200 auto-disputes / day','Scope: UTILMD · MSCONS · REMADV IDoc types'] },
+    handlers: { title:'reconcileEnrollmentState.js', summary:'Compares the inbound IDoc enrollment state against the expected IS-U contract state, identifies mismatches, and triggers auto-dispute or escalation based on configured tolerance rules.', bullets:['Reads expected state from IS-U via I_EDIMessage CDS view','Compares: enrollment date · meter-point ID · market partner ID','Tolerance: ± 1 business day for date mismatches','Auto-dispute: ISU_MARKET_COMM_CREATE with DISPUTE reason code'] },
+    prompts:  { title:'system.j2', summary:'System prompt for IDoc reconciliation: 5-type mismatch taxonomy, market-zone tolerance rules, and REMADV dispute message formatting.', bullets:['5 mismatch types: date · meter-point · partner-ID · quantity · status','Market-zone tolerance tables injected at runtime per zone','Dispute format: REMADV IDoc structure with reason code and narrative','Escalation: > 2 mismatches on same meter point within 7 days'] },
+    cds:      { title:'I_EDIMessageContext.cds', summary:'Virtual data product joining IDoc header, enrollment state, meter-point master data, and 30-day dispute history to provide reconciliation context.', bullets:['Joins: isu_idoc_hdr + isu_t_eanl + isu_t_market_partner + isu_dispute_log','Dispute history: rolling 30-day window per meter point','Market partner tolerance table joined dynamically by zone','Key: idoc_number + market_transaction_id'] },
+    pipeline: null,
+    evals:    { title:'test_edi_recon.py', summary:'pytest harness validating reconciliation accuracy across 600 IDoc test cases covering all 5 mismatch types and market-zone variants.', bullets:['reconciliation_accuracy — ≥ 88% match to expected outcome','date_tolerance_enforced — ± 1 day boundary cases handled correctly','partner_id_mismatch_always_escalates — zero auto-disputes for this type','dispute_format_valid — REMADV IDoc structure passes schema validation','p95_latency_gate — < 2 500 ms'] }
+  }
+};
+
 // ── RENDER ───────────────────────────────────────────────────────────────────
 function render(){
   const agent = AGENTS[currentAgent];
@@ -2288,24 +2354,52 @@ function render(){
   lb.style.background = lm.badgeBg;
   lb.style.color      = lm.badgeFg;
 
-  // Code
-  const ca = document.getElementById('code-area');
+  // Asset card
+  const ca   = document.getElementById('code-area');
+  const desc = DESCS[currentAgent]?.[layer];
+
   if(!code){
-    ca.innerHTML = `<div class="na-panel">
-      <div class="na-icon">🤖</div>
-      <div class="na-title">Pipeline not required for ${esc(agent.name)}</div>
-      <div class="na-sub">This agent uses deterministic rule-based logic with an LLM prompt — no separate ML training pipeline is needed. Pipeline assets only apply to agents with propensity models (Collections-Strategist).</div>
+    // Pipeline not required panel
+    ca.innerHTML = `<div class="asset-card">
+      <div class="na-panel" style="min-height:180px">
+        <div class="na-icon">🤖</div>
+        <div class="na-title">Pipeline not required for ${esc(agent.name)}</div>
+        <div class="na-sub">This agent uses deterministic rule-based logic with an LLM prompt — no ML training pipeline needed. Only Collections-Strategist has a propensity model requiring a pipeline.</div>
+      </div>
     </div>`;
   } else {
-    const lang = getLang(layer);
-    const lines = code.split('\n');
-    const lineCount = lines.length;
-    document.getElementById('file-info').textContent = lineCount+' lines';
-    const highlighted = highlight(code, lang);
-    const hlines = highlighted.split('\n');
-    ca.innerHTML = '<div class="code-scroll"><pre class="code-pre" id="code-pre">'
-      + hlines.map((l,i)=>`<div class="code-line"><span class="ln">${i+1}</span><span class="lc">${l}</span></div>`).join('')
-      + '</pre></div>';
+    const lang      = getLang(layer);
+    const allLines  = code.split('\n');
+    const totalLines= allLines.length;
+    const preview   = allLines.slice(0, 14);
+    const previewHl = highlight(preview.join('\n'), lang);
+    const pLines    = previewHl.split('\n');
+    document.getElementById('file-info').textContent = totalLines + ' lines';
+
+    const bulletsHtml = desc ? desc.bullets.map(b=>`<li>${b}</li>`).join('') : '';
+    const ghSvg = `<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>`;
+
+    ca.innerHTML = `<div class="asset-card">
+      <div>
+        <div class="asset-meta">
+          <span class="asset-badge" style="background:${lm.badgeBg};color:${lm.badgeFg}">${esc(lm.fmt)}</span>
+          <span class="asset-badge" style="background:#f0f4ff;color:var(--navy)">${esc(agent.name)}</span>
+        </div>
+        <div class="asset-title" style="margin-top:8px">${esc(desc ? desc.title : file.split('/').pop())}</div>
+      </div>
+      ${desc ? `<p class="asset-summary">${esc(desc.summary)}</p>` : ''}
+      ${bulletsHtml ? `<ul class="asset-bullets">${bulletsHtml}</ul>` : ''}
+      <div>
+        <div class="snippet-header">
+          <span class="snippet-label">preview · first 14 of ${totalLines} lines · ${esc(lm.fmt)}</span>
+          <a href="${esc(ghUrl)}" target="_blank" class="snippet-gh-link">${ghSvg} view full file on GitHub</a>
+        </div>
+        <div class="snippet-block">
+          <pre class="code-pre">${pLines.map((l,i)=>`<div class="code-line"><span class="ln">${i+1}</span><span class="lc">${l}</span></div>`).join('')}</pre>
+        </div>
+      </div>
+      <a href="${esc(ghUrl)}" target="_blank" class="asset-gh-cta">${ghSvg} View full file on GitHub — ${esc(file ? file.split('/').pop() : 'repository')}</a>
+    </div>`;
   }
 
   // Bottom guide
