@@ -1922,7 +1922,7 @@ export async function matchEnrollmentState(params) {
   const expected = await callOdata(
     'MARKET_COMM_SRV',
     'EnrollmentState',
-    { filter: "VkontId eq '${idoc_data.vkont}'" }
+    { filter: "VkontId eq '\${idoc_data.vkont}'" }
   );
 
   if (!expected.value || expected.value.length === 0) {
