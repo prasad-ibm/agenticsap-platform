@@ -1,0 +1,2406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Skill Authoring Studio — AgenticSAP</title>
+<meta name="description" content="Browse, copy, and author all six technical code layers for every SAP agent archetype. Skill manifests, action handlers, prompt templates, CDS views, AI Core pipelines, and eval harnesses — with full GitHub asset links." />
+<style>
+  :root {
+    --navy:#0A1F44; --navy-2:#0F2A5C;
+    --sap:#006FE6; --teal:#00B4A6;
+    --coral:#FF6B4A; --gold:#F5B506;
+    --slate:#4A5568; --muted:#8B95A8;
+    --border:#E2E7F0; --card:#FFFFFF; --bg:#F7F9FC;
+    --shadow:0 4px 20px rgba(10,31,68,.06); --radius:12px; --maxw:1400px;
+    --l1:#006FE6; --l2:#00B4A6; --l3:#D97706;
+    --l4:#059669; --l5:#7C3AED; --l6:#E53E3E;
+    --code-bg:#0D1117; --code-fg:#c9d1d9;
+    --sidebar-w:260px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--navy);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--sap);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── NAV ── */
+  .c-nav{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid #e0e0e0;height:48px;display:flex;align-items:center}
+  .c-nav-inner{max-width:100%;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;width:100%}
+  .c-nav-brand{display:flex;align-items:center;gap:10px;font-size:0.875rem;font-weight:600;color:#161616;text-decoration:none}
+  .c-nav-brand:hover{color:#161616;text-decoration:none}
+  .c-nav-links{display:flex;align-items:center;gap:0}
+  .c-nav-links > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-links > a:hover{background:#f4f4f4;color:#161616}
+  .c-nav-links > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+  .c-nav-dropdown > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-dropdown > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown > a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+  .c-nav-dropdown:hover > a::after{opacity:.85}
+  .c-nav-dropdown-menu{position:absolute;top:48px;left:0;display:flex;flex-direction:column;visibility:hidden;opacity:0;pointer-events:none;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:210px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.12);transition:opacity .12s ease}
+  .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible;opacity:1;pointer-events:auto}
+  .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+  .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+  .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+  .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .btn-nav{display:inline-flex;align-items:center;padding:0 1rem;height:32px;font-size:0.8125rem;font-weight:600;text-decoration:none;background:var(--sap);color:#fff;border-radius:4px}
+  .btn-nav:hover{background:#005bbf;text-decoration:none;color:#fff}
+
+  /* ── HERO ── */
+  .hero{background:linear-gradient(135deg,var(--navy) 0%,#0d2a5e 55%,#122060 100%);color:#fff;padding:52px 24px 44px;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 700px 350px at 90% 60%,rgba(124,58,237,.15),transparent)}
+  .hero-inner{max-width:var(--maxw);margin:0 auto;position:relative;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap}
+  .hero-text{}
+  .eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700;margin-bottom:10px}
+  .hero h1{font-size:clamp(24px,3.2vw,38px);line-height:1.14;font-weight:700;margin-bottom:10px}
+  .hero h1 em{font-style:normal;color:var(--teal)}
+  .hero p.lede{color:#cfd9ee;font-size:15px;max-width:600px;line-height:1.6}
+  .hero-meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.18);font-size:12px;color:rgba(255,255,255,.8);font-weight:500}
+  .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .btn-hero-gh{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:6px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;transition:background .15s}
+  .btn-hero-gh:hover{background:rgba(255,255,255,.18);text-decoration:none;color:#fff}
+
+  /* ── STUDIO LAYOUT ── */
+  .studio{display:flex;height:calc(100vh - 48px);min-height:600px;overflow:hidden}
+
+  /* ── LEFT SIDEBAR ── */
+  .sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+  .sidebar-header{padding:14px 16px;border-bottom:1px solid var(--border);background:#f8faff}
+  .sidebar-header h3{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+  .sidebar-header p{font-size:11px;color:var(--muted)}
+
+  /* Agent switcher */
+  .agent-switcher{padding:12px 10px;border-bottom:1px solid var(--border)}
+  .agent-switcher-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:0 6px;margin-bottom:6px}
+  .agent-pill{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;cursor:pointer;transition:background .12s;font-size:12.5px;color:var(--slate);font-weight:500;user-select:none}
+  .agent-pill:hover{background:#f0f4ff}
+  .agent-pill.active{background:#edf5ff;color:var(--sap);font-weight:700}
+  .agent-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+  /* Layer nav */
+  .layer-nav{padding:10px 10px 16px}
+  .layer-nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:0 6px;margin-bottom:6px}
+  .layer-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;cursor:pointer;transition:background .12s;user-select:none}
+  .layer-item:hover{background:#f0f4ff}
+  .layer-item.active{background:var(--navy);color:#fff}
+  .layer-item.active .layer-item-num{color:#fff;border-color:rgba(255,255,255,.3)}
+  .layer-item.active .layer-item-name{color:#fff}
+  .layer-item.active .layer-item-fmt{color:rgba(255,255,255,.6)}
+  .layer-item-num{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--navy);flex-shrink:0;transition:all .12s}
+  .layer-item-text{}
+  .layer-item-name{font-size:12.5px;font-weight:600;color:var(--navy);display:block;line-height:1.2}
+  .layer-item-fmt{font-size:10.5px;color:var(--muted);font-family:ui-monospace,"Cascadia Code",monospace}
+  .layer-na-badge{font-size:9.5px;background:#f1f4fa;color:var(--muted);border-radius:8px;padding:1px 6px;margin-left:auto;flex-shrink:0}
+
+  /* ── MAIN CONTENT ── */
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+  /* Top bar */
+  .top-bar{padding:10px 16px;border-bottom:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;flex-shrink:0}
+  .file-breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;font-family:ui-monospace,"Cascadia Code",monospace;color:var(--muted);flex-wrap:wrap}
+  .file-breadcrumb .seg{color:var(--slate)}
+  .file-breadcrumb .seg.file{color:var(--navy);font-weight:600}
+  .file-breadcrumb .sep{color:var(--muted)}
+  .top-bar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .top-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .12s,color .12s;white-space:nowrap;border:none;font-family:inherit}
+  .tb-gh{background:#24292f;color:#fff}
+  .tb-gh:hover{background:#1c2128;text-decoration:none;color:#fff}
+  .tb-copy{background:#f1f4fa;color:var(--slate)}
+  .tb-copy:hover{background:#e2e7f0}
+  .tb-copy.copied{background:#e0faf8;color:var(--teal)}
+  .lang-badge{padding:4px 9px;border-radius:4px;font-size:11px;font-weight:700;font-family:ui-monospace,monospace}
+  .file-info{font-size:11.5px;color:var(--muted)}
+
+  /* Code viewer */
+  .code-area{flex:1;overflow:hidden;display:flex;flex-direction:column;background:var(--code-bg);min-height:0}
+  .code-scroll{flex:1;overflow-y:auto;overflow-x:auto}
+  .code-pre{margin:0;padding:16px 0;font-family:ui-monospace,"Cascadia Code","Fira Code",Consolas,monospace;font-size:12.5px;line-height:1.72;color:var(--code-fg);counter-reset:line;min-width:100%}
+  .code-line{display:flex;min-height:1.72em}
+  .code-line:hover{background:rgba(255,255,255,.03)}
+  .ln{display:inline-block;min-width:44px;padding-left:12px;padding-right:14px;color:#484f58;user-select:none;text-align:right;flex-shrink:0;font-size:12px}
+  .lc{padding-right:24px;white-space:pre;flex:1}
+
+  /* Syntax token colours */
+  .t-cmt{color:#8b949e;font-style:italic}
+  .t-key{color:#79c0ff}
+  .t-val{color:#a5d6ff}
+  .t-str{color:#a8d8a8}
+  .t-kw{color:#ff7b72}
+  .t-fn{color:#d2a8ff}
+  .t-num{color:#f0b27a}
+  .t-dec{color:#e0a0ff}
+  .t-cls{color:#ffa657}
+  .t-ann{color:#e0a0ff}
+  .t-op{color:#79c0ff}
+  .t-bool{color:#ff7b72}
+  .t-tag{color:#7ee787}
+
+  /* N/A panel */
+  .na-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--code-bg);gap:12px}
+  .na-panel .na-icon{font-size:40px;opacity:.4}
+  .na-panel .na-title{color:#484f58;font-size:15px;font-weight:600}
+  .na-panel .na-sub{color:#484f58;font-size:13px;max-width:340px;text-align:center;line-height:1.5}
+
+  /* ── BOTTOM PANEL ── */
+  .bottom-panel{border-top:1px solid var(--border);background:#fff;flex-shrink:0;max-height:220px;overflow-y:auto}
+  .bp-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 16px;gap:0;overflow-x:auto}
+  .bp-tab{padding:9px 16px;font-size:12.5px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;user-select:none;transition:color .12s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+  .bp-tab:hover{color:var(--navy)}
+  .bp-tab.active{color:var(--sap);border-bottom-color:var(--sap);font-weight:700}
+  .bp-content{padding:14px 18px;font-size:13px;display:none}
+  .bp-content.active{display:block}
+  .guide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media(max-width:800px){.guide-grid{grid-template-columns:1fr}}
+  .guide-item{display:flex;align-items:flex-start;gap:8px}
+  .guide-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+  .guide-text{font-size:12.5px;color:var(--slate);line-height:1.45}
+  .guide-text strong{color:var(--navy)}
+  .dep-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12.5px}
+  .dep-arrow{color:var(--muted)}
+  .dep-chip{padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;font-family:ui-monospace,monospace}
+  .dep-reads{background:#e6f1fe;color:#0a58ca}
+  .dep-feeds{background:#e0faf8;color:#00736a}
+  .dep-ci{background:#f3e8ff;color:#6b21a8}
+  .val-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;font-size:12.5px}
+  .val-icon{flex-shrink:0}
+  .val-text{color:var(--slate);line-height:1.4}
+
+  /* Responsive */
+  @media(max-width:900px){
+    .sidebar{display:none}
+    .studio{display:block;height:auto;overflow:visible}
+    .main{height:auto}
+    .code-area{height:60vh}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="c-nav">
+  <div class="c-nav-inner">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="4" fill="#006FE6"/><text x="4" y="22" font-family="Arial" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/">Home</a>
+      <a href="/enablement.html">Enablement</a>
+      <div class="c-nav-dropdown">
+        <a href="#">Platform</a>
+        <div class="c-nav-dropdown-menu">
+          <a href="/compass.html">Maturity Compass</a>
+          <a href="/benchmark.html">Peer Benchmark</a>
+          <a href="/module-deepdive.html">Module Deep-Dive</a>
+          <a href="/backlog.html">Agent Backlog</a>
+          <a href="/catalogue.html">Agent Catalogue</a>
+          <a href="/platform-fit.html">Platform Fit Wizard</a>
+          <a href="/utilities.html">Utilities Recommender</a>
+        </div>
+      </div>
+      <a href="/skill-studio.html" class="active">Skill Studio</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://github.com/prasad-ibm/agenticsap-agents" target="_blank" class="btn-nav" style="background:#24292f">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="white" style="margin-right:5px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub Repo
+      </a>
+      <a href="/compass-clients.html" class="btn-nav">Admin</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO (compact) -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="eyebrow">Module 5 · Skill Authoring Studio · Technical Code Assets</div>
+      <h1>Six layers. Every agent.<br><em>Production-grade code, ready to deploy.</em></h1>
+      <p class="lede">Browse the complete GitHub asset set for each agent archetype across all six technical layers. Select an agent, select a layer — read the full code, copy it, and open the file on GitHub.</p>
+      <div class="hero-meta">
+        <span class="hero-badge">📄 Skill Manifests (YAML)</span>
+        <span class="hero-badge">⚙ Action Handlers (Node.js)</span>
+        <span class="hero-badge">💬 Prompt Templates (Jinja2)</span>
+        <span class="hero-badge">🗄 CDS Views (ABAP)</span>
+        <span class="hero-badge">🤖 AI Core Pipelines</span>
+        <span class="hero-badge">✅ Eval Harnesses (pytest)</span>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a href="https://github.com/prasad-ibm/agenticsap-agents" target="_blank" class="btn-hero-gh">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="white"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        prasad-ibm / agenticsap-agents
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ══ STUDIO ══ -->
+<div class="studio">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h3>Skill Authoring Studio</h3>
+      <p>Select agent + layer to view code</p>
+    </div>
+
+    <!-- Agent switcher -->
+    <div class="agent-switcher">
+      <div class="agent-switcher-label">Agent</div>
+      <div class="agent-pill active" data-agent="mx" onclick="selectAgent('mx',this)">
+        <div class="agent-dot" style="background:#006FE6"></div>MX-Resolver
+      </div>
+      <div class="agent-pill" data-agent="bpem" onclick="selectAgent('bpem',this)">
+        <div class="agent-dot" style="background:#00B4A6"></div>BPEM-Triage
+      </div>
+      <div class="agent-pill" data-agent="coll" onclick="selectAgent('coll',this)">
+        <div class="agent-dot" style="background:#D97706"></div>Collections-Strategist
+      </div>
+      <div class="agent-pill" data-agent="csr" onclick="selectAgent('csr',this)">
+        <div class="agent-dot" style="background:#059669"></div>CSR Co-Agent
+      </div>
+      <div class="agent-pill" data-agent="mo" onclick="selectAgent('mo',this)">
+        <div class="agent-dot" style="background:#7C3AED"></div>MoveOps
+      </div>
+      <div class="agent-pill" data-agent="edi" onclick="selectAgent('edi',this)">
+        <div class="agent-dot" style="background:#E53E3E"></div>EDI-Recon
+      </div>
+    </div>
+
+    <!-- Layer nav -->
+    <div class="layer-nav">
+      <div class="layer-nav-label">Layer</div>
+      <div class="layer-item active" data-layer="skill" onclick="selectLayer('skill',this)">
+        <div class="layer-item-num" style="color:var(--l1);border-color:var(--l1)">1</div>
+        <div class="layer-item-text">
+          <span class="layer-item-name">Skill Manifest</span>
+          <span class="layer-item-fmt">YAML · AI Core</span>
+        </div>
+      </div>
+      <div class="layer-item" data-layer="handlers" onclick="selectLayer('handlers',this)">
+        <div class="layer-item-num" style="color:var(--l2);border-color:var(--l2)">2</div>
+        <div class="layer-item-text">
+          <span class="layer-item-name">Action Handlers</span>
+          <span class="layer-item-fmt">Node.js · BTP Kyma</span>
+        </div>
+      </div>
+      <div class="layer-item" data-layer="prompts" onclick="selectLayer('prompts',this)">
+        <div class="layer-item-num" style="color:var(--l3);border-color:var(--l3)">3</div>
+        <div class="layer-item-text">
+          <span class="layer-item-name">Prompt Templates</span>
+          <span class="layer-item-fmt">Jinja2 · GenAI Hub</span>
+        </div>
+      </div>
+      <div class="layer-item" data-layer="cds" onclick="selectLayer('cds',this)">
+        <div class="layer-item-num" style="color:var(--l4);border-color:var(--l4)">4</div>
+        <div class="layer-item-text">
+          <span class="layer-item-name">CDS Views</span>
+          <span class="layer-item-fmt">ABAP CDS · S/4HANA</span>
+        </div>
+      </div>
+      <div class="layer-item" data-layer="pipeline" onclick="selectLayer('pipeline',this)">
+        <div class="layer-item-num" style="color:var(--l5);border-color:var(--l5)">5</div>
+        <div class="layer-item-text">
+          <span class="layer-item-name">AI Core Pipeline</span>
+          <span class="layer-item-fmt">Dockerfile · pipeline.yaml</span>
+        </div>
+        <div class="layer-na-badge" id="pipeline-na-badge">varies</div>
+      </div>
+      <div class="layer-item" data-layer="evals" onclick="selectLayer('evals',this)">
+        <div class="layer-item-num" style="color:var(--l6);border-color:var(--l6)">6</div>
+        <div class="layer-item-text">
+          <span class="layer-item-name">Eval Harness</span>
+          <span class="layer-item-fmt">pytest · GitHub Actions</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div class="file-breadcrumb" id="file-breadcrumb">
+          <span class="seg">agenticsap-agents</span>
+          <span class="sep">/</span>
+          <span class="seg">agents</span>
+          <span class="sep">/</span>
+          <span class="seg">mx-resolver</span>
+          <span class="sep">/</span>
+          <span class="seg file">skill.yaml</span>
+        </div>
+        <div class="file-info" id="file-info"></div>
+      </div>
+      <div class="top-bar-actions">
+        <span class="lang-badge" id="lang-badge" style="background:#e6f1fe;color:#0a58ca">YAML</span>
+        <button class="top-btn tb-copy" id="copy-btn" onclick="copyCode()">📋 Copy</button>
+        <a class="top-btn tb-gh" id="gh-link" href="https://github.com/prasad-ibm/agenticsap-agents" target="_blank">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="white"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- Code area -->
+    <div class="code-area" id="code-area">
+      <div class="code-scroll">
+        <pre class="code-pre" id="code-pre"></pre>
+      </div>
+    </div>
+
+    <!-- Bottom guide panel -->
+    <div class="bottom-panel">
+      <div class="bp-tabs">
+        <button class="bp-tab active" onclick="showBpTab('guide',this)">📖 Authoring Guide</button>
+        <button class="bp-tab" onclick="showBpTab('deps',this)">🔗 Dependencies</button>
+        <button class="bp-tab" onclick="showBpTab('validation',this)">✅ Validation Gates</button>
+        <button class="bp-tab" onclick="showBpTab('cicd',this)">⚙ CI / CD</button>
+      </div>
+      <div class="bp-content active" id="bp-guide"></div>
+      <div class="bp-content" id="bp-deps"></div>
+      <div class="bp-content" id="bp-validation"></div>
+      <div class="bp-content" id="bp-cicd"></div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /studio -->
+
+<!-- ══════════════════════════════
+     CODE ASSET DATA
+════════════════════════════════ -->
+<script id="raw-code" type="application/json">
+</script>
+
+<script>
+// ── ASSET METADATA ─────────────────────────────────────────────────────────
+const GH_BASE = 'https://github.com/prasad-ibm/agenticsap-agents/blob/main';
+
+const AGENTS = {
+  mx:   { name:'MX-Resolver',            color:'#006FE6', module:'IS-U EDM',    dir:'mx-resolver' },
+  bpem: { name:'BPEM-Triage',            color:'#00B4A6', module:'BPEM',        dir:'bpem-triage' },
+  coll: { name:'Collections-Strategist', color:'#D97706', module:'FI-CA',       dir:'collections-strategist' },
+  csr:  { name:'CSR Co-Agent',           color:'#059669', module:'CIC/CRM',     dir:'csr-coagent' },
+  mo:   { name:'MoveOps',                color:'#7C3AED', module:'IS-U',        dir:'moveops' },
+  edi:  { name:'EDI-Recon',              color:'#E53E3E', module:'IS-U Market', dir:'edi-recon' },
+};
+
+const LAYERS = {
+  skill:    { label:'Skill Manifest',    fmt:'YAML',       badgeBg:'#e6f1fe', badgeFg:'#0a58ca', num:1 },
+  handlers: { label:'Action Handlers',   fmt:'JavaScript', badgeBg:'#e0faf8', badgeFg:'#00736a', num:2 },
+  prompts:  { label:'Prompt Templates',  fmt:'Jinja2',     badgeBg:'#fffbeb', badgeFg:'#92400e', num:3 },
+  cds:      { label:'CDS Views',         fmt:'ABAP CDS',   badgeBg:'#f0fdf4', badgeFg:'#166534', num:4 },
+  pipeline: { label:'AI Core Pipeline',  fmt:'YAML',       badgeBg:'#f3e8ff', badgeFg:'#6b21a8', num:5 },
+  evals:    { label:'Eval Harness',      fmt:'Python',     badgeBg:'#fef2f2', badgeFg:'#b91c1c', num:6 },
+};
+
+const FILES = {
+  mx: {
+    skill:    'agents/mx-resolver/skill.yaml',
+    handlers: 'agents/mx-resolver/handlers/closeWorkcase.js',
+    prompts:  'agents/mx-resolver/prompts/system.j2',
+    cds:      'agents/mx-resolver/cds/I_MeterReadingExceptionContext.cds',
+    pipeline: null,
+    evals:    'agents/mx-resolver/evals/test_mx_resolver.py',
+  },
+  bpem: {
+    skill:    'agents/bpem-triage/skill.yaml',
+    handlers: 'agents/bpem-triage/handlers/classifyCase.js',
+    prompts:  'agents/bpem-triage/prompts/system.j2',
+    cds:      'agents/bpem-triage/cds/I_BPEMCaseContext.cds',
+    pipeline: null,
+    evals:    'agents/bpem-triage/evals/test_bpem_triage.py',
+  },
+  coll: {
+    skill:    'agents/collections-strategist/skill.yaml',
+    handlers: 'agents/collections-strategist/handlers/scoreAccount.js',
+    prompts:  'agents/collections-strategist/prompts/system.j2',
+    cds:      'agents/collections-strategist/cds/I_ContractAccountPaymentHistory.cds',
+    pipeline: 'agents/collections-strategist/pipeline/pipeline.yaml',
+    evals:    'agents/collections-strategist/evals/test_collections.py',
+  },
+  csr: {
+    skill:    'agents/csr-coagent/skill.yaml',
+    handlers: 'agents/csr-coagent/handlers/scoreNextBestAction.js',
+    prompts:  'agents/csr-coagent/prompts/system.j2',
+    cds:      'agents/csr-coagent/cds/I_Account360.cds',
+    pipeline: null,
+    evals:    'agents/csr-coagent/evals/test_csr_coagent.py',
+  },
+  mo: {
+    skill:    'agents/moveops/skill.yaml',
+    handlers: 'agents/moveops/handlers/createMoveIn.js',
+    prompts:  'agents/moveops/prompts/system.j2',
+    cds:      'agents/moveops/cds/I_PremiseContext.cds',
+    pipeline: null,
+    evals:    'agents/moveops/evals/test_moveops.py',
+  },
+  edi: {
+    skill:    'agents/edi-recon/skill.yaml',
+    handlers: 'agents/edi-recon/handlers/matchEnrollmentState.js',
+    prompts:  'agents/edi-recon/prompts/system.j2',
+    cds:      'agents/edi-recon/cds/I_EDIMessageContext.cds',
+    pipeline: null,
+    evals:    'agents/edi-recon/evals/test_edi_recon.py',
+  },
+};
+
+// ── CODE CONTENT ────────────────────────────────────────────────────────────
+const CODE = {};
+
+// ╔══════ MX-RESOLVER ══════╗
+CODE.mx = {};
+CODE.mx.skill =
+`# agents/mx-resolver/skill.yaml
+# AgenticSAP — Meter Exception Resolver
+# Version: 1.2.0  |  Module: IS-U EDM  |  Wave: Q3 2026
+
+name: mx-resolver
+version: "1.2.0"
+description: >
+  Inspects open IS-U meter reading exceptions, classifies root cause,
+  auto-corrects within tolerance, and closes the BPEM workcase with a
+  full SAP change document audit trail on every write.
+
+runtime: sap-ai-core
+model: gpt-4o
+prompt_version: "1.3.2"
+
+trigger:
+  type: event
+  source: btp.event-mesh
+  topic: sap/isu/edm/exception/created
+  filter:
+    status: OPEN
+    exception_types: [MR01, MR02, MR03, MR04, MR11]
+
+parameters:
+  - name: exception_id
+    type: string
+    required: true
+    description: IS-U EDM exception identifier (EXCEPTION_ID)
+  - name: tolerance_pct
+    type: number
+    default: 2.5
+    description: Max auto-correction % before human escalation
+  - name: sigma_threshold
+    type: number
+    default: 3.0
+    description: Std-dev threshold for statistical escalation
+
+tools:
+  - id: get_exception_detail
+    type: odata
+    service: IS_U_MX_SRV
+    entity: MeterReadingExceptionContext
+    method: GET
+
+  - id: post_corrected_reading
+    type: bapi
+    function_module: BAPI_METERMEASUREMENT_CHANGE
+
+  - id: close_workcase
+    type: bapi
+    function_module: ISU_METERREAD_EXCEPTION_CLOSE
+
+  - id: escalate_to_human
+    type: webhook
+    url: "{{ESCALATION_WEBHOOK_URL}}"
+
+guardrails:
+  max_correction_pct: "{{tolerance_pct}}"
+  require_human_review_above_pct: 10.0
+  blocked_exception_types: [MR99]
+  max_daily_auto_closes: 5000
+  audit_every_write: true
+
+observability:
+  trace_id_header: X-Agent-Trace-ID
+  metrics_topic: sap/isu/edm/agent/metrics
+  log_level: INFO`;
+
+CODE.mx.handlers =
+`/**
+ * closeWorkcase.js — Action Handler (Layer 2)
+ * Agent: mx-resolver  |  Module: IS-U EDM
+ *
+ * Closes a BPEM workcase after a successful auto-correction or
+ * a no-action decision. Joule never calls SAP directly — this
+ * handler owns the BAPI boundary and the audit log on both sides.
+ *
+ * @see agents/mx-resolver/skill.yaml#tools.close_workcase
+ */
+import { callBapi, validateBapiReturn } from '../../lib/sap-rfc.js';
+import { auditLog }                     from '../../lib/audit.js';
+import { AgentActionError }             from '../../lib/agent-error.js';
+import { validate }                     from '../../lib/schema.js';
+
+const INPUT_SCHEMA = {
+  exception_id:    { type: 'string', required: true,  maxLength: 20 },
+  close_reason:    { type: 'string', required: true,
+                     enum: ['AGENT_AUTO', 'AGENT_NO_ACTION'] },
+  correction_value:{ type: 'number', required: false },
+  agent_trace_id:  { type: 'string', required: true,  maxLength: 36 },
+};
+
+export async function closeWorkcase(params) {
+  const { exception_id, close_reason,
+          correction_value, agent_trace_id } = params;
+
+  // 1 — Validate before any SAP call
+  validate(INPUT_SCHEMA, params);
+
+  // 2 — Pre-action audit entry
+  await auditLog({
+    action:           'WORKCASE_CLOSE_ATTEMPT',
+    agent:            'mx-resolver',
+    trace_id:         agent_trace_id,
+    exception_id,
+    close_reason,
+    correction_value: correction_value ?? null,
+    timestamp:        new Date().toISOString(),
+  });
+
+  // 3 — Call IS-U BAPI
+  const result = await callBapi('ISU_METERREAD_EXCEPTION_CLOSE', {
+    I_EXCEPTION_ID:   exception_id,
+    I_CLOSE_REASON:   close_reason,
+    I_CORRECTION_VAL: correction_value ?? '',
+    I_AGENT_REF:      agent_trace_id,
+    I_AGENT_NAME:     'MX-RESOLVER-V1',
+  });
+
+  // 4 — Validate BAPI return (throws AgentActionError on E/A)
+  validateBapiReturn(result.RETURN);
+
+  // 5 — Post-action audit (confirms write succeeded)
+  await auditLog({
+    action:     'WORKCASE_CLOSE_SUCCESS',
+    agent:      'mx-resolver',
+    trace_id:   agent_trace_id,
+    exception_id,
+    change_doc: result.E_CHANGEDOC_NO,
+    timestamp:  new Date().toISOString(),
+  });
+
+  return {
+    status:       'closed',
+    change_doc:   result.E_CHANGEDOC_NO,
+    close_reason,
+  };
+}`;
+
+CODE.mx.prompts =
+`{#─────────────────────────────────────────────────────────────────
+  MX-Resolver — System Prompt
+  Version: 1.3.2  |  Model: gpt-4o via SAP GenAI Hub
+  Accuracy: 83.4% on golden-set-v4 (500 labelled exceptions)
+  Last reviewed: 2026-05-15
+─────────────────────────────────────────────────────────────────#}
+
+## Role
+You are MX-Resolver, a goal-driven SAP IS-U agentic process worker.
+Your sole function: inspect open meter reading exceptions, apply
+business rules and statistical checks, decide the correct resolution.
+You do not explain. You decide and act.
+
+## Absolute Constraints
+- NEVER auto-correct by more than {{ max_correction_pct }}%
+  without calling escalate_to_human. No exceptions.
+- ALWAYS write a SAP change document before returning CLOSED.
+- If trailing 6-period std dev > {{ sigma_threshold }}, decision
+  MUST be ESCALATE — regardless of delta percentage.
+- Never output free text outside the JSON schema below.
+
+## Context — Current Exception
+{
+  "exception_id":    "{{ exception.id }}",
+  "exception_type":  "{{ exception.type }}",
+  "anlage":          "{{ exception.anlage }}",
+  "premise_type":    "{{ exception.premise_type }}",
+  "tariff_class":    "{{ exception.tariff_class }}",
+  "current_kwh":     {{ exception.current_kwh }},
+  "previous_kwh":    {{ exception.prev_kwh }},
+  "trailing_6m_avg": {{ exception.trailing_6m_avg }},
+  "trailing_6m_std": {{ exception.trailing_6m_std }},
+  "reading_date":    "{{ exception.reading_date }}",
+  "days_since_last": {{ exception.days_since_last }},
+  "sigma_flagged":   {{ exception.sigma_flagged | lower }}
+}
+
+## Decision Space — choose exactly one
+AUTO_CORRECT    — delta in tolerance AND no sigma flag
+                  return corrected_value (kWh, 2dp)
+ESCALATE        — delta > tolerance OR sigma flag OR blocked type
+                  return escalation_reason:
+                  DELTA_EXCEEDED | SIGMA_FLAG | BLOCKED_TYPE | PATTERN_ANOMALY
+CLOSE_NO_ACTION — benign type, no correction needed
+                  return close_note (max 20 words)
+
+## Response — JSON only, no markdown
+{
+  "decision":          "AUTO_CORRECT|ESCALATE|CLOSE_NO_ACTION",
+  "corrected_value":   <number|null>,
+  "escalation_reason": "<string|null>",
+  "close_note":        "<string|null>",
+  "confidence":        <0.0-1.0>,
+  "reasoning":         "<max 40 words>"
+}
+
+## Few-Shot Examples
+{{ few_shot_block }}`;
+
+CODE.mx.cds =
+`@AbapCatalog.sqlViewName: 'ZCDS_MREXCCTX'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #CHECK
+@EndUserText.label: 'Meter Reading Exception Context — Agent Data Product'
+@Analytics.dataCategory: #FACT
+@OData.publish: true
+@Semantics.personalData.isPotentiallyPersonal: false
+
+define view I_MeterReadingExceptionContext
+  as select from   isu_t_edmx_e  as ex
+  inner join       isu_t_anlage  as al  on  al.anlage  = ex.anlage
+  inner join       isu_t_premise as pr  on  pr.premise = al.premise
+  left outer join  isu_t_tarif   as ta  on  ta.tariftyp = al.tariftyp
+  inner join       isu_t_mrhist  as mh  on  mh.anlage  = ex.anlage
+{
+  -- Exception identity
+  key ex.exception_id                               as ExceptionId,
+      ex.exception_type                             as ExceptionType,
+      ex.status                                     as Status,
+      ex.anlage                                     as InstallationId,
+
+  -- Premise context
+      al.premise                                    as PremiseId,
+      pr.premise_type                               as PremiseType,
+      ta.tariftyp                                   as TariffType,
+      ta.tariff_class                               as TariffClass,
+
+  -- Reading values
+      ex.current_kwh                                as CurrentKwh,
+      ex.prev_kwh                                   as PreviousKwh,
+      ex.reading_date                               as ReadingDate,
+      dats_days_between( ex.prev_date,
+                         ex.reading_date )          as DaysSinceLast,
+
+  -- Trailing 6-period average (window function)
+      avg( cast( mh.kwh as abap.dec(13,3) ) )
+        over ( partition by ex.anlage
+               order by mh.reading_date
+               rows between 5 preceding
+                        and current row )           as Trailing6mAvg,
+
+  -- Trailing 6-period standard deviation
+      stddev( cast( mh.kwh as abap.dec(13,3) ) )
+        over ( partition by ex.anlage
+               order by mh.reading_date
+               rows between 5 preceding
+                        and current row )           as Trailing6mStd,
+
+      ex.created_at                                 as CreatedAt
+}
+where
+  ex.status       = 'OPEN'
+  and ex.exception_type not in ( 'MR99' )`;
+
+CODE.mx.pipeline = null; // Not required — rule-based + LLM prompt, no ML training
+
+CODE.mx.evals =
+`"""
+test_mx_resolver.py — Eval Harness (Layer 6)
+Agent: mx-resolver  |  Version: 1.3.2
+Golden set: 500 labelled IS-U meter reading exceptions (v4)
+Accuracy gate: >=80%  |  Guardrail gate: 0 violations
+Run: pytest agents/mx-resolver/evals/ -v --tb=short
+"""
+import pytest, json, time
+from pathlib import Path
+from agents.mx_resolver import MxResolverAgent
+
+ACCURACY_THRESHOLD = 0.80
+LATENCY_P95_MS     = 2500
+MAX_CORRECTION_PCT = 0.05
+GOLDEN_SET_PATH    = Path(__file__).parent / "golden_set_v4.jsonl"
+
+@pytest.fixture(scope="session")
+def agent():
+    return MxResolverAgent(
+        prompt_version  = "1.3.2",
+        tolerance_pct   = 2.5,
+        sigma_threshold = 3.0,
+    )
+
+@pytest.fixture(scope="session")
+def golden():
+    with open(GOLDEN_SET_PATH) as f:
+        return [json.loads(line) for line in f]
+
+# ── Decision accuracy ────────────────────────────────────────────
+@pytest.mark.parametrize("case", pytest.lazy_fixture("golden"))
+def test_decision_matches_label(agent, case):
+    result = agent.decide(case["input"])
+    assert result["decision"] == case["expected_decision"], (
+        f"Case {case['id']}: got {result['decision']!r}, "
+        f"expected {case['expected_decision']!r} | "
+        f"reasoning: {result.get('reasoning','')}"
+    )
+
+def test_overall_accuracy_gate(agent, golden):
+    results  = [agent.decide(c["input"])["decision"] for c in golden]
+    expected = [c["expected_decision"] for c in golden]
+    accuracy = sum(r==e for r,e in zip(results,expected)) / len(golden)
+    assert accuracy >= ACCURACY_THRESHOLD, (
+        f"Accuracy {accuracy:.1%} below gate {ACCURACY_THRESHOLD:.0%}"
+    )
+
+# ── Guardrail compliance ─────────────────────────────────────────
+@pytest.mark.parametrize("case", pytest.lazy_fixture("golden"))
+def test_never_overcorrects(agent, case):
+    result = agent.decide(case["input"])
+    if result["decision"] != "AUTO_CORRECT":
+        return
+    prev      = case["input"]["previous_kwh"]
+    corrected = result.get("corrected_value", prev)
+    if prev == 0:
+        return
+    delta = abs(corrected - prev) / prev
+    assert delta <= MAX_CORRECTION_PCT, (
+        f"Case {case['id']}: overcorrection {delta:.1%}"
+    )
+
+def test_sigma_flag_always_escalates(agent, golden):
+    for case in [c for c in golden if c["input"].get("sigma_flagged")]:
+        result = agent.decide(case["input"])
+        assert result["decision"] == "ESCALATE", (
+            f"Case {case['id']}: sigma-flagged did not escalate"
+        )
+
+def test_blocked_types_never_auto_correct(agent, golden):
+    for case in [c for c in golden
+                 if c["input"]["exception_type"] == "MR99"]:
+        result = agent.decide(case["input"])
+        assert result["decision"] != "AUTO_CORRECT", (
+            f"Case {case['id']}: MR99 received AUTO_CORRECT"
+        )
+
+# ── Latency gate ─────────────────────────────────────────────────
+def test_p95_latency_gate(agent, golden):
+    latencies = []
+    for case in golden[:50]:
+        t0 = time.perf_counter()
+        agent.decide(case["input"])
+        latencies.append((time.perf_counter() - t0) * 1000)
+    p95 = sorted(latencies)[int(len(latencies) * 0.95)]
+    assert p95 <= LATENCY_P95_MS, (
+        f"P95 latency {p95:.0f}ms exceeds {LATENCY_P95_MS}ms gate"
+    )
+
+# ── Schema compliance ────────────────────────────────────────────
+REQUIRED = {"decision","corrected_value","escalation_reason",
+            "close_note","confidence","reasoning"}
+
+@pytest.mark.parametrize("case", pytest.lazy_fixture("golden"))
+def test_response_schema(agent, case):
+    result = agent.decide(case["input"])
+    missing = REQUIRED - set(result.keys())
+    assert not missing, f"Case {case['id']}: missing {missing}"
+    assert 0.0 <= result["confidence"] <= 1.0
+    assert len(result.get("reasoning","")) <= 300`;
+
+// ╔══════ BPEM-TRIAGE ══════╗
+CODE.bpem = {};
+CODE.bpem.skill =
+`# agents/bpem-triage/skill.yaml
+# AgenticSAP — BPEM Case Classifier and Router
+# Version: 1.1.0  |  Module: BPEM  |  Wave: Q3 2026
+
+name: bpem-triage
+version: "1.1.0"
+description: >
+  Classifies inbound BPEM cases by root cause, routes to the correct
+  resolution handler, and auto-closes cases matching known resolution
+  patterns — without analyst intervention.
+
+runtime: sap-ai-core
+model: gpt-4o
+prompt_version: "1.1.0"
+
+trigger:
+  type: badi
+  badi_name: EMMA_CASE_CHECK
+  filter:
+    case_status: OPEN
+    case_age_hours_min: 0
+
+parameters:
+  - name: case_id
+    type: string
+    required: true
+  - name: auto_close_confidence_threshold
+    type: number
+    default: 0.88
+  - name: max_cases_per_run
+    type: integer
+    default: 200
+
+tools:
+  - id: get_case_detail
+    type: odata
+    service: BPEM_CASE_SRV
+    entity: BPEMCaseContext
+    method: GET
+
+  - id: update_case
+    type: bapi
+    function_module: BAPI_CASE_UPDATE
+
+  - id: close_case
+    type: bapi
+    function_module: BAPI_CASE_CLOSE
+
+  - id: route_to_handler
+    type: bapi
+    function_module: CRM_CASE_CLUSTER_UPDATE
+
+guardrails:
+  min_confidence_to_auto_close: "{{auto_close_confidence_threshold}}"
+  blocked_case_types: [LEGAL, FRAUD]
+  audit_every_write: true`;
+
+CODE.bpem.handlers =
+`/**
+ * classifyCase.js — Action Handler (Layer 2)
+ * Agent: bpem-triage  |  Module: BPEM
+ *
+ * Classifies an open BPEM case using LLM + case taxonomy,
+ * then routes to the correct resolution cluster or auto-closes.
+ */
+import { callBapi, validateBapiReturn } from '../../lib/sap-rfc.js';
+import { auditLog }                     from '../../lib/audit.js';
+import { validate }                     from '../../lib/schema.js';
+
+const CASE_TAXONOMY = [
+  'BILLING_ERROR', 'ADDRESS_MISMATCH', 'TARIFF_DISPUTE',
+  'DUPLICATE_INVOICE', 'PAYMENT_FAILURE', 'METER_DATA_ISSUE',
+  'MOVE_IN_ERROR', 'MARKET_COMM_ERROR',
+];
+
+export async function classifyCase(params) {
+  const { case_id, llm_classification, confidence, agent_trace_id } = params;
+
+  validate({
+    case_id:          { type: 'string', required: true },
+    llm_classification:{ type: 'string', required: true,
+                         enum: CASE_TAXONOMY },
+    confidence:       { type: 'number', required: true, min: 0, max: 1 },
+    agent_trace_id:   { type: 'string', required: true },
+  }, params);
+
+  await auditLog({
+    action: 'CASE_CLASSIFY_ATTEMPT', agent: 'bpem-triage',
+    trace_id: agent_trace_id, case_id, llm_classification, confidence,
+    timestamp: new Date().toISOString(),
+  });
+
+  const result = await callBapi('BAPI_CASE_UPDATE', {
+    I_CASE_ID:        case_id,
+    I_CATEGORY:       llm_classification,
+    I_AGENT_REF:      agent_trace_id,
+    I_CONFIDENCE:     confidence.toFixed(4),
+  });
+
+  validateBapiReturn(result.RETURN);
+
+  await auditLog({
+    action: 'CASE_CLASSIFY_SUCCESS', agent: 'bpem-triage',
+    trace_id: agent_trace_id, case_id, llm_classification,
+    timestamp: new Date().toISOString(),
+  });
+
+  return { status: 'classified', case_id, classification: llm_classification };
+}`;
+
+CODE.bpem.prompts =
+`{#─────────────────────────────────────────────────────────────────
+  BPEM-Triage — System Prompt
+  Version: 1.1.0  |  Model: gpt-4o via SAP GenAI Hub
+  Classes: 8 case types  |  Accuracy: 79.2% on golden-set-v2
+─────────────────────────────────────────────────────────────────#}
+
+## Role
+You are BPEM-Triage, a SAP BPEM case classification agent.
+Given a case record, classify its root cause and decide
+whether to auto-close, route, or escalate.
+
+## Taxonomy — classify into exactly one
+BILLING_ERROR | ADDRESS_MISMATCH | TARIFF_DISPUTE |
+DUPLICATE_INVOICE | PAYMENT_FAILURE | METER_DATA_ISSUE |
+MOVE_IN_ERROR | MARKET_COMM_ERROR
+
+## Absolute Constraints
+- NEVER auto-close a LEGAL or FRAUD typed case.
+- Auto-close ONLY when confidence >= {{ min_confidence }}.
+- Always set I_AGENT_REF on every BAPI write.
+
+## Context — Current Case
+{
+  "case_id":      "{{ case.id }}",
+  "case_type":    "{{ case.type }}",
+  "description":  "{{ case.description | truncate(200) }}",
+  "age_hours":    {{ case.age_hours }},
+  "cluster_id":   "{{ case.cluster_id }}",
+  "priority":     "{{ case.priority }}",
+  "related_anlage":"{{ case.anlage }}"
+}
+
+## Decision Space
+AUTO_CLOSE  — high confidence, known resolution pattern
+ROUTE       — route to specialist handler (return handler_group)
+ESCALATE    — legal, fraud, or low confidence
+
+## Response JSON
+{
+  "classification":  "<TAXONOMY_VALUE>",
+  "decision":        "AUTO_CLOSE|ROUTE|ESCALATE",
+  "handler_group":   "<string|null>",
+  "confidence":      <0.0-1.0>,
+  "reasoning":       "<max 30 words>"
+}
+
+{{ few_shot_block }}`;
+
+CODE.bpem.cds =
+`@AbapCatalog.sqlViewName: 'ZCDS_BPEMCTX'
+@OData.publish: true
+@EndUserText.label: 'BPEM Case Context — Agent Data Product'
+@AccessControl.authorizationCheck: #CHECK
+
+define view I_BPEMCaseContext
+  as select from   crmd_orderadm_h as cas
+  inner join       crmd_order_index as idx  on  idx.guid = cas.guid
+  left outer join  isu_t_anlage     as al   on  al.anlage = cas.anlage
+{
+  key cas.guid                                    as CaseGuid,
+      cas.object_id                               as CaseId,
+      cas.process_type                            as CaseType,
+      cas.object_status                           as Status,
+      cas.description                             as CaseDescription,
+      cas.priority                                as Priority,
+      cas.cluster_id                              as ClusterId,
+      cas.anlage                                  as InstallationId,
+      al.premise                                  as PremiseId,
+      cas.created_at                              as CreatedAt,
+
+      -- Computed: age in hours since case creation
+      ( tstmp_to_dats( cas.created_at, abap_system_timezone(
+        $session.client, 'NULL' ), $session.client, 'NULL' )
+        - $session.system_date ) * 24             as AgeHours,
+
+      -- Cluster size: how many open cases in same cluster
+      count( idx.guid )
+        over ( partition by cas.cluster_id )      as ClusterSize
+}
+where
+  cas.object_status in ( 'E0001', 'E0002' )
+  and cas.process_type not in ( 'LEGAL', 'FRAUD' )`;
+
+CODE.bpem.pipeline = null;
+
+CODE.bpem.evals =
+`"""
+test_bpem_triage.py — Eval Harness (Layer 6)
+Agent: bpem-triage  |  Version: 1.1.0
+Golden set: 1,000 labelled BPEM cases (8 case types)
+Accuracy gate: >=78%  |  Guardrail: 0 LEGAL/FRAUD auto-closes
+"""
+import pytest, json
+from pathlib import Path
+from agents.bpem_triage import BpemTriageAgent
+
+ACCURACY_THRESHOLD   = 0.78
+GOLDEN_SET_PATH      = Path(__file__).parent / "golden_set_1000.jsonl"
+
+@pytest.fixture(scope="session")
+def agent():
+    return BpemTriageAgent(
+        prompt_version              = "1.1.0",
+        auto_close_confidence_threshold = 0.88,
+    )
+
+@pytest.fixture(scope="session")
+def golden():
+    with open(GOLDEN_SET_PATH) as f:
+        return [json.loads(line) for line in f]
+
+def test_overall_accuracy_gate(agent, golden):
+    results  = [agent.classify(c["input"])["classification"] for c in golden]
+    expected = [c["expected_classification"] for c in golden]
+    accuracy = sum(r==e for r,e in zip(results,expected)) / len(golden)
+    assert accuracy >= ACCURACY_THRESHOLD
+
+def test_legal_fraud_never_auto_closed(agent, golden):
+    blocked = [c for c in golden
+               if c["input"]["case_type"] in ("LEGAL","FRAUD")]
+    for case in blocked:
+        result = agent.classify(case["input"])
+        assert result["decision"] != "AUTO_CLOSE", (
+            f"Case {case['id']}: LEGAL/FRAUD received AUTO_CLOSE"
+        )
+
+def test_low_confidence_never_auto_closes(agent, golden):
+    for case in golden:
+        result = agent.classify(case["input"])
+        if result["decision"] == "AUTO_CLOSE":
+            assert result["confidence"] >= 0.88, (
+                f"Case {case['id']}: auto-closed below threshold"
+            )`;
+
+// ╔══════ COLLECTIONS-STRATEGIST ══════╗
+CODE.coll = {};
+CODE.coll.skill =
+`# agents/collections-strategist/skill.yaml
+# AgenticSAP — Collections Strategy Selector
+# Version: 1.3.0  |  Module: FI-CA  |  Wave: Q3 2026
+
+name: collections-strategist
+version: "1.3.0"
+description: >
+  Scores each at-risk contract account using a propensity model,
+  selects the optimal dunning or payment-plan strategy, and triggers
+  the chosen action in FI-CA — with full contact log and audit trail.
+
+runtime: sap-ai-core
+model: gpt-4o
+prompt_version: "1.2.1"
+ml_model: collections-propensity-v3
+
+trigger:
+  type: schedule
+  cron: "0 6 * * MON-FRI"
+  additional_trigger:
+    type: event
+    topic: sap/fica/account/overdue-threshold-crossed
+
+parameters:
+  - name: dunning_strategy
+    type: string
+    default: ADAPTIVE
+    enum: [ADAPTIVE, AGGRESSIVE, SOFT]
+  - name: plan_max_instalments
+    type: integer
+    default: 12
+  - name: write_off_threshold_eur
+    type: number
+    default: 50.0
+
+tools:
+  - id: score_account
+    type: ml_inference
+    model_id: collections-propensity-v3
+
+  - id: trigger_dunning
+    type: badi
+    badi_name: FKK_DUNNING_TRIGGER
+
+  - id: create_payment_plan
+    type: bapi
+    function_module: FKK_S_PPLAN_CREATE
+
+  - id: log_contact
+    type: bapi
+    function_module: ISU_CONTACT_LOG_CREATE
+
+guardrails:
+  blocked_account_flags: [DECEASED, INSOLVENCY, DISPUTE_OPEN]
+  max_dunning_letters_per_month: 2
+  require_human_above_eur: 10000
+  audit_every_write: true`;
+
+CODE.coll.handlers =
+`/**
+ * scoreAccount.js — Action Handler (Layer 2)
+ * Agent: collections-strategist  |  Module: FI-CA
+ *
+ * Calls the AI Core propensity model to score a contract account,
+ * then returns a pay_probability score (0-1) and recommended
+ * contact channel for the strategy selector.
+ */
+import { inferModel }   from '../../lib/ai-core.js';
+import { auditLog }     from '../../lib/audit.js';
+import { validate }     from '../../lib/schema.js';
+
+export async function scoreAccount(params) {
+  const { account_id, payment_history_features,
+          agent_trace_id } = params;
+
+  validate({
+    account_id:               { type: 'string', required: true },
+    payment_history_features: { type: 'object', required: true },
+    agent_trace_id:           { type: 'string', required: true },
+  }, params);
+
+  await auditLog({
+    action: 'ACCOUNT_SCORE_REQUEST', agent: 'collections-strategist',
+    trace_id: agent_trace_id, account_id,
+    timestamp: new Date().toISOString(),
+  });
+
+  // Call AI Core model endpoint (XGBoost propensity model)
+  const inference = await inferModel({
+    model_id:   'collections-propensity-v3',
+    features:   payment_history_features,
+    account_id,
+  });
+
+  await auditLog({
+    action: 'ACCOUNT_SCORE_COMPLETE', agent: 'collections-strategist',
+    trace_id: agent_trace_id, account_id,
+    score: inference.pay_probability,
+    recommended_channel: inference.recommended_channel,
+    timestamp: new Date().toISOString(),
+  });
+
+  return {
+    account_id,
+    pay_probability:      inference.pay_probability,
+    recommended_channel:  inference.recommended_channel,
+    model_version:        inference.model_version,
+    feature_importance:   inference.top_features,
+  };
+}`;
+
+CODE.coll.prompts =
+`{#─────────────────────────────────────────────────────────────────
+  Collections-Strategist — System Prompt
+  Version: 1.2.1  |  Model: gpt-4o
+  AUC: 0.81 | Collection rate uplift: 12% (holdout validation)
+─────────────────────────────────────────────────────────────────#}
+
+## Role
+You are Collections-Strategist, a SAP FI-CA collections decision agent.
+Given a propensity score and account context, select the optimal
+contact strategy and trigger the appropriate FI-CA action.
+
+## Constraints
+- NEVER trigger dunning for DECEASED, INSOLVENCY, or DISPUTE_OPEN accounts.
+- NEVER issue more than 2 dunning letters per account per calendar month.
+- Escalate to human reviewer if open balance > {{ require_human_above_eur }} EUR.
+
+## Account Context
+{
+  "account_id":        "{{ account.id }}",
+  "open_balance_eur":  {{ account.open_balance }},
+  "days_overdue":      {{ account.days_overdue }},
+  "pay_probability":   {{ account.pay_probability }},
+  "recommended_channel":"{{ account.recommended_channel }}",
+  "dunning_count_mtd": {{ account.dunning_count_mtd }},
+  "account_flags":     {{ account.flags | tojson }},
+  "last_contact_days": {{ account.last_contact_days }},
+  "tariff_class":      "{{ account.tariff_class }}"
+}
+
+## Strategy Space
+DUNNING_LETTER    — standard dunning run via FKK_DUNNING_TRIGGER
+PAYMENT_PLAN      — propose instalment plan via FKK_S_PPLAN_CREATE
+SOFT_REMINDER     — SMS/email reminder only (no SAP dunning)
+FIELD_VISIT       — schedule field visit for high-value accounts
+WRITE_OFF_REVIEW  — flag for manual write-off review
+ESCALATE_HUMAN    — balance or complexity requires human decision
+
+## Response JSON
+{
+  "strategy":         "<STRATEGY_VALUE>",
+  "contact_channel":  "EMAIL|SMS|LETTER|PHONE|FIELD",
+  "instalments":      <integer|null>,
+  "reasoning":        "<max 40 words>",
+  "confidence":       <0.0-1.0>
+}`;
+
+CODE.coll.cds =
+`@AbapCatalog.sqlViewName: 'ZCDS_COLLACC'
+@OData.publish: true
+@EndUserText.label: 'Contract Account Payment History — Collections Agent'
+@Semantics.personalData.isPotentiallyPersonal: true
+@AccessControl.authorizationCheck: #CHECK
+
+define view I_ContractAccountPaymentHistory
+  as select from   dfkkko    as hdr
+  inner join       dfkkpos   as pos  on  pos.opbel = hdr.opbel
+  inner join       fkkvkp    as acc  on  acc.vkont = hdr.vkont
+{
+  key hdr.vkont                                   as ContractAccountId,
+      hdr.opbel                                   as DocumentNumber,
+      hdr.budat                                   as PostingDate,
+      hdr.faedn                                   as DueDate,
+      pos.betrw                                   as AmountEur,
+      pos.augbl                                   as ClearingDoc,
+      pos.augdt                                   as ClearingDate,
+      dats_days_between( hdr.faedn,
+                         pos.augdt )              as DaysToPayment,
+
+  -- Running open balance
+      sum( case when pos.augbl = '' then pos.betrw else 0 end )
+        over ( partition by hdr.vkont )           as OpenBalanceEur,
+
+  -- Dunning letter count this month
+      count( case when hdr.maber != '' and
+             hdr.budat >= $session.system_date - 30
+             then 1 end )
+        over ( partition by hdr.vkont )           as DunningCountMtd,
+
+      acc.stawn                                   as AccountStatus,
+      acc.empfk                                   as TariffClass
+}
+where
+  hdr.budat >= add_months( $session.system_date, -24 )`;
+
+CODE.coll.pipeline =
+`# agents/collections-strategist/pipeline/pipeline.yaml
+# SAP AI Core ML Pipeline — Collections Propensity Model
+# Training schedule: weekly Sunday 02:00 UTC
+# Source data: I_ContractAccountPaymentHistory (24 months)
+
+name: collections-propensity-train
+version: "3.0.0"
+description: >
+  Trains XGBoost propensity model to predict whether a contract
+  account will pay within 30 days given a dunning or plan action.
+  Registered to AI Core model store on success.
+
+resource_group: agenticsap-prod
+
+steps:
+  # ── Step 1: Extract from IS-U / FI-CA via CDS ────────────────
+  - name: ingest
+    image: ghcr.io/prasad-ibm/agenticsap/data-ingest:3.1.0
+    command: ["python", "ingest.py"]
+    env:
+      - name: SOURCE_CDS
+        value: "I_ContractAccountPaymentHistory"
+      - name: LOOKBACK_MONTHS
+        value: "24"
+      - name: TARGET_COLUMN
+        value: "paid_within_30d"
+      - name: OUTPUT_PATH
+        value: "/data/raw/payment_history.parquet"
+    volumeMounts:
+      - name: training-data
+        mountPath: /data
+    resources:
+      requests: { cpu: "2", memory: "4Gi" }
+      limits:   { cpu: "4", memory: "8Gi" }
+
+  # ── Step 2: Feature engineering ──────────────────────────────
+  - name: feature-eng
+    image: ghcr.io/prasad-ibm/agenticsap/feature-eng:2.0.0
+    command: ["python", "features.py",
+              "--input",  "/data/raw/payment_history.parquet",
+              "--output", "/data/features/features.parquet",
+              "--config", "collections_features_v3.yaml"]
+    volumeMounts:
+      - name: training-data
+        mountPath: /data
+    resources:
+      requests: { cpu: "2", memory: "6Gi" }
+      limits:   { cpu: "4", memory: "12Gi" }
+
+  # ── Step 3: Train XGBoost propensity model ───────────────────
+  - name: train
+    image: ghcr.io/prasad-ibm/agenticsap/propensity-train:3.0.0
+    command: ["python", "train.py",
+              "--model",   "xgboost",
+              "--features","/data/features/features.parquet",
+              "--output",  "/data/model/",
+              "--auc-gate","0.78"]
+    volumeMounts:
+      - name: training-data
+        mountPath: /data
+    resources:
+      requests: { cpu: "4", memory: "8Gi" }
+      limits:   { cpu: "8", memory: "16Gi" }
+      gpu:      1
+
+  # ── Step 4: Evaluate on holdout set ──────────────────────────
+  - name: evaluate
+    image: ghcr.io/prasad-ibm/agenticsap/model-eval:2.0.0
+    command: ["python", "evaluate.py",
+              "--model-path", "/data/model/",
+              "--holdout",    "/data/features/holdout.parquet",
+              "--metrics",    "auc,precision,recall,lift"]
+    volumeMounts:
+      - name: training-data
+        mountPath: /data
+
+  # ── Step 5: Register to AI Core model store ──────────────────
+  - name: register
+    image: ghcr.io/prasad-ibm/agenticsap/model-register:2.1.0
+    command: ["python", "register.py",
+              "--model-path",   "/data/model/",
+              "--model-name",   "collections-propensity",
+              "--version",      "3.0.0",
+              "--scenario",     "collections-agent",
+              "--auc-min-gate", "0.78"]
+    env:
+      - name: AI_CORE_API_URL
+        valueFrom:
+          secretKeyRef: { name: ai-core-credentials, key: api_url }
+      - name: AI_CORE_CLIENT_ID
+        valueFrom:
+          secretKeyRef: { name: ai-core-credentials, key: client_id }
+
+volumes:
+  - name: training-data
+    persistentVolumeClaim:
+      claimName: agenticsap-training-pvc`;
+
+CODE.coll.evals =
+`"""
+test_collections.py — Eval Harness (Layer 6)
+Agent: collections-strategist  |  Version: 1.3.0
+Golden set: 800 labelled contract accounts (holdout)
+AUC gate: >=0.78  |  Guardrail: 0 blocked account actions
+"""
+import pytest, json
+from pathlib import Path
+from agents.collections_strategist import CollectionsStrategistAgent
+
+AUC_THRESHOLD      = 0.78
+GOLDEN_SET_PATH    = Path(__file__).parent / "holdout_800.jsonl"
+BLOCKED_FLAGS      = {"DECEASED", "INSOLVENCY", "DISPUTE_OPEN"}
+
+@pytest.fixture(scope="session")
+def agent():
+    return CollectionsStrategistAgent(prompt_version="1.2.1")
+
+@pytest.fixture(scope="session")
+def golden():
+    with open(GOLDEN_SET_PATH) as f:
+        return [json.loads(line) for line in f]
+
+def test_auc_gate(agent, golden):
+    from sklearn.metrics import roc_auc_score
+    scores  = [agent.score(c["input"])["pay_probability"] for c in golden]
+    labels  = [c["paid_within_30d"] for c in golden]
+    auc     = roc_auc_score(labels, scores)
+    assert auc >= AUC_THRESHOLD, f"AUC {auc:.3f} below gate {AUC_THRESHOLD}"
+
+def test_blocked_accounts_never_actioned(agent, golden):
+    blocked = [c for c in golden
+               if set(c["input"].get("account_flags",[])) & BLOCKED_FLAGS]
+    for case in blocked:
+        result = agent.decide(case["input"])
+        assert result["strategy"] == "ESCALATE_HUMAN", (
+            f"Account {case['id']}: blocked flag received non-escalate strategy"
+        )
+
+def test_dunning_count_gate(agent, golden):
+    high_dunning = [c for c in golden
+                    if c["input"]["dunning_count_mtd"] >= 2]
+    for case in high_dunning:
+        result = agent.decide(case["input"])
+        assert result["strategy"] != "DUNNING_LETTER"`;
+
+// ╔══════ CSR CO-AGENT ══════╗
+CODE.csr = {};
+CODE.csr.skill =
+`# agents/csr-coagent/skill.yaml
+# AgenticSAP — CSR Co-Agent (CIC0 Sidebar)
+# Version: 1.0.0  |  Module: CIC/CRM  |  Wave: Q3 2026
+
+name: csr-coagent
+version: "1.0.0"
+description: >
+  Real-time sidebar in SAP CIC0: surfaces account 360, scores next
+  best action, checks waiver eligibility, drafts interaction response,
+  and logs the outcome — reducing average handle time by 40%.
+
+runtime: sap-ai-core
+model: gpt-4o
+prompt_version: "1.0.3"
+mode: sidebar                         # BTP UI embedded mode
+
+trigger:
+  type: badi
+  badi_name: ISU_CIC0_ADDON_REGISTER
+  filter:
+    interaction_status: ACTIVE
+
+parameters:
+  - name: max_response_tokens
+    type: integer
+    default: 120
+  - name: waiver_max_eur
+    type: number
+    default: 50.0
+
+tools:
+  - id: get_account_360
+    type: odata
+    service: CIC0_ACCOUNT_SRV
+    entity: Account360
+
+  - id: score_next_best_action
+    type: ml_inference
+    model_id: csr-nba-intent-v1
+
+  - id: waive_late_fee
+    type: bapi
+    function_module: ISU_LATEFEE_WAIVE
+
+  - id: create_payment_plan
+    type: bapi
+    function_module: FKK_S_PPLAN_CREATE
+
+  - id: log_interaction
+    type: bapi
+    function_module: ISU_INTERACTION_LOG
+
+guardrails:
+  max_waiver_eur: "{{waiver_max_eur}}"
+  require_csr_confirm_on_all_writes: true
+  blocked_actions_without_auth: [WRITE_OFF, DEBT_SALE]`;
+
+CODE.csr.handlers =
+`/**
+ * scoreNextBestAction.js — Action Handler (Layer 2)
+ * Agent: csr-coagent  |  Module: CIC/CRM
+ *
+ * Scores the interaction context and returns the top 3 next best
+ * actions ranked by predicted satisfaction uplift. The CSR sees
+ * these in the sidebar and confirms before any write occurs.
+ */
+import { inferModel } from '../../lib/ai-core.js';
+import { auditLog }   from '../../lib/audit.js';
+import { validate }   from '../../lib/schema.js';
+
+const NBA_ACTIONS = [
+  'WAIVE_LATE_FEE', 'OFFER_PAYMENT_PLAN', 'SCHEDULE_FIELD_VISIT',
+  'RAISE_BILLING_DISPUTE', 'SEND_USAGE_REPORT',
+  'UPDATE_CONTACT_PREFERENCES', 'ESCALATE_TO_SUPERVISOR',
+];
+
+export async function scoreNextBestAction(params) {
+  const { account_id, interaction_transcript,
+          account_360, agent_trace_id } = params;
+
+  validate({
+    account_id:             { type: 'string', required: true },
+    interaction_transcript: { type: 'string', required: true },
+    account_360:            { type: 'object', required: true },
+    agent_trace_id:         { type: 'string', required: true },
+  }, params);
+
+  const inference = await inferModel({
+    model_id: 'csr-nba-intent-v1',
+    features: {
+      transcript:  interaction_transcript.slice(-500),
+      open_balance:account_360.open_balance_eur,
+      last_payment:account_360.last_payment_days,
+      tariff:      account_360.tariff_class,
+    },
+  });
+
+  await auditLog({
+    action: 'NBA_SCORED', agent: 'csr-coagent',
+    trace_id: agent_trace_id, account_id,
+    top_action: inference.ranked_actions[0],
+    timestamp: new Date().toISOString(),
+  });
+
+  return {
+    ranked_actions:    inference.ranked_actions.slice(0, 3),
+    intent_detected:   inference.intent,
+    draft_response:    inference.draft_response,
+    confidence:        inference.confidence,
+  };
+}`;
+
+CODE.csr.prompts =
+`{#─────────────────────────────────────────────────────────────────
+  CSR Co-Agent — System Prompt
+  Version: 1.0.3  |  Mode: CIC0 sidebar  |  Max tokens: 120
+  NBA accuracy: 88.4% on 250 labelled interactions
+─────────────────────────────────────────────────────────────────#}
+
+## Role
+You are the CSR Co-Agent sidebar in SAP CIC0.
+Surface the account 360, recommend the top 3 next best actions,
+draft a short response, and nothing else.
+Speed is critical — the CSR is live with a customer.
+
+## Constraints
+- Max response: {{ max_response_tokens }} tokens
+- NEVER recommend WRITE_OFF or DEBT_SALE without supervisor auth
+- NEVER auto-execute any action — always show for CSR confirmation
+- Waiver limit: {{ waiver_max_eur }} EUR — escalate above this
+
+## Account 360 Context
+{
+  "account_id":       "{{ account.id }}",
+  "open_balance_eur": {{ account.open_balance }},
+  "days_overdue":     {{ account.days_overdue }},
+  "tariff_class":     "{{ account.tariff_class }}",
+  "last_payment_days":{{ account.last_payment_days }},
+  "active_disputes":  {{ account.active_disputes }},
+  "waiver_eligible":  {{ account.waiver_eligible | lower }},
+  "late_fee_eur":     {{ account.late_fee_eur }}
+}
+
+## Interaction Transcript (last 300 chars)
+{{ transcript | truncate(300) }}
+
+## Response JSON
+{
+  "intent":          "<BILLING_QUERY|PAYMENT_ISSUE|MOVE|COMPLAINT|OTHER>",
+  "top_3_actions":   ["<action1>","<action2>","<action3>"],
+  "draft_response":  "<max 2 sentences for CSR to read>",
+  "waiver_amount":   <number|null>,
+  "confidence":      <0.0-1.0>
+}`;
+
+CODE.csr.cds =
+`@AbapCatalog.sqlViewName: 'ZCDS_ACCT360'
+@OData.publish: true
+@EndUserText.label: 'Account 360 View — CSR Co-Agent Data Product'
+@Semantics.personalData.isPotentiallyPersonal: true
+@AccessControl.authorizationCheck: #CHECK
+
+define view I_Account360
+  as select from   fkkvkp      as acc
+  inner join       dfkkko       as doc  on  doc.vkont = acc.vkont
+  inner join       isu_t_anlage as al   on  al.vkont  = acc.vkont
+  left outer join  isu_t_device as dev  on  dev.anlage = al.anlage
+{
+  key acc.vkont                                   as ContractAccountId,
+      acc.partner                                 as BusinessPartnerId,
+      acc.stawn                                   as AccountStatus,
+
+  -- Open balance
+      sum( case when doc.augbl = '' then doc.betrw
+                else 0 end )
+        over ( partition by acc.vkont )           as OpenBalanceEur,
+
+  -- Days overdue (max overdue document)
+      max( case when doc.augbl = '' then
+             dats_days_between( doc.faedn,
+                                $session.system_date )
+           else 0 end )
+        over ( partition by acc.vkont )           as DaysOverdue,
+
+  -- Last payment date
+      max( case when doc.augbl != '' then doc.augdt
+                else '' end )
+        over ( partition by acc.vkont )           as LastPaymentDate,
+
+  -- Active open disputes
+      count( case when doc.mahns = '3' then 1 end )
+        over ( partition by acc.vkont )           as ActiveDisputes,
+
+      al.anlage                                   as InstallationId,
+      dev.geraet                                  as MeterDeviceId,
+      acc.empfk                                   as TariffClass
+}`;
+
+CODE.csr.pipeline = null;
+
+CODE.csr.evals =
+`"""
+test_csr_coagent.py — Eval Harness (Layer 6)
+Agent: csr-coagent  |  Version: 1.0.3
+Golden set: 250 labelled CSR interactions
+NBA accuracy: >=85%  |  Guardrail: 0 unauthorised write actions
+Latency gate: P95 < 1200ms (sidebar must feel instant)
+"""
+import pytest, json, time
+from pathlib import Path
+from agents.csr_coagent import CsrCoAgent
+
+NBA_ACCURACY_GATE  = 0.85
+LATENCY_P95_MS     = 1200
+MAX_WAIVER_EUR     = 50.0
+GOLDEN_SET_PATH    = Path(__file__).parent / "golden_interactions_250.jsonl"
+
+@pytest.fixture(scope="session")
+def agent():
+    return CsrCoAgent(prompt_version="1.0.3", waiver_max_eur=50.0)
+
+@pytest.fixture(scope="session")
+def golden():
+    with open(GOLDEN_SET_PATH) as f:
+        return [json.loads(line) for line in f]
+
+def test_nba_accuracy_gate(agent, golden):
+    correct = sum(
+        agent.score(c["input"])["top_3_actions"][0]
+          == c["expected_top_action"]
+        for c in golden
+    )
+    accuracy = correct / len(golden)
+    assert accuracy >= NBA_ACCURACY_GATE
+
+def test_waiver_never_exceeds_limit(agent, golden):
+    for case in golden:
+        result = agent.score(case["input"])
+        waiver = result.get("waiver_amount") or 0
+        assert waiver <= MAX_WAIVER_EUR, (
+            f"Case {case['id']}: waiver {waiver} > {MAX_WAIVER_EUR}"
+        )
+
+def test_sidebar_latency_gate(agent, golden):
+    latencies = []
+    for case in golden[:30]:
+        t0 = time.perf_counter()
+        agent.score(case["input"])
+        latencies.append((time.perf_counter()-t0)*1000)
+    p95 = sorted(latencies)[int(len(latencies)*0.95)]
+    assert p95 <= LATENCY_P95_MS, f"P95 {p95:.0f}ms > {LATENCY_P95_MS}ms"`;
+
+// ╔══════ MOVEOPS (abbreviated but complete) ══════╗
+CODE.mo = {};
+CODE.mo.skill = `# agents/moveops/skill.yaml
+name: moveops
+version: "1.1.0"
+description: >
+  Orchestrates move-in/move-out from CRM event through address validation,
+  IS-U contract creation, device assignment, and customer confirmation.
+runtime: sap-ai-core
+model: gpt-4o
+prompt_version: "1.1.0"
+trigger:
+  type: event
+  source: btp.event-mesh
+  topic: sap/crm/servicerequest/movein/created
+parameters:
+  - name: request_id
+    type: string
+    required: true
+  - name: effective_date
+    type: string
+    required: true
+tools:
+  - id: validate_address
+    type: rest
+    url: "{{ADDRESS_NORMALISE_URL}}"
+  - id: create_move_in
+    type: bapi
+    function_module: ISU_S_MOVEIN_CREATE
+  - id: create_contract
+    type: bapi
+    function_module: FKK_S_MKKVKP_CREATE
+  - id: assign_device
+    type: bapi
+    function_module: BAPI_BUPA_CREATE_FROM_DATA
+  - id: notify_customer
+    type: webhook
+    url: "{{NOTIFICATION_WEBHOOK_URL}}"
+guardrails:
+  require_address_validation: true
+  max_same_day_moves: 1000
+  audit_every_write: true
+  rollback_on_partial_failure: true`;
+
+CODE.mo.handlers = `/**
+ * createMoveIn.js — Action Handler (Layer 2)
+ * Agent: moveops  |  Module: IS-U
+ *
+ * Creates an IS-U move-in using ISU_S_MOVEIN_CREATE after
+ * address validation has succeeded. Part of a saga: if this
+ * step fails, the saga rolls back via compensating transactions.
+ */
+import { callBapi, validateBapiReturn } from '../../lib/sap-rfc.js';
+import { auditLog }                     from '../../lib/audit.js';
+import { validate }                     from '../../lib/schema.js';
+
+export async function createMoveIn(params) {
+  const { request_id, premise_id, effective_date,
+          partner_id, tariff_type, agent_trace_id } = params;
+
+  validate({
+    request_id:     { type: 'string', required: true },
+    premise_id:     { type: 'string', required: true },
+    effective_date: { type: 'string', required: true,
+                      pattern: /^\\d{8}$/ },
+    partner_id:     { type: 'string', required: true },
+    agent_trace_id: { type: 'string', required: true },
+  }, params);
+
+  await auditLog({
+    action: 'MOVEIN_CREATE_ATTEMPT', agent: 'moveops',
+    trace_id: agent_trace_id, request_id, premise_id,
+    timestamp: new Date().toISOString(),
+  });
+
+  const result = await callBapi('ISU_S_MOVEIN_CREATE', {
+    I_EINZDAT:   effective_date,
+    I_ANLAGE:    premise_id,
+    I_PARTNER:   partner_id,
+    I_TARIFTYP:  tariff_type,
+    I_AGENT_REF: agent_trace_id,
+  });
+
+  validateBapiReturn(result.RETURN);
+
+  await auditLog({
+    action: 'MOVEIN_CREATE_SUCCESS', agent: 'moveops',
+    trace_id: agent_trace_id, request_id,
+    contract_id: result.E_VERTRAG,
+    timestamp: new Date().toISOString(),
+  });
+
+  return { status: 'created', contract_id: result.E_VERTRAG };
+}`;
+
+CODE.mo.prompts = `{# moveops/prompts/system.j2
+   Version: 1.1.0  |  Accuracy: 96.2% on 200 move scenarios
+#}
+## Role
+You are MoveOps, a SAP IS-U move-in/move-out orchestration agent.
+Your function: validate a service request, run the move saga steps
+in order, handle edge cases, and confirm completion.
+
+## Constraints
+- NEVER proceed if address validation score < 0.85.
+- NEVER create two contracts on the same premise on the same day.
+- If any saga step fails, trigger rollback immediately.
+- Require explicit effective_date — never default to today.
+
+## Request Context
+{
+  "request_id":     "{{ req.id }}",
+  "request_type":   "{{ req.type }}",
+  "effective_date": "{{ req.effective_date }}",
+  "premise_id":     "{{ req.premise_id }}",
+  "partner_id":     "{{ req.partner_id }}",
+  "address_score":  {{ req.address_score }},
+  "same_day_moves": {{ req.same_day_count }},
+  "active_contracts_on_premise": {{ req.active_contracts }}
+}
+
+## Decision Space
+PROCEED     — address valid, no conflicts, run saga steps
+VALIDATE_FIRST — address score < 0.85, request human correction
+HOLD        — same-day conflict or active contract, route to review
+ROLLBACK    — saga step failed, compensate and notify
+
+## Response JSON
+{
+  "decision":      "PROCEED|VALIDATE_FIRST|HOLD|ROLLBACK",
+  "saga_steps":    ["<step1>","<step2>"],
+  "hold_reason":   "<string|null>",
+  "confidence":    <0.0-1.0>
+}`;
+
+CODE.mo.cds = `@AbapCatalog.sqlViewName: 'ZCDS_PREMCTX'
+@OData.publish: true
+@EndUserText.label: 'Premise Context — MoveOps Agent Data Product'
+@AccessControl.authorizationCheck: #CHECK
+
+define view I_PremiseContext
+  as select from   isu_t_premise as pr
+  inner join       isu_t_anlage  as al  on  al.premise = pr.premise
+  left outer join  isu_t_device  as dev on  dev.anlage = al.anlage
+{
+  key pr.premise                                  as PremiseId,
+      pr.premise_type                             as PremiseType,
+      pr.address_id                               as AddressId,
+      al.anlage                                   as InstallationId,
+      al.tariftyp                                 as TariffType,
+      al.vstelle                                  as ConnectionPoint,
+      dev.geraet                                  as MeterDeviceId,
+
+  -- Active contract count on this premise
+      count( al.vertrag )
+        over ( partition by pr.premise
+               where al.abldat = '00000000' )     as ActiveContracts,
+
+  -- Same-day move-in count (circuit breaker)
+      count( al.einzdat )
+        over ( partition by pr.premise
+               where al.einzdat = $session.system_date ) as SameDayMoves,
+
+      pr.created_at                               as CreatedAt
+}`;
+
+CODE.mo.pipeline = null;
+
+CODE.mo.evals = `"""
+test_moveops.py — Eval Harness (Layer 6)
+Agent: moveops  |  Version: 1.1.0
+Golden set: 200 move-in/out scenarios incl. 11 edge cases
+Success gate: >=95%  |  Rollback success: 100%
+"""
+import pytest, json
+from pathlib import Path
+from agents.moveops import MoveOpsAgent
+
+SUCCESS_THRESHOLD = 0.95
+GOLDEN_SET_PATH   = Path(__file__).parent / "golden_moves_200.jsonl"
+
+@pytest.fixture(scope="session")
+def agent():
+    return MoveOpsAgent(prompt_version="1.1.0")
+
+@pytest.fixture(scope="session")
+def golden():
+    with open(GOLDEN_SET_PATH) as f:
+        return [json.loads(line) for line in f]
+
+def test_success_gate(agent, golden):
+    results  = [agent.orchestrate(c["input"])["status"] for c in golden]
+    success  = sum(r=="completed" for r in results) / len(golden)
+    assert success >= SUCCESS_THRESHOLD
+
+def test_failed_address_blocks_saga(agent, golden):
+    for case in [c for c in golden if c["input"]["address_score"] < 0.85]:
+        result = agent.orchestrate(case["input"])
+        assert result["decision"] in ("VALIDATE_FIRST","HOLD")
+
+def test_rollback_on_partial_failure(agent, golden):
+    for case in [c for c in golden if c.get("inject_failure_at")]:
+        result = agent.orchestrate(case["input"])
+        assert result["status"] == "rolled_back", (
+            f"Partial failure did not rollback: {case['id']}"
+        )`;
+
+// ╔══════ EDI-RECON ══════╗
+CODE.edi = {};
+CODE.edi.skill = `# agents/edi-recon/skill.yaml
+name: edi-recon
+version: "1.0.0"
+description: >
+  Detects and resolves IDoc/EDI mismatches in SAP IS-U market
+  communications — comparing inbound enrollment state against
+  expected state and raising disputes automatically.
+runtime: sap-ai-core
+model: gpt-4o
+prompt_version: "1.0.1"
+trigger:
+  type: bapi
+  bapi_name: IDOC_INBOUND_ASYNCHRONOUS
+  filter:
+    idoc_type: [ORDERS05, INVOIC02, APERAK, MSCONS]
+parameters:
+  - name: idoc_number
+    type: string
+    required: true
+  - name: market_zone
+    type: string
+    required: true
+tools:
+  - id: extract_idoc_metadata
+    type: rfc
+    function_module: EDI_IDOC_READ
+  - id: get_enrollment_state
+    type: odata
+    service: MARKET_COMM_SRV
+    entity: EnrollmentState
+  - id: create_dispute
+    type: bapi
+    function_module: FKK_DISPUTE_CREATE
+  - id: route_dispute
+    type: bapi
+    function_module: FKK_DISPUTE_ROUTE
+  - id: acknowledge_match
+    type: bapi
+    function_module: ISU_MARKET_COMM_CONFIRM
+guardrails:
+  tolerance_rules_by_zone: true
+  max_dispute_value_eur: 100000
+  audit_every_write: true`;
+
+CODE.edi.handlers = `/**
+ * matchEnrollmentState.js — Action Handler (Layer 2)
+ * Agent: edi-recon  |  Module: IS-U Market
+ *
+ * Compares inbound IDoc data against expected enrollment state
+ * in IS-U. Returns MATCH, MISMATCH (with delta), or UNKNOWN.
+ */
+import { callBapi }   from '../../lib/sap-rfc.js';
+import { callOdata }  from '../../lib/odata.js';
+import { auditLog }   from '../../lib/audit.js';
+import { validate }   from '../../lib/schema.js';
+import { toleranceCheck } from '../lib/market-tolerance.js';
+
+export async function matchEnrollmentState(params) {
+  const { idoc_number, idoc_data, market_zone,
+          agent_trace_id } = params;
+
+  validate({
+    idoc_number:  { type: 'string', required: true },
+    idoc_data:    { type: 'object', required: true },
+    market_zone:  { type: 'string', required: true },
+    agent_trace_id:{ type: 'string', required: true },
+  }, params);
+
+  // Fetch expected enrollment state from CDS
+  const expected = await callOdata(
+    'MARKET_COMM_SRV',
+    'EnrollmentState',
+    { filter: "VkontId eq '${idoc_data.vkont}'" }
+  );
+
+  if (!expected.value || expected.value.length === 0) {
+    return { result: 'UNKNOWN', reason: 'No enrollment record found' };
+  }
+
+  const state    = expected.value[0];
+  const withinTol = toleranceCheck(idoc_data, state, market_zone);
+
+  await auditLog({
+    action: 'ENROLLMENT_MATCH_RESULT', agent: 'edi-recon',
+    trace_id: agent_trace_id, idoc_number,
+    result: withinTol ? 'MATCH' : 'MISMATCH',
+    timestamp: new Date().toISOString(),
+  });
+
+  return {
+    result:       withinTol ? 'MATCH' : 'MISMATCH',
+    idoc_value:   idoc_data.kwh,
+    expected_kwh: state.ExpectedKwh,
+    delta_pct:    Math.abs(idoc_data.kwh - state.ExpectedKwh) / (state.ExpectedKwh || 1),
+    market_zone,
+  };
+}`;
+
+CODE.edi.prompts = `{# edi-recon/prompts/system.j2
+   Version: 1.0.1  |  Accuracy: 91.3% on 300 IDoc pairs
+#}
+## Role
+You are EDI-Recon, a SAP IS-U market communication reconciliation agent.
+You detect mismatches between inbound IDoc data and expected enrollment
+state, then decide whether to acknowledge, dispute, or escalate.
+
+## Constraints
+- NEVER create a dispute > {{ max_dispute_value_eur }} EUR auto.
+- Tolerance rules differ by market zone — apply {{ market_zone }} rules.
+- If enrollment state is UNKNOWN, always escalate.
+
+## Context
+{
+  "idoc_number":    "{{ idoc.number }}",
+  "idoc_type":      "{{ idoc.type }}",
+  "market_zone":    "{{ idoc.market_zone }}",
+  "match_result":   "{{ match.result }}",
+  "delta_pct":      {{ match.delta_pct }},
+  "idoc_kwh":       {{ match.idoc_value }},
+  "expected_kwh":   {{ match.expected_kwh }},
+  "dispute_value_eur": {{ match.dispute_value_eur }}
+}
+
+## Decision Space
+ACKNOWLEDGE   — within tolerance, mark as matched
+DISPUTE       — mismatch outside tolerance, raise FKK dispute
+ESCALATE      — unknown state, high value, or complex scenario
+
+## Response JSON
+{
+  "decision":       "ACKNOWLEDGE|DISPUTE|ESCALATE",
+  "dispute_reason": "<string|null>",
+  "dispute_value":  <number|null>,
+  "confidence":     <0.0-1.0>,
+  "reasoning":      "<max 30 words>"
+}`;
+
+CODE.edi.cds = `@AbapCatalog.sqlViewName: 'ZCDS_EDICTX'
+@OData.publish: true
+@EndUserText.label: 'EDI Message Context — EDI-Recon Agent Data Product'
+@AccessControl.authorizationCheck: #CHECK
+
+define view I_EDIMessageContext
+  as select from   edi_idoc_hdr  as hdr
+  inner join       edi_idoc_data as dat  on  dat.docnum = hdr.docnum
+  left outer join  isu_t_vkont   as vk   on  vk.vkont   = dat.vkont
+{
+  key hdr.docnum                                  as IdocNumber,
+      hdr.idoctyp                                 as IdocType,
+      hdr.status                                  as Status,
+      hdr.credat                                  as CreatedDate,
+      dat.vkont                                   as ContractAccount,
+      dat.kwh_quantity                            as IdocKwh,
+      dat.market_zone                             as MarketZone,
+      vk.expected_kwh                             as ExpectedKwh,
+      vk.enrollment_status                        as EnrollmentStatus,
+
+  -- Computed delta %
+      case when vk.expected_kwh > 0
+           then abs( dat.kwh_quantity - vk.expected_kwh )
+                / vk.expected_kwh
+           else null end                          as DeltaPct,
+
+      hdr.rcvprn                                  as ReceiverPartner,
+      hdr.sndprn                                  as SenderPartner
+}
+where
+  hdr.status in ( '02', '04', '05' )`;
+
+CODE.edi.pipeline = null;
+
+CODE.edi.evals = `"""
+test_edi_recon.py — Eval Harness (Layer 6)
+Agent: edi-recon  |  Version: 1.0.1
+Golden set: 300 IDoc pairs (multi-zone)
+Match accuracy: >=90%  |  False dispute rate: <=1%
+"""
+import pytest, json
+from pathlib import Path
+from agents.edi_recon import EdiReconAgent
+
+ACCURACY_GATE         = 0.90
+FALSE_DISPUTE_MAX     = 0.01
+GOLDEN_SET_PATH       = Path(__file__).parent / "golden_idoc_300.jsonl"
+
+@pytest.fixture(scope="session")
+def agent():
+    return EdiReconAgent(prompt_version="1.0.1")
+
+@pytest.fixture(scope="session")
+def golden():
+    with open(GOLDEN_SET_PATH) as f:
+        return [json.loads(line) for line in f]
+
+def test_match_accuracy_gate(agent, golden):
+    results  = [agent.reconcile(c["input"])["decision"] for c in golden]
+    expected = [c["expected_decision"] for c in golden]
+    accuracy = sum(r==e for r,e in zip(results,expected))/len(golden)
+    assert accuracy >= ACCURACY_GATE
+
+def test_false_dispute_rate(agent, golden):
+    clean = [c for c in golden if c["expected_decision"]=="ACKNOWLEDGE"]
+    false_disputes = sum(
+        agent.reconcile(c["input"])["decision"] == "DISPUTE"
+        for c in clean
+    )
+    rate = false_disputes / len(clean) if clean else 0
+    assert rate <= FALSE_DISPUTE_MAX, (
+        f"False dispute rate {rate:.1%} > {FALSE_DISPUTE_MAX:.0%}"
+    )
+
+def test_unknown_state_always_escalates(agent, golden):
+    unknowns = [c for c in golden
+                if c["input"]["enrollment_status"] == "UNKNOWN"]
+    for case in unknowns:
+        result = agent.reconcile(case["input"])
+        assert result["decision"] == "ESCALATE"`;
+
+// ── GUIDE CONTENT ────────────────────────────────────────────────────────────
+const GUIDES = {
+  skill: {
+    guide: [
+      { icon:'📛', text:'<strong>name</strong> — kebab-case, unique across the platform. Matches the agent directory name exactly.' },
+      { icon:'🔖', text:'<strong>version</strong> — semantic version. Bump patch for prompt changes, minor for new tools, major for breaking parameter changes.' },
+      { icon:'🎯', text:'<strong>trigger.topic</strong> — BTP Event Mesh topic in format <code>sap/{module}/{object}/{event}</code>. Register in Event Mesh console.' },
+      { icon:'🔧', text:'<strong>tools</strong> — each tool ID must match the exported function name in your Layer 2 handler file exactly.' },
+      { icon:'🛡', text:'<strong>guardrails</strong> — set conservatively for Wave 1. These are injected into the prompt template as <code>{{max_correction_pct}}</code> etc.' },
+      { icon:'📌', text:'<strong>prompt_version</strong> — always pin. Prevents silent prompt drift when GenAI Hub updates the prompt store.' },
+    ],
+    deps: [
+      { dir:'reads', label:'BTP Event Mesh topic', cls:'dep-reads', desc:'trigger.topic must be registered' },
+      { dir:'feeds', label:'Layer 2 Action Handlers', cls:'dep-feeds', desc:'tool IDs must match handler exports' },
+      { dir:'feeds', label:'Layer 3 Prompt Template', cls:'dep-feeds', desc:'prompt_version pinned here' },
+      { dir:'feeds', label:'SAP AI Core Skill Registry', cls:'dep-feeds', desc:'imported via ai-core CLI' },
+    ],
+    validation: [
+      { ok:true,  text:'name is kebab-case and matches agents/{dir} folder name' },
+      { ok:true,  text:'All tool IDs exist as exported functions in handlers/' },
+      { ok:true,  text:'prompt_version is pinned to a deployed GenAI Hub version' },
+      { ok:false, text:'trigger.topic is registered in BTP Event Mesh console' },
+      { ok:false, text:'guardrails values have been reviewed by process owner' },
+    ],
+    cicd: 'Validated by <code>npm run validate-skill</code> on every PR. Deployed to AI Core Skill Registry via <code>aicore skill update</code> in the GitHub Actions release workflow. Requires AI_CORE_API_URL and AI_CORE_CLIENT_ID secrets in the repo.',
+  },
+  handlers: {
+    guide: [
+      { icon:'📂', text:'<strong>One file per tool</strong> defined in the skill manifest. File name must match the tool ID (camelCase).' },
+      { icon:'✅', text:'<strong>validate() first</strong> — always call the schema validator before touching SAP. This is the last defence before a BAPI write.' },
+      { icon:'📋', text:'<strong>Two audit log calls</strong> — one BEFORE the BAPI call (attempt) and one AFTER (success). Never audit only on success.' },
+      { icon:'🚫', text:'<strong>Never create your own RFC connection</strong> — use <code>../../lib/sap-rfc.js</code>. It handles pooling, Cloud Connector routing, and error normalisation.' },
+      { icon:'🔥', text:'<strong>Throw AgentActionError</strong> for expected business failures. Let unknown errors bubble — the runtime logs and alerts on uncaught throws.' },
+      { icon:'🔑', text:'<strong>agent_trace_id</strong> is always required. It chains the audit log from Layer 6 eval through to the SAP change document.' },
+    ],
+    deps: [
+      { dir:'reads', label:'lib/sap-rfc.js', cls:'dep-reads', desc:'callBapi, validateBapiReturn' },
+      { dir:'reads', label:'lib/audit.js', cls:'dep-reads', desc:'auditLog — writes to BTP Audit Log' },
+      { dir:'reads', label:'lib/schema.js', cls:'dep-reads', desc:'validate — input guard' },
+      { dir:'feeds', label:'Layer 1 Skill Manifest', cls:'dep-feeds', desc:'tool IDs declared here' },
+      { dir:'feeds', label:'SAP IS-U / FI-CA BAPIs', cls:'dep-feeds', desc:'write boundary' },
+    ],
+    validation: [
+      { ok:true,  text:'Every tool in skill.yaml has a matching exported function' },
+      { ok:true,  text:'validate() called before any callBapi()' },
+      { ok:true,  text:'auditLog() called twice: attempt + success/failure' },
+      { ok:false, text:'BAPI function module whitelisted by SAP Basis team' },
+      { ok:false, text:'Integration test run against QA SAP client' },
+    ],
+    cicd: 'Unit tested with <code>jest</code> using SAP BAPI mocks. Integration tests run against QA SAP client in the CI pipeline — guarded by a QA_BAPI_ENABLED flag. Deployed as a CAP Node.js app to BTP Cloud Foundry via cf push in the release workflow.',
+  },
+  prompts: {
+    guide: [
+      { icon:'📏', text:'<strong>System prompt under 500 tokens</strong> — every token is latency and cost. Ruthlessly trim explanation and repetition.' },
+      { icon:'🔢', text:'<strong>Context fields must match CDS view exactly</strong> — field names in the Jinja2 template come from the OData entity property names.' },
+      { icon:'🎲', text:'<strong>3–5 few-shot examples</strong> from your golden set — one per decision class minimum. Store in a separate few_shot.j2 partial.' },
+      { icon:'🧱', text:'<strong>Decision space must be exhaustive and mutually exclusive</strong> — the LLM must always be able to select exactly one option.' },
+      { icon:'📌', text:'<strong>Version the file name</strong> — system-v1.3.2.j2 not system.j2. The skill manifest pins to this version so regressions are traceable.' },
+      { icon:'🧪', text:'<strong>Run eval harness after every change</strong> — even a one-word prompt edit can shift decision distribution by 5–10%.' },
+    ],
+    deps: [
+      { dir:'reads', label:'Layer 4 CDS View fields', cls:'dep-reads', desc:'context variable names' },
+      { dir:'reads', label:'Layer 1 Skill Manifest guardrails', cls:'dep-reads', desc:'injected as {{ variables }}' },
+      { dir:'feeds', label:'SAP GenAI Hub Prompt Store', cls:'dep-feeds', desc:'deployed via GenAI Hub API' },
+      { dir:'feeds', label:'Layer 6 Eval Harness', cls:'dep-feeds', desc:'accuracy measured on every version' },
+    ],
+    validation: [
+      { ok:true,  text:'All {{ variables }} have matching context fields from CDS view' },
+      { ok:true,  text:'Prompt version pinned in skill.yaml' },
+      { ok:false, text:'Eval harness run against new prompt — accuracy >= threshold' },
+      { ok:false, text:'Decision space reviewed by process owner for completeness' },
+      { ok:false, text:'Few-shot examples cover all decision classes' },
+    ],
+    cicd: 'Deployed to GenAI Hub via <code>python scripts/deploy_prompt.py --version 1.3.2</code>. Eval harness runs automatically on every prompt version commit. PRs that reduce eval accuracy below gate are blocked by the CI status check.',
+  },
+  cds: {
+    guide: [
+      { icon:'📛', text:'<strong>I_ prefix convention</strong> — Interface views (stable external contract). Never expose private implementation views to the agent layer.' },
+      { icon:'📡', text:'<strong>@OData.publish: true</strong> — required for BTP Integration Suite consumption. Test the generated OData service in the browser before deploying.' },
+      { icon:'🔐', text:'<strong>@AccessControl.authorizationCheck: #CHECK</strong> — never #NOT_REQUIRED. The agent service user must have explicit CDS access control role.' },
+      { icon:'🧮', text:'<strong>Window functions for computed context</strong> — trailing averages, running totals, cluster counts. Push computation to HANA, not the agent.' },
+      { icon:'🏷', text:'<strong>Classify PII fields</strong> — @Semantics.personalData.isPotentiallyPersonal: true on any field that could identify a person.' },
+      { icon:'🚂', text:'<strong>Ship as a transport request</strong> — one SCTS transport per module. Do not mix agent CDS views with config transports.' },
+    ],
+    deps: [
+      { dir:'reads', label:'SAP IS-U / FI-CA database tables', cls:'dep-reads', desc:'underlying data source' },
+      { dir:'feeds', label:'BTP Integration Suite OData client', cls:'dep-feeds', desc:'consumed by Layer 2 handlers' },
+      { dir:'feeds', label:'Layer 3 Prompt Template context', cls:'dep-feeds', desc:'fields injected as variables' },
+      { dir:'ci', label:'Eclipse ADT / ABAP test', cls:'dep-ci', desc:'unit test before transport' },
+    ],
+    validation: [
+      { ok:true,  text:'@OData.publish: true and OData service generates without error' },
+      { ok:true,  text:'@AccessControl role assigned to agent BTP service user' },
+      { ok:false, text:'Performance test: OData call returns in < 800ms on QA client' },
+      { ok:false, text:'PII fields annotated — reviewed by DPO' },
+      { ok:false, text:'Transport request imported to QA and tested end-to-end' },
+    ],
+    cicd: 'Tested in Eclipse ADT using ABAP unit test framework before transport creation. Transport imported to QA automatically via CTS+ on merge to main. OData service smoke-tested from BTP Integration Suite connectivity test.',
+  },
+  pipeline: {
+    guide: [
+      { icon:'3️⃣', text:'<strong>Three mandatory steps</strong>: ingest → train → register. Evaluate is optional but strongly recommended. Never skip register.' },
+      { icon:'🐳', text:'<strong>Versioned base images</strong> — always pin ghcr.io/prasad-ibm/agenticsap/{image}:{semver}. Latest tags break reproducibility.' },
+      { icon:'🔑', text:'<strong>Never hardcode credentials</strong> — use AI Core secret bindings (secretKeyRef). Rotate secrets via BTP service key rotation.' },
+      { icon:'📊', text:'<strong>AUC gate in register step</strong> — the register step reads the eval output and refuses to register if AUC < threshold. This is the quality gate.' },
+      { icon:'⏱', text:'<strong>Test in sandbox resource group first</strong> — AI Core has separate resource groups for dev/test/prod. Always run new pipelines in sandbox.' },
+      { icon:'📅', text:'<strong>Schedule weekly retraining</strong> — model drift is real. Payment behaviour patterns shift monthly. Wire a cron trigger in the pipeline schedule.' },
+    ],
+    deps: [
+      { dir:'reads', label:'Layer 4 CDS View (via OData)', cls:'dep-reads', desc:'training data source' },
+      { dir:'feeds', label:'SAP AI Core Model Store', cls:'dep-feeds', desc:'registered model after train' },
+      { dir:'feeds', label:'Layer 2 Handler (inferModel call)', cls:'dep-feeds', desc:'model served at inference time' },
+      { dir:'ci', label:'GitHub Container Registry', cls:'dep-ci', desc:'base images stored here' },
+    ],
+    validation: [
+      { ok:true,  text:'All three images (ingest/train/register) exist in ghcr.io registry' },
+      { ok:false, text:'Pipeline executed in sandbox resource group — no errors' },
+      { ok:false, text:'AUC gate passing: registered model AUC >= threshold' },
+      { ok:false, text:'Weekly schedule tested — cron fires and completes successfully' },
+      { ok:false, text:'Model drift alert configured in AI Launchpad' },
+    ],
+    cicd: 'Base images built and pushed to ghcr.io via GitHub Actions on every Dockerfile change. Pipeline execution triggered manually for first run, then on weekly cron schedule via AI Core Pipeline Scheduler. AUC result posted as a comment on the triggering PR.',
+  },
+  evals: {
+    guide: [
+      { icon:'📊', text:'<strong>≥500 labelled examples</strong> for binary classification agents. For multi-class (BPEM), ≥100 per class. Source from production data — not synthetic.' },
+      { icon:'🏗', text:'<strong>Separate test functions</strong> for accuracy, each guardrail rule, latency, and schema compliance. One failing test = one clear CI failure message.' },
+      { icon:'🔢', text:'<strong>Set threshold in pytest.ini</strong> — not hardcoded in the test. Different clients may require different accuracy gates.' },
+      { icon:'⚡', text:'<strong>Latency test on 50 samples</strong> — not the full set. Use a representative P95 gate. Sidebar agents need sub-1200ms; batch agents can be looser.' },
+      { icon:'🔒', text:'<strong>Guardrail tests must be deterministic</strong> — the guardrail test cases should always produce the same input/output. No stochastic cases here.' },
+      { icon:'🔄', text:'<strong>Re-run on every prompt version bump</strong> — even one-word changes. Wire into CI as a required check on the prompts/ directory.' },
+    ],
+    deps: [
+      { dir:'reads', label:'Golden set JSONL file', cls:'dep-reads', desc:'labelled from production data' },
+      { dir:'reads', label:'Layer 3 Prompt version', cls:'dep-reads', desc:'version pinned in fixture' },
+      { dir:'feeds', label:'GitHub Actions CI gate', cls:'dep-feeds', desc:'blocks merge if below threshold' },
+      { dir:'feeds', label:'Layer 1 Skill Manifest accuracy claim', cls:'dep-feeds', desc:'accuracy stated in manifest' },
+    ],
+    validation: [
+      { ok:true,  text:'Golden set has >= minimum examples across all decision classes' },
+      { ok:true,  text:'Separate test functions for accuracy, guardrails, latency, and schema' },
+      { ok:false, text:'CI gate configured in .github/workflows/eval.yml' },
+      { ok:false, text:'Golden set reviewed and signed off by process owner' },
+      { ok:false, text:'Eval runs against the pinned prompt version in skill manifest' },
+    ],
+    cicd: 'Runs in GitHub Actions on every PR that touches prompts/ or handlers/. Required status check — PRs blocked if any test fails. Accuracy results posted to the PR as a comment via <code>pytest-github-report</code>. Full results stored as GitHub Actions artifacts for 90 days.',
+  },
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let currentAgent = 'mx';
+let currentLayer = 'skill';
+let activeBpTab  = 'guide';
+
+// ── SYNTAX HIGHLIGHTER ───────────────────────────────────────────────────────
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function highlight(code, lang){
+  let h = esc(code);
+  if(lang === 'yaml'){
+    h = h
+      .replace(/(#[^\n]*)/g,'<span class="t-cmt">$1</span>')
+      .replace(/\b(true|false|yes|no|null)\b/g,'<span class="t-bool">$1</span>')
+      .replace(/^(\s*)([\w.-]+)(\s*:)/gm,'$1<span class="t-key">$2</span>$3')
+      .replace(/:\s*(&gt;|[|])/g,': <span class="t-op">$1</span>')
+      .replace(/("[^"]*"|'[^']*')/g,'<span class="t-str">$1</span>')
+      .replace(/:\s*(\d+\.?\d*)/g,': <span class="t-num">$1</span>')
+      .replace(/\{\{([^}]*)\}\}/g,'<span class="t-dec">{{$1}}</span>');
+  } else if(lang === 'javascript'){
+    h = h
+      .replace(/(\/\/[^\n]*)/g,'<span class="t-cmt">$1</span>')
+      .replace(/(\/\*[\s\S]*?\*\/)/g,'<span class="t-cmt">$1</span>')
+      .replace(/('[^']*'|"[^"]*")/g,'<span class="t-str">$1</span>')
+      .replace(/\b(const|let|var|async|await|function|return|import|export|from|if|else|throw|new|class|extends|typeof|instanceof|of|for|while|try|catch|finally|this)\b/g,'<span class="t-kw">$1</span>')
+      .replace(/\b([A-Z][a-zA-Z0-9]*)\b/g,'<span class="t-cls">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g,'<span class="t-num">$1</span>');
+  } else if(lang === 'jinja2'){
+    h = h
+      .replace(/(\{#[\s\S]*?#\})/g,'<span class="t-cmt">$1</span>')
+      .replace(/(\{\{[^}]*\}\})/g,'<span class="t-dec">$1</span>')
+      .replace(/(\{%[^%]*%\})/g,'<span class="t-tag">$1</span>')
+      .replace(/(##[^\n]*)/g,'<span class="t-cmt">$1</span>')
+      .replace(/^(## .*)/gm,'<span class="t-kw">$1</span>');
+  } else if(lang === 'abap'){
+    h = h
+      .replace(/(--[^\n]*)/g,'<span class="t-cmt">$1</span>')
+      .replace(/(@[\w.]+)/g,'<span class="t-ann">$1</span>')
+      .replace(/\b(define|view|as|select|from|inner|left|outer|join|on|where|key|and|or|not|in|case|when|then|else|end|over|partition|by|order|rows|between|preceding|current|row|join)\b/gi,'<span class="t-kw">$1</span>')
+      .replace(/\b(avg|sum|count|min|max|stddev|cast|abs|dats_days_between|add_months|tstmp_to_dats)\b/gi,'<span class="t-fn">$1</span>')
+      .replace(/('[^']*')/g,'<span class="t-str">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g,'<span class="t-num">$1</span>');
+  } else if(lang === 'python'){
+    h = h
+      .replace(/("""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')/g,'<span class="t-str">$1</span>')
+      .replace(/(#[^\n]*)/g,'<span class="t-cmt">$1</span>')
+      .replace(/("[^"]*"|'[^']*')/g,'<span class="t-str">$1</span>')
+      .replace(/(@[\w.]+)/g,'<span class="t-ann">$1</span>')
+      .replace(/\b(def|class|import|from|return|if|else|elif|for|in|assert|with|as|not|and|or|is|None|True|False|raise|try|except|finally|yield|lambda|pass|break|continue)\b/g,'<span class="t-kw">$1</span>')
+      .replace(/\b([A-Z][a-zA-Z0-9]*)\b/g,'<span class="t-cls">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g,'<span class="t-num">$1</span>');
+  }
+  return h;
+}
+
+function getLang(layer){
+  return {skill:'yaml',handlers:'javascript',prompts:'jinja2',cds:'abap',pipeline:'yaml',evals:'python'}[layer]||'text';
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render(){
+  const agent = AGENTS[currentAgent];
+  const layer = currentLayer;
+  const code  = CODE[currentAgent]?.[layer];
+  const file  = FILES[currentAgent]?.[layer];
+  const lm    = LAYERS[layer];
+
+  // Top bar
+  const ghUrl = file ? GH_BASE+'/'+file : 'https://github.com/prasad-ibm/agenticsap-agents';
+  document.getElementById('gh-link').href = ghUrl;
+
+  if(file){
+    const parts = file.split('/');
+    const bc = document.getElementById('file-breadcrumb');
+    bc.innerHTML = ['agenticsap-agents',...parts].map((p,i,arr)=>{
+      if(i===arr.length-1) return '<span class="seg file">'+esc(p)+'</span>';
+      return '<span class="seg">'+esc(p)+'</span>';
+    }).join('<span class="sep"> / </span>');
+  }
+
+  const lb = document.getElementById('lang-badge');
+  lb.textContent = lm.fmt;
+  lb.style.background = lm.badgeBg;
+  lb.style.color      = lm.badgeFg;
+
+  // Code
+  const ca = document.getElementById('code-area');
+  if(!code){
+    ca.innerHTML = `<div class="na-panel">
+      <div class="na-icon">🤖</div>
+      <div class="na-title">Pipeline not required for ${esc(agent.name)}</div>
+      <div class="na-sub">This agent uses deterministic rule-based logic with an LLM prompt — no separate ML training pipeline is needed. Pipeline assets only apply to agents with propensity models (Collections-Strategist).</div>
+    </div>`;
+  } else {
+    const lang = getLang(layer);
+    const lines = code.split('\n');
+    const lineCount = lines.length;
+    document.getElementById('file-info').textContent = lineCount+' lines';
+    const highlighted = highlight(code, lang);
+    const hlines = highlighted.split('\n');
+    ca.innerHTML = '<div class="code-scroll"><pre class="code-pre" id="code-pre">'
+      + hlines.map((l,i)=>`<div class="code-line"><span class="ln">${i+1}</span><span class="lc">${l}</span></div>`).join('')
+      + '</pre></div>';
+  }
+
+  // Bottom guide
+  renderGuide();
+  renderBpTab(activeBpTab);
+}
+
+function renderGuide(){
+  const g = GUIDES[currentLayer];
+  if(!g) return;
+  document.getElementById('bp-guide').innerHTML = `<div class="guide-grid">${g.guide.map(i=>`<div class="guide-item"><span class="guide-icon">${i.icon}</span><span class="guide-text">${i.text}</span></div>`).join('')}</div>`;
+  document.getElementById('bp-deps').innerHTML = g.deps.map(d=>`<div class="dep-row"><span class="dep-chip ${d.cls}">${d.dir==='reads'?'reads →':d.dir==='feeds'?'→ feeds':'CI'}</span> <strong>${esc(d.label)}</strong> <span class="dep-arrow">—</span> <span style="color:var(--muted);font-size:12px">${esc(d.desc)}</span></div>`).join('');
+  document.getElementById('bp-validation').innerHTML = `<div class="guide-grid">${g.validation.map(v=>`<div class="val-row"><span class="val-icon">${v.ok?'✅':'🔲'}</span><span class="val-text">${v.text}</span></div>`).join('')}</div>`;
+  document.getElementById('bp-cicd').innerHTML = `<p style="font-size:13px;color:var(--slate);line-height:1.6">${g.cicd}</p>`;
+}
+
+function renderBpTab(tab){
+  document.querySelectorAll('.bp-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('bp-'+tab).classList.add('active');
+}
+
+// ── EVENT HANDLERS ────────────────────────────────────────────────────────────
+function selectAgent(id, el){
+  currentAgent = id;
+  document.querySelectorAll('.agent-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  // Update pipeline badge
+  const hasPipeline = CODE[id]?.pipeline !== null && CODE[id]?.pipeline !== undefined;
+  const badge = document.getElementById('pipeline-na-badge');
+  if(badge) badge.textContent = hasPipeline ? 'required' : 'not req.';
+  render();
+}
+
+function selectLayer(id, el){
+  currentLayer = id;
+  document.querySelectorAll('.layer-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function showBpTab(tab, el){
+  activeBpTab = tab;
+  document.querySelectorAll('.bp-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderBpTab(tab);
+}
+
+function copyCode(){
+  const code = CODE[currentAgent]?.[currentLayer];
+  if(!code){ return; }
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='📋 Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
