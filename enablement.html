@@ -807,7 +807,7 @@ golden = <span class="fn">load_golden_set</span>(<span class="str">"mx_resolver_
   <div class="cta-inner">
     <div class="eyebrow" style="color:var(--sap);margin-bottom:10px">Ready to build?</div>
     <div class="cta-title">Start with the agent that delivers fastest.</div>
-    <div class="cta-sub">Use the Backlog Generator to score 20+ agents by business value × readiness × complexity — and know your Wave 1 in under 10 minutes.</div>
+    <div class="cta-sub">Use the Backlog Generator to score 20+ agents by business value × readiness × complexity — and identify your highest-impact starting point in under 10 minutes.</div>
     <div class="cta-buttons">
       <a href="/backlog.html" class="btn-primary">Generate Agent Backlog →</a>
       <a href="/catalogue.html" class="btn-teal">Browse Agent Catalogue</a>
@@ -821,7 +821,7 @@ golden = <span class="fn">load_golden_set</span>(<span class="str">"mx_resolver_
 const AGENTS = {
   mx: {
     name: 'MX-Resolver',
-    subtitle: 'Meter exception auto-resolution · IS-U EDM · Wave 1 Q3 2026',
+    subtitle: 'Meter exception auto-resolution · IS-U EDM',
     tech: [
       { layer:1, name:'Skill Manifest', detail:'mx-resolver.skill.yaml · ISU_EDM_EXCEPTION_HOOK trigger · 3 tool definitions', color:'#006FE6', wave:'ready' },
       { layer:2, name:'Action Handlers', detail:'closeWorkcase.js · postCorrectedReading.js · getExceptionDetail.js', color:'#00B4A6', wave:'ready' },
@@ -843,7 +843,7 @@ const AGENTS = {
   },
   bpem: {
     name: 'BPEM-Triage',
-    subtitle: 'Exception case classification and auto-resolution · BPEM · Wave 1 Q3 2026',
+    subtitle: 'Exception case classification and auto-resolution · BPEM',
     tech: [
       { layer:1, name:'Skill Manifest', detail:'bpem-triage.skill.yaml · EMMA_CASE_CHECK BAdI trigger · 4 tool definitions', color:'#006FE6', wave:'ready' },
       { layer:2, name:'Action Handlers', detail:'classifyCase.js · routeCase.js · closeCase.js · escalateCase.js', color:'#00B4A6', wave:'ready' },
@@ -865,7 +865,7 @@ const AGENTS = {
   },
   coll: {
     name: 'Collections-Strategist',
-    subtitle: 'Propensity-scored collections strategy selection · FI-CA · Wave 1 Q3 2026',
+    subtitle: 'Propensity-scored collections strategy selection · FI-CA',
     tech: [
       { layer:1, name:'Skill Manifest', detail:'collections-strategist.skill.yaml · scheduled daily trigger + event trigger · 5 tools', color:'#006FE6', wave:'ready' },
       { layer:2, name:'Action Handlers', detail:'scoreAccount.js · selectStrategy.js · triggerDunning.js · createPaymentPlan.js · logContact.js', color:'#00B4A6', wave:'ready' },
@@ -887,7 +887,7 @@ const AGENTS = {
   },
   csr: {
     name: 'CSR Co-Agent',
-    subtitle: 'Real-time CIC0 sidebar: next best action and interaction logging · Wave 1 Q3 2026',
+    subtitle: 'Real-time CIC0 sidebar: next best action and interaction logging',
     tech: [
       { layer:1, name:'Skill Manifest', detail:'csr-coagent.skill.yaml · ISU_CIC0_ADDON_REGISTER trigger · 4 NBA tools · sidebar mode', color:'#006FE6', wave:'ready' },
       { layer:2, name:'Action Handlers', detail:'getAccount360.js · scoreNextBestAction.js · waiverEligibility.js · logInteraction.js', color:'#00B4A6', wave:'ready' },
@@ -909,7 +909,7 @@ const AGENTS = {
   },
   mo: {
     name: 'MoveOps',
-    subtitle: 'Move-in/move-out orchestration from notification to contract · Wave 1 Q3 2026',
+    subtitle: 'Move-in/move-out orchestration from notification to contract',
     tech: [
       { layer:1, name:'Skill Manifest', detail:'moveops.skill.yaml · CRM event trigger (move-in request) · 5 orchestration tools', color:'#006FE6', wave:'ready' },
       { layer:2, name:'Action Handlers', detail:'validateAddress.js · createMoveIn.js · createContract.js · assignDevice.js · notifyCustomer.js', color:'#00B4A6', wave:'ready' },
@@ -931,7 +931,7 @@ const AGENTS = {
   },
   edi: {
     name: 'EDI-Recon',
-    subtitle: 'Market communications IDoc mismatch detection and resolution · Wave 2 Q4 2026',
+    subtitle: 'Market communications IDoc mismatch detection and resolution',
     tech: [
       { layer:1, name:'Skill Manifest', detail:'edi-recon.skill.yaml · IDOC_INBOUND_ASYNCHRONOUS trigger · 4 reconciliation tools', color:'#006FE6', wave:'ready' },
       { layer:2, name:'Action Handlers', detail:'extractIdocMetadata.js · matchEnrollmentState.js · createDispute.js · routeDispute.js', color:'#00B4A6', wave:'wave2' },
@@ -954,9 +954,7 @@ const AGENTS = {
 };
 
 function waveLabel(w){
-  if(w==='ready') return '<span class="asset-status status-ready">Wave 1 · Q3 2026</span>';
-  if(w==='wave2') return '<span class="asset-status status-wave2">Wave 2 · Q4 2026</span>';
-  if(w==='na')    return '<span class="asset-status" style="background:#f1f4fa;color:#718096">Not required</span>';
+  if(w==='na') return '<span class="asset-status" style="background:#f1f4fa;color:#718096">Not required</span>';
   return '';
 }
 
