@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Catalogue — AgenticSAP</title>
+<meta name="description" content="Browse 20+ SAP agent archetypes. Filter by industry, module, process, and complexity. View 8-asset bundle details per agent. Switch persona to see what matters to you." />
+<style>
+  :root {
+    --navy:#0A1F44; --navy-2:#0F2A5C;
+    --sap:#006FE6; --teal:#00B4A6;
+    --coral:#FF6B4A; --gold:#F5B506;
+    --slate:#4A5568; --muted:#8B95A8;
+    --border:#E2E7F0; --card:#FFFFFF; --bg:#F7F9FC;
+    --shadow:0 4px 20px rgba(10,31,68,.06); --radius:12px; --maxw:1320px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--navy);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--sap);text-decoration:none}
+
+  /* NAV */
+  .c-nav{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid #e0e0e0;height:48px;display:flex;align-items:center}
+  .c-nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;width:100%}
+  .c-nav-brand{display:flex;align-items:center;gap:10px;font-size:0.875rem;font-weight:600;color:#161616;text-decoration:none}
+  .c-nav-brand:hover{color:#161616;text-decoration:none}
+  .c-nav-links{display:flex;align-items:center;gap:0}
+  .c-nav-links > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-links > a:hover{background:#f4f4f4;color:#161616}
+  .c-nav-links > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+  .c-nav-dropdown > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-dropdown > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown > a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+  .c-nav-dropdown:hover > a::after{opacity:.85}
+  .c-nav-dropdown-menu{position:absolute;top:48px;left:0;display:flex;flex-direction:column;visibility:hidden;opacity:0;pointer-events:none;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:210px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.12);transition:opacity .12s ease}
+  .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible;opacity:1;pointer-events:auto}
+  .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+  .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+  .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+  .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .btn-nav{display:inline-flex;align-items:center;padding:0 1rem;height:32px;font-size:0.8125rem;font-weight:600;text-decoration:none;background:var(--sap);color:#fff;border-radius:4px}
+  .btn-nav:hover{background:#005bbf;text-decoration:none;color:#fff}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#143b87 100%);color:#fff;padding:64px 24px 52px}
+  .hero-inner{max-width:var(--maxw);margin:0 auto}
+  .eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700;margin-bottom:14px}
+  .hero h1{font-size:clamp(26px,3.6vw,40px);line-height:1.15;margin:0 0 12px;font-weight:700}
+  .hero p.lede{color:#cfd9ee;max-width:780px;font-size:17px;margin:0 0 22px}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;color:#b9c5e0;font-size:13px}
+  .hero-meta span{display:inline-flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block}
+
+  /* PERSONA SWITCHER */
+  .persona-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px}
+  .persona-inner{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:0;overflow-x:auto}
+  .persona-tab{padding:12px 18px;font-size:13px;font-weight:500;color:var(--slate);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;user-select:none;transition:color .15s,border-color .15s}
+  .persona-tab:hover{color:var(--navy)}
+  .persona-tab.active{color:var(--sap);border-bottom-color:var(--sap);font-weight:700}
+  .persona-label{font-size:12px;color:var(--muted);padding:12px 16px 12px 0;white-space:nowrap}
+
+  /* LAYOUT */
+  .page-body{max-width:var(--maxw);margin:0 auto;padding:28px 24px 64px;display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start}
+  @media(max-width:900px){.page-body{grid-template-columns:1fr}}
+
+  /* FILTER PANEL */
+  .filter-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;position:sticky;top:64px}
+  .filter-panel h3{margin:0 0 14px;font-size:14px;font-weight:700;color:var(--navy)}
+  .filter-group{margin-bottom:18px}
+  .filter-group h4{margin:0 0 8px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .filter-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer}
+  .filter-item input[type=checkbox]{accent-color:var(--sap);width:14px;height:14px;cursor:pointer}
+  .filter-item label{font-size:13px;color:var(--slate);cursor:pointer}
+  .filter-count{font-size:11px;color:var(--muted);margin-left:auto}
+  .btn-filter-reset{appearance:none;background:transparent;border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-size:12px;color:var(--muted);cursor:pointer;width:100%}
+  .btn-filter-reset:hover{border-color:var(--sap);color:var(--sap)}
+  .search-input{width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--navy);font-family:inherit;margin-bottom:14px}
+  .search-input:focus{outline:2px solid var(--sap);outline-offset:1px}
+
+  /* CARD GRID */
+  .results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+  .results-count{font-size:14px;font-weight:600;color:var(--navy)}
+  .results-count span{color:var(--muted);font-weight:400}
+  .sort-row{display:flex;align-items:center;gap:8px}
+  .sort-row label{font-size:12.5px;color:var(--muted)}
+  .sort-row select{border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:12.5px;color:var(--navy);font-family:inherit}
+  .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:1100px){.card-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+
+  /* AGENT CARD */
+  .agent-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;flex-direction:column}
+  .agent-card:hover{border-color:var(--sap);box-shadow:0 6px 24px rgba(0,111,230,.12)}
+  .agent-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .agent-card-name{font-size:15px;font-weight:700;color:var(--navy);line-height:1.25}
+  .comp-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+  .comp-S{background:#f0fdf4;color:#15803d}
+  .comp-M{background:#fffbeb;color:#92400e}
+  .comp-L{background:#fef2f2;color:#b91c1c}
+  .agent-oneliner{font-size:12.5px;color:var(--slate);margin-bottom:10px;line-height:1.45;flex:1}
+  .agent-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{display:inline-block;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600}
+  .chip-dom{background:#fef9c3;color:#713f12}
+  .chip-mod{background:#e0f2fe;color:#0369a1}
+  .chip-proc{background:#f3e8ff;color:#6b21a8}
+  .agent-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .metric{background:var(--bg);border-radius:6px;padding:6px 8px;text-align:center}
+  .metric .mv{font-size:13px;font-weight:700;color:var(--navy)}
+  .metric .ml{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .agent-card-footer{display:flex;align-items:center;justify-content:space-between}
+  .bv-bar-wrap{display:flex;align-items:center;gap:6px;flex:1}
+  .bv-bar-bg{flex:1;height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+  .bv-bar-fill{height:5px;border-radius:3px;background:var(--sap)}
+  .bv-label{font-size:11.5px;color:var(--muted)}
+  .bv-val{font-size:12px;font-weight:700;color:var(--sap)}
+  .btn-view{appearance:none;background:transparent;border:1.5px solid var(--sap);color:var(--sap);border-radius:4px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .btn-view:hover{background:var(--sap);color:#fff}
+  .no-results{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px}
+
+  /* SLIDE-OUT DRAWER */
+  .drawer-overlay{position:fixed;inset:0;background:rgba(10,31,68,.35);z-index:2000;opacity:0;pointer-events:none;transition:opacity .2s ease}
+  .drawer-overlay.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100vw);background:#fff;z-index:2001;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:-8px 0 32px rgba(10,31,68,.12)}
+  .drawer.open{transform:translateX(0)}
+  .drawer-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:#fff;z-index:10}
+  .drawer-header h2{margin:0;font-size:18px;font-weight:700;color:var(--navy);line-height:1.3}
+  .drawer-close{appearance:none;background:transparent;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:0;line-height:1}
+  .drawer-close:hover{color:var(--navy)}
+  .drawer-body{padding:20px 24px 40px}
+  .drawer-section{margin-bottom:20px}
+  .drawer-section h3{font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);padding-bottom:6px;margin:0 0 12px}
+  .bundle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .bundle-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+  .bundle-icon{font-size:18px;margin-bottom:4px}
+  .bundle-label{font-size:11px;font-weight:600;color:var(--navy)}
+  .bundle-desc{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+  .detail-table{width:100%;border-collapse:collapse;font-size:13px}
+  .detail-table td{padding:8px 0;border-bottom:1px solid var(--border);vertical-align:top}
+  .detail-table td:first-child{font-weight:600;color:var(--navy);width:120px;padding-right:12px}
+  .detail-table tr:last-child td{border-bottom:none}
+  .drawer-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .btn-primary{appearance:none;background:var(--sap);border:none;color:#fff;border-radius:4px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-primary:hover{background:#005bbf}
+  .btn-outline-d{appearance:none;background:transparent;border:1.5px solid var(--sap);color:var(--sap);border-radius:4px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-outline-d:hover{background:var(--sap);color:#fff}
+  .persona-highlight{background:#edf5ff;border-left:3px solid var(--sap);border-radius:4px;padding:10px 14px;font-size:13px;color:var(--navy);margin-bottom:14px}
+  .persona-highlight strong{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--sap);margin-bottom:3px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="c-nav">
+  <div class="c-nav-inner">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="4" fill="#006FE6"/><text x="4" y="22" font-family="Arial" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/">Home</a>
+      <div class="c-nav-dropdown">
+        <a href="#" class="active">Platform</a>
+        <div class="c-nav-dropdown-menu">
+          <a href="/compass.html">Maturity Compass</a>
+          <a href="/benchmark.html">Peer Benchmark</a>
+          <a href="/module-deepdive.html">Module Deep-Dive</a>
+          <a href="/backlog.html">Agent Backlog</a>
+          <a href="/catalogue.html" class="active">Agent Catalogue</a>
+          <a href="/platform-fit.html">Platform Fit Wizard</a>
+          <a href="/utilities.html">Utilities Recommender</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a href="/compass-clients.html" class="btn-nav">Admin</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Tool 5 · Ideate · Agent Catalogue</div>
+    <h1>Browse every agent archetype on the platform</h1>
+    <p class="lede">Filter by industry, module, process domain, or complexity. Switch persona to see the framing that matters to you — CIO ROI view, SA integration view, or SI implementation view. Slide out any card for the full 8-asset bundle.</p>
+    <div class="hero-meta">
+      <span><span class="dot"></span>20+ agent archetypes</span>
+      <span><span class="dot" style="background:var(--gold)"></span>5 personas</span>
+      <span><span class="dot" style="background:var(--coral)"></span>8-asset bundle per agent</span>
+      <span><span class="dot" style="background:#fff;opacity:.5"></span>Filterable & searchable</span>
+    </div>
+  </div>
+</header>
+
+<!-- PERSONA BAR -->
+<div class="persona-bar">
+  <div class="persona-inner">
+    <span class="persona-label">Viewing as:</span>
+    <div class="persona-tab active" data-persona="cio" onclick="switchPersona(this)">CIO / Programme Director</div>
+    <div class="persona-tab" data-persona="sa" onclick="switchPersona(this)">SAP CoE Lead / SA</div>
+    <div class="persona-tab" data-persona="po" onclick="switchPersona(this)">LoB Process Owner</div>
+    <div class="persona-tab" data-persona="ea" onclick="switchPersona(this)">Enterprise / AI Architect</div>
+    <div class="persona-tab" data-persona="si" onclick="switchPersona(this)">SI Partner / Practice Lead</div>
+  </div>
+</div>
+
+<!-- PAGE BODY -->
+<div class="page-body">
+
+  <!-- FILTER PANEL -->
+  <aside class="filter-panel">
+    <h3>🔍 Filter Agents</h3>
+    <input class="search-input" type="text" id="search-input" placeholder="Search agents…" oninput="applyFilters()" />
+
+    <div class="filter-group">
+      <h4>Domain</h4>
+      <div class="filter-item"><input type="checkbox" id="f-util" checked onchange="applyFilters()"><label for="f-util">Utilities</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-fin" checked onchange="applyFilters()"><label for="f-fin">Finance</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-hr" checked onchange="applyFilters()"><label for="f-hr">HR</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-cross" checked onchange="applyFilters()"><label for="f-cross">Cross-cutting</label></div>
+    </div>
+
+    <div class="filter-group">
+      <h4>Complexity</h4>
+      <div class="filter-item"><input type="checkbox" id="f-s" checked onchange="applyFilters()"><label for="f-s">S — Simple (≤5 sprints)</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-m" checked onchange="applyFilters()"><label for="f-m">M — Medium (6–10 sprints)</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-l" checked onchange="applyFilters()"><label for="f-l">L — Large (11+ sprints)</label></div>
+    </div>
+
+    <div class="filter-group">
+      <h4>SAP Module</h4>
+      <div class="filter-item"><input type="checkbox" id="f-isu" checked onchange="applyFilters()"><label for="f-isu">IS-U / EDM</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-fica" checked onchange="applyFilters()"><label for="f-fica">FI-CA</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-bpem" checked onchange="applyFilters()"><label for="f-bpem">BPEM</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-cic" checked onchange="applyFilters()"><label for="f-cic">CIC / CRM</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-s4fi" checked onchange="applyFilters()"><label for="f-s4fi">S/4HANA Finance</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-mm" checked onchange="applyFilters()"><label for="f-mm">MM / SCM</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-hr-mod" checked onchange="applyFilters()"><label for="f-hr-mod">HCM / SF</label></div>
+      <div class="filter-item"><input type="checkbox" id="f-btp" checked onchange="applyFilters()"><label for="f-btp">SAP BTP</label></div>
+    </div>
+
+    <button class="btn-filter-reset" onclick="resetFilters()">↺ Reset all filters</button>
+  </aside>
+
+  <!-- CARD GRID -->
+  <div>
+    <div class="results-header">
+      <div class="results-count" id="results-count">— agents</div>
+      <div class="sort-row">
+        <label>Sort by</label>
+        <select id="sort-select" onchange="applyFilters()">
+          <option value="bv">Business Value</option>
+          <option value="name">Name (A–Z)</option>
+          <option value="complexity">Complexity</option>
+        </select>
+      </div>
+    </div>
+    <div class="card-grid" id="card-grid"></div>
+  </div>
+
+</div><!-- /page-body -->
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h2 id="drawer-title">Agent Detail</h2>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────
+const AGENTS = [
+  { id:'mx-resolver', name:'MX-Resolver', domain:'Utilities', module:'isu', complexity:'S', bv:9, proc:'Meter-to-Cash',
+    oneliner:'Closes meter exception workcases end-to-end; zero human touch for 80% of volume.',
+    metrics:['80% touchless','35% fewer exceptions','€2.4M/yr'],
+    integration:'ISU_EDM_EXCEPTION_HOOK · BAPI_METERMEASUREMENT_CHANGE · I_MeterReadingException CDS',
+    risk:'Low — audited writes via ABAP change documents.',
+    wave:'Wave 1 — Q3 2026',
+    persona:{ cio:'Eliminates £2.4M manual exception backlog cost. 80% touchless rate within 60 days.', sa:'Hooks into ISU_EDM_EXCEPTION_HOOK BAdI. Calls BAPI_METERMEASUREMENT_CHANGE for auto-correction.', po:'Your metering team stops hunting workcases — only edge cases reach them.', ea:'S/4HANA Utilities + BTP AI Core + ABAP BAdI pattern. Audit trail via change docs.', si:'Sprint estimate: 4 sprints. Golden dataset for eval: 500 labelled exceptions from QA client.' },
+    assets:['Architecture diagram','Data product spec','Skill manifest (YAML)','SAP integration manifest','Eval golden set (500)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'bpem-triage', name:'BPEM-Triage', domain:'Utilities', module:'bpem', complexity:'S', bv:8, proc:'Meter-to-Cash',
+    oneliner:'Classifies, routes, and resolves 70% of BPEM cases without analyst intervention.',
+    metrics:['70% auto-resolved','48% lower case age','€1.8M/yr'],
+    integration:'EMMA_CASE_CHECK BAdI · BAPI_CASE_CLOSE · I_BPEMCase CDS',
+    risk:'Medium — classification accuracy requires golden-set tuning per config variant.',
+    wave:'Wave 1 — Q3 2026',
+    persona:{ cio:'£1.8M/yr cost saving. Cases under 48hr SLA vs 5-day average today.', sa:'EMMA_CASE_CHECK BAdI triggers classification; BAPI_CASE_CLOSE for auto-close.', po:'Billing controllers only see cases needing judgement — not routine errors.', ea:'LLM classification layer on BTP AI Core; writes via BPEM APIs only.', si:'5 sprints. Requires 1,000 labelled case examples from last 12 months.' },
+    assets:['Architecture diagram','Case classification schema','Skill manifest (YAML)','SAP integration manifest','Eval golden set (1,000)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'moveops', name:'MoveOps', domain:'Utilities', module:'isu', complexity:'M', bv:8, proc:'Meter-to-Cash',
+    oneliner:'Orchestrates move-in/move-out from notification through contract creation.',
+    metrics:['4.2 min/move saved','€1.1M/yr','99.2% accuracy'],
+    integration:'ISU_S_MOVEIN_CREATE · BAPI_BUPA_CREATE_FROM_DATA · I_Premise CDS',
+    risk:'Medium — address validation depends on MDU data quality.',
+    wave:'Wave 1 — Q3 2026',
+    persona:{ cio:'4.2 minutes saved per service order × 80K/yr = €1.1M/yr. Reduces billing lag.', sa:'Orchestration layer on BTP. Writes via ISU_S_MOVEIN_CREATE and ISU_S_MOVEOUT_CREATE.', po:'Customer ops teams stop re-keying between CRM and IS-U.', ea:'Event-driven via BTP Event Mesh. Saga pattern for rollback on failure.', si:'7 sprints. Address normalisation service integration required.' },
+    assets:['Architecture diagram','Orchestration flow spec','Skill manifest (YAML)','SAP integration manifest','Eval test cases (200)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'edi-recon', name:'EDI-Recon', domain:'Utilities', module:'isu', complexity:'M', bv:7, proc:'Market Operations',
+    oneliner:'Detects and resolves EDI/IDoc mismatches in market communications.',
+    metrics:['60% fewer disputes','€800K/yr','<2hr detection'],
+    integration:'IDOC_INBOUND_ASYNCHRONOUS · ISU_MARKET_COMM_CREATE · I_EDIMessage CDS',
+    risk:'Low-medium — tolerance rules require tuning per market zone.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'€800K/yr avoided settlement penalties. Disputes detected in under 2 hours vs 2 days.', sa:'Hooks on IDOC_INBOUND_ASYNCHRONOUS. Reconciles against I_EnrollmentState CDS.', po:'Market ops team sees automatic dispute creation — no manual reconciliation spreadsheets.', ea:'Event-driven. IDoc metadata extraction via RFC. Dispute creation via FKK_DISPUTE_CREATE.', si:'6 sprints. Market zone tolerance rules config per regulatory scope.' },
+    assets:['Architecture diagram','IDoc matching spec','Skill manifest (YAML)','SAP integration manifest','Eval test suite (300)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'collections-strat', name:'Collections-Strategist', domain:'Utilities', module:'fica', complexity:'M', bv:9, proc:'Revenue Recovery',
+    oneliner:'Selects the optimal contact strategy per debtor and triggers dunning or payment plan.',
+    metrics:['12% collections uplift','€4.8M/yr','40% fewer write-offs'],
+    integration:'FKK_DUNNING_TRIGGER BAdI · FKK_S_PPLAN_CREATE · I_ContractAccountPaymentHistory CDS',
+    risk:'Medium — model lift degrades without ongoing retraining on payment outcomes.',
+    wave:'Wave 1 — Q3 2026',
+    persona:{ cio:'12% uplift on €40M collections portfolio = €4.8M/yr incremental revenue.', sa:'FKK_DUNNING_TRIGGER BAdI for strategy injection. FKK_S_PPLAN_CREATE for plan creation.', po:'Collections team works high-value exceptions. Routine accounts managed automatically.', ea:'ML scoring on BTP AI Core. Retrain pipeline on FI-CA payment outcome events.', si:'7 sprints. Requires 24 months of payment history for model training.' },
+    assets:['Architecture diagram','Propensity model spec','Skill manifest (YAML)','SAP integration manifest','Eval lift analysis','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'csr-coagent', name:'CSR Co-Agent', domain:'Utilities', module:'cic', complexity:'S', bv:8, proc:'Customer Service',
+    oneliner:'Real-time CIC0 sidebar: next best action, waiver eligibility, and field dispatch.',
+    metrics:['2.8 min AHT saved','€1.6M/yr','92% CSAT'],
+    integration:'ISU_CIC0_ADDON_REGISTER · ISU_LATEFEE_WAIVE · I_Account360 CDS',
+    risk:'Low — sidebar pattern; no write unless CSR confirms action.',
+    wave:'Wave 1 — Q3 2026',
+    persona:{ cio:'2.8 min AHT reduction × 180K interactions/yr = €1.6M/yr. CSAT uplift to 92%.', sa:'ISU_CIC0_ADDON_REGISTER embeds SAPUI5 sidebar. I_Account360 CDS for full context.', po:'CSRs get next best action without switching tabs or asking supervisors.', ea:'SAPUI5 extension on CIC0. BTP AI Core for intent classification and NBA scoring.', si:'4 sprints. Screen layout config in CIC0 transaction required.' },
+    assets:['Architecture diagram','NBA decision tree','Skill manifest (YAML)','SAP integration manifest','Eval interaction set (250)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'gl-reconciler', name:'GL-Reconciler', domain:'Finance', module:'s4fi', complexity:'M', bv:9, proc:'Record-to-Report',
+    oneliner:'Matches intercompany GL items and auto-posts clearing entries at period-end.',
+    metrics:['2-day close reduction','€1.2M/yr','99.8% match rate'],
+    integration:'BAPI_ACC_DOCUMENT_POST · BAPI_ACC_GL_POSTING · I_JournalEntry CDS',
+    risk:'Medium — intercompany rules vary by entity; initial rule set requires finance sign-off.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'2-day faster close × €1.2M/yr avoided overtime. Audit-ready reconciliation evidence.', sa:'BAPI_ACC_DOCUMENT_POST for clearing entries. I_JournalEntry CDS for balance query.', po:'Finance controllers stop reconciling spreadsheets across entities.', ea:'Deterministic matching + fuzzy fallback on BTP. Writes audited via FI change docs.', si:'7 sprints. Entity-pair rule configuration required per chart of accounts.' },
+    assets:['Architecture diagram','Matching rule spec','Skill manifest (YAML)','SAP integration manifest','Eval test cases (400)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'invoice-matcher', name:'Invoice-Matcher', domain:'Finance', module:'mm', complexity:'M', bv:9, proc:'Procure-to-Pay',
+    oneliner:'3-way PO–GR–invoice match and auto-posts approved invoices.',
+    metrics:['70% touchless','€900K/yr','<1% error rate'],
+    integration:'BAPI_INCOMINGINVOICE_CREATE · BAPI_PO_CHANGE · I_SupplierInvoice CDS',
+    risk:'Low — well-understood pattern; configure tolerance per vendor category.',
+    wave:'Wave 1 — Q3 2026',
+    persona:{ cio:'70% touchless invoice processing. €900K/yr AP headcount cost reduction.', sa:'BAPI_INCOMINGINVOICE_CREATE for posting. Tolerance tables drive exception routing.', po:'AP team handles only genuine exceptions — duplicate invoices, price discrepancies.', ea:'OCR + structured data extraction on BTP. 3-way match via MM standard logic.', si:'6 sprints. Vendor tolerance configuration required per purchasing org.' },
+    assets:['Architecture diagram','Tolerance rule spec','Skill manifest (YAML)','SAP integration manifest','Eval invoice set (500)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'cash-applicator', name:'Cash-Applicator', domain:'Finance', module:'s4fi', complexity:'M', bv:9, proc:'Order-to-Cash',
+    oneliner:'Matches inbound bank receipts to open receivables and posts automatically.',
+    metrics:['85% straight-through','€700K/yr','<4hr processing'],
+    integration:'BAPI_ACC_DOCUMENT_POST · Bank statement integration · I_CustomerInvoice CDS',
+    risk:'Low-medium — unmatched items park to suspense; no revenue risk.',
+    wave:'Wave 1 — Q3 2026',
+    persona:{ cio:'85% straight-through cash application. €700K/yr analyst time saved. DSO reduction.', sa:'Bank statement lines extracted via BAI2/SWIFT. BAPI_ACC_DOCUMENT_POST for posting.', po:'Treasury analysts review only exceptions — not routine receipt matching.', ea:'Multi-modal matching: IBAN + amount + remittance text. Confidence threshold configurable.', si:'6 sprints. Bank connectivity configuration (BAI2 or CAMT.053) required.' },
+    assets:['Architecture diagram','Matching algorithm spec','Skill manifest (YAML)','SAP integration manifest','Eval receipt set (600)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'credit-gate', name:'Credit-Gate', domain:'Finance', module:'s4fi', complexity:'S', bv:8, proc:'Order-to-Cash',
+    oneliner:'Real-time credit limit check and order release recommendation at order creation.',
+    metrics:['50% fewer holds','Improved CSAT','<30s decision'],
+    integration:'BAPI_CREDITMANAGEMENT_GETDETAIL · BAPI_SALESORDER_CHANGE · I_CustomerBalance CDS',
+    risk:'Low — recommendation only; final release requires authorised user confirmation.',
+    wave:'Wave 1 — Q3 2026',
+    persona:{ cio:'50% reduction in order hold duration. Customer satisfaction uplift from faster release.', sa:'BAPI_CREDITMANAGEMENT_GETDETAIL for credit check. Recommendation returned in <30s.', po:'Order management no longer waits on credit team — release recommendation is instant.', ea:'Scoring microservice on BTP. Credit decision logged for audit.', si:'4 sprints. Credit management customising required per company code.' },
+    assets:['Architecture diagram','Scoring model spec','Skill manifest (YAML)','SAP integration manifest','Eval test orders (300)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'period-close', name:'Period-Close Coordinator', domain:'Finance', module:'s4fi', complexity:'L', bv:8, proc:'Record-to-Report',
+    oneliner:'Orchestrates month-end close checklist: accruals, provisions, allocations, and sign-off.',
+    metrics:['3-day close reduction','40% fewer hours','Board-ready reporting'],
+    integration:'BAPI_ACC_DOCUMENT_POST · RFC_READ_TABLE · I_FinancialPeriod CDS',
+    risk:'High — orchestration across many ledger steps; rollback design critical.',
+    wave:'Wave 3 — Q1 2027',
+    persona:{ cio:'3-day reduction in close cycle. CFO gets board pack 2 days earlier.', sa:'Dependency-ordered step trigger via BTP workflow. RFC_READ_TABLE for period status.', po:'Finance controllers focus on review and exceptions — not chasing step completion.', ea:'Saga orchestration pattern. State machine for close steps. Rollback on failure.', si:'14 sprints. Finance sign-off on step sequence and automation scope required.' },
+    assets:['Architecture diagram','Close step dependency map','Skill manifest (YAML)','SAP integration manifest','Eval close run simulation','Sandbox walkthrough','Demo recording','Business case (sized)'],
+  },
+  { id:'supplier-risk', name:'Supplier-Risk Monitor', domain:'Finance', module:'mm', complexity:'M', bv:8, proc:'Procure-to-Pay',
+    oneliner:'Continuously scores supplier financial health and flags concentration risk.',
+    metrics:['100% supplier coverage','20% fewer disruptions','Weekly refresh'],
+    integration:'I_SupplierMaster CDS · External credit API · SAP AI Core',
+    risk:'Medium — external data freshness and API cost model must be governed.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'CPO gets weekly risk dashboard. Concentration risk visible before contract renewals.', sa:'I_SupplierMaster CDS for base data. External Dun & Bradstreet or Creditsafe API for financial scores.', po:'Procurement managers see risk flag before sending RFP or renewing contract.', ea:'Scheduled BTP job. ML scoring on financial + delivery + ESG signals.', si:'7 sprints. External credit API contract and data governance required.' },
+    assets:['Architecture diagram','Risk scoring model','Skill manifest (YAML)','SAP integration manifest','Eval risk scenarios (50)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'onboarding-orch', name:'Onboarding-Orchestrator', domain:'HR', module:'hr', complexity:'M', bv:8, proc:'Hire-to-Retire',
+    oneliner:'Sequences day-1 provisioning: IT, HR, payroll, and manager intro tasks.',
+    metrics:['4hr faster ramp','€480K/yr','Zero missed steps'],
+    integration:'SuccessFactors API · BAPI_HR_PERSONNEL_ACTION · IT ITSM integration',
+    risk:'Medium — cross-system orchestration; failure handling per service must be defined.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'4-hour ramp reduction × 600 hires/yr = €480K/yr productivity. Zero onboarding errors.', sa:'SuccessFactors onboarding API triggers BTP workflow. BAPI_HR_PERSONNEL_ACTION for HCM writes.', po:'Hiring managers and HR BPs stop chasing IT tickets and benefit enrolment confirmations.', ea:'BTP workflow orchestrates across SF, IT ITSM, HCM, and payroll systems.', si:'7 sprints. IT ITSM system integration (ServiceNow/Jira) required per client.' },
+    assets:['Architecture diagram','Checklist step config','Skill manifest (YAML)','SAP integration manifest','Eval onboarding simulation','Sandbox walkthrough','Demo recording','Business case (sized)'],
+  },
+  { id:'contract-monitor', name:'Contract-Monitor', domain:'Cross-cutting', module:'mm', complexity:'M', bv:8, proc:'Supplier Management',
+    oneliner:'Tracks contract milestones, renewal windows, and obligation compliance.',
+    metrics:['100% contract coverage','Zero missed renewals','90-60-30 day alerts'],
+    integration:'SAP CLM · I_PurchaseContract CDS · Email/Teams notification',
+    risk:'Low — read-only monitoring with notification output.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'Full contract portfolio visibility. Legal and commercial risk reduced.', sa:'I_PurchaseContract CDS for term data. BTP event triggers 90/60/30-day alerts.', po:'Contract managers get proactive notification instead of reactive scrambles.', ea:'Cron-scheduled BTP job. Notification via MS Teams connector or email.', si:'5 sprints. SAP CLM or Ariba contract data access required.' },
+    assets:['Architecture diagram','Alert rule spec','Skill manifest (YAML)','SAP integration manifest','Eval contract scenarios','Sandbox walkthrough','Demo recording','Business case (sized)'],
+  },
+  { id:'compliance-auditor', name:'Compliance-Auditor', domain:'Cross-cutting', module:'btp', complexity:'L', bv:8, proc:'Governance & Risk',
+    oneliner:'Continuously audits SAP authorisations, SoD conflicts, and change document trails.',
+    metrics:['60% audit prep reduction','Zero SoD blind spots','Real-time alerts'],
+    integration:'SAP GRC APIs · SUIMReport · I_AuthorizationChangeDoc CDS',
+    risk:'High — requires GRC integration and security clearance for data access.',
+    wave:'Wave 3 — Q1 2027',
+    persona:{ cio:'60% reduction in audit prep time. Material control failures avoided.', sa:'GRC APIs for SoD analysis. SUIMReport RFC for authorisation data extraction.', po:'Internal audit team gets continuous compliance dashboard vs annual point-in-time review.', ea:'Event-driven on authorisation change docs. Alert via GRC workflow or SIEM.', si:'12 sprints. SAP GRC licence and SIEM integration required.' },
+    assets:['Architecture diagram','SoD rule set','Skill manifest (YAML)','SAP integration manifest','Eval audit scenarios (100)','Sandbox walkthrough','Demo recording','Business case (sized)'],
+  },
+  { id:'journal-reviewer', name:'Journal-Entry Reviewer', domain:'Finance', module:'s4fi', complexity:'S', bv:7, proc:'Record-to-Report',
+    oneliner:'Flags unusual journal entries for review using statistical anomaly detection.',
+    metrics:['80% review time saved','Audit-ready evidence','<5% false positives'],
+    integration:'BAPI_ACC_GL_POSTING · I_JournalEntry CDS · SAP AI Core scoring',
+    risk:'Low — read-only scoring; posts only flags, not blocks.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'Fraud risk mitigation. Internal audit time freed by 80%.', sa:'I_JournalEntry CDS for extraction. SAP AI Core for anomaly scoring. Flag written to custom Z-table.', po:'Internal auditors see pre-scored entries — no manual journal review spreadsheets.', ea:'Statistical baseline model + LLM narrative analysis. Explainable scoring per journal.', si:'4 sprints. Scoring model training on 12+ months of journal history required.' },
+    assets:['Architecture diagram','Anomaly model spec','Skill manifest (YAML)','SAP integration manifest','Eval journal set (1,000)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'gr-chaser', name:'GR-Chaser', domain:'Finance', module:'mm', complexity:'S', bv:7, proc:'Procure-to-Pay',
+    oneliner:'Detects uninvoiced PO lines and prompts GR confirmation before period-end.',
+    metrics:['€500K/yr saved','Zero accrual surprises','5-day early warning'],
+    integration:'BAPI_GOODSMVT_CREATE · I_PurchaseOrder CDS · Email/Teams notification',
+    risk:'Low — notification only; no write unless GR is explicitly confirmed.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'€500K/yr reduction in accrual estimation errors. Cleaner period-end.', sa:'I_PurchaseOrder CDS for open PO lines. BTP notification sends confirmation link.', po:'Requestors get prompted 5 days before close — not chased by finance manually.', ea:'Scheduled BTP job. Approval-confirmation webhook updates GR status.', si:'3 sprints. Period-end calendar config required.' },
+    assets:['Architecture diagram','Alert rule spec','Skill manifest (YAML)','SAP integration manifest','Eval PO scenarios (100)','Sandbox walkthrough','Demo recording','Business case (sized)'],
+  },
+  { id:'deduction-resolver', name:'Deduction-Resolver', domain:'Finance', module:'s4fi', complexity:'M', bv:8, proc:'Order-to-Cash',
+    oneliner:'Classifies customer payment deductions and routes to dispute or auto-clear.',
+    metrics:['€1.4M/yr fewer write-offs','24hr resolution','70% auto-classified'],
+    integration:'BAPI_ACC_DOCUMENT_POST · FI BAPI_DISPUTE_CREATE · I_CustomerPayment CDS',
+    risk:'Medium — classification accuracy requires labelled historical deduction data.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'€1.4M/yr write-off reduction. Deductions resolved in 24hrs vs 14-day average.', sa:'I_CustomerPayment CDS for deduction extraction. BAPI_DISPUTE_CREATE for dispute posting.', po:'AR analysts handle only complex deductions — 70% auto-classified and routed.', ea:'LLM classification + promo lookup. Writes via FI APIs with full audit trail.', si:'7 sprints. Historical deduction labels required for model training (1,000+).' },
+    assets:['Architecture diagram','Classification schema','Skill manifest (YAML)','SAP integration manifest','Eval deduction set (500)','Sandbox simulation','Demo recording','Business case (sized)'],
+  },
+  { id:'leave-adjudicator', name:'Leave-Adjudicator', domain:'HR', module:'hr', complexity:'S', bv:7, proc:'Hire-to-Retire',
+    oneliner:'Validates leave requests against policy, quota, and coverage rules.',
+    metrics:['70% touchless','1hr/wk per manager','100% policy coverage'],
+    integration:'SuccessFactors Leave API · HR quota RFCs · Calendar service',
+    risk:'Low — approval is advisory; manager can always override.',
+    wave:'Wave 2 — Q4 2026',
+    persona:{ cio:'Manager time saved across the organisation. Consistent policy application.', sa:'SuccessFactors Leave API for request data. HR quota RFCs for balance check.', po:'Line managers see a recommendation with reason — override in one click if needed.', ea:'Rule engine on BTP for policy evaluation. Calendar API for coverage check.', si:'3 sprints. Leave policy configuration and coverage minimum rules required.' },
+    assets:['Architecture diagram','Policy rule spec','Skill manifest (YAML)','SAP integration manifest','Eval leave scenarios (100)','Sandbox walkthrough','Demo recording','Business case (sized)'],
+  },
+  { id:'change-impact', name:'Change-Impact Scanner', domain:'Cross-cutting', module:'btp', complexity:'L', bv:7, proc:'Governance & Risk',
+    oneliner:'Analyses SAP transport content and predicts impact before release to production.',
+    metrics:['40% fewer P1 incidents','Risk score <10s','Full dependency map'],
+    integration:'STMS APIs · Change Management system · SAP Solution Manager',
+    risk:'High — requires access to all landscape systems and transport history.',
+    wave:'Wave 3 — Q1 2027',
+    persona:{ cio:'40% reduction in production incidents caused by transports. Audit trail for every release.', sa:'STMS API for transport content extraction. Solution Manager for dependency mapping.', po:'Basis and change managers see risk score before release approval — not after incident.', ea:'ML model trained on historical transport break patterns. Explainable impact list.', si:'12 sprints. STMS and Solution Manager access across landscape tiers required.' },
+    assets:['Architecture diagram','Risk model spec','Skill manifest (YAML)','SAP integration manifest','Eval transport scenarios (200)','Sandbox walkthrough','Demo recording','Business case (sized)'],
+  },
+];
+
+// ── STATE ───────────────────────────────────────────────────────────────
+let currentPersona = 'cio';
+let activeAgent = null;
+
+// ── PERSONA SWITCH ───────────────────────────────────────────────────────
+function switchPersona(el){
+  document.querySelectorAll('.persona-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentPersona = el.dataset.persona;
+  applyFilters();
+}
+
+// ── FILTERS & SORT ───────────────────────────────────────────────────────
+const DOMAIN_CHECKS = { Utilities:'f-util', Finance:'f-fin', HR:'f-hr', 'Cross-cutting':'f-cross' };
+const COMP_CHECKS   = { S:'f-s', M:'f-m', L:'f-l' };
+const MOD_CHECKS    = { isu:'f-isu', fica:'f-fica', bpem:'f-bpem', cic:'f-cic', s4fi:'f-s4fi', mm:'f-mm', hr:'f-hr-mod', btp:'f-btp' };
+
+function checked(id){ const el=document.getElementById(id); return el?el.checked:true; }
+
+function applyFilters(){
+  const search = (document.getElementById('search-input').value||'').toLowerCase();
+  const sortBy = document.getElementById('sort-select').value;
+
+  let filtered = AGENTS.filter(a=>{
+    if(!checked(DOMAIN_CHECKS[a.domain])) return false;
+    if(!checked(COMP_CHECKS[a.complexity])) return false;
+    if(!checked(MOD_CHECKS[a.module])) return false;
+    if(search && !a.name.toLowerCase().includes(search) && !a.oneliner.toLowerCase().includes(search) && !a.proc.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  filtered.sort((a,b)=>{
+    if(sortBy==='bv') return b.bv-a.bv;
+    if(sortBy==='name') return a.name.localeCompare(b.name);
+    if(sortBy==='complexity'){
+      const o={S:0,M:1,L:2};
+      return o[a.complexity]-o[b.complexity];
+    }
+    return 0;
+  });
+
+  document.getElementById('results-count').innerHTML = `<strong>${filtered.length}</strong> <span>of ${AGENTS.length} agents</span>`;
+  renderCards(filtered);
+}
+
+function resetFilters(){
+  document.querySelectorAll('.filter-panel input[type=checkbox]').forEach(cb=>cb.checked=true);
+  document.getElementById('search-input').value='';
+  applyFilters();
+}
+
+// ── CARD RENDER ──────────────────────────────────────────────────────────
+const COMP_COLORS = { S:'comp-S', M:'comp-M', L:'comp-L' };
+const COMP_LABELS = { S:'S — Simple', M:'M — Medium', L:'L — Large' };
+
+function renderCards(agents){
+  const grid = document.getElementById('card-grid');
+  if(agents.length===0){
+    grid.innerHTML='<div class="no-results" style="grid-column:1/-1">No agents match your filters. <button class="btn-view" onclick="resetFilters()">Reset filters</button></div>';
+    return;
+  }
+  grid.innerHTML = agents.map(a=>`
+    <div class="agent-card" onclick="openDrawer('${a.id}')" id="card-${a.id}">
+      <div class="agent-card-header">
+        <div class="agent-card-name">${a.name}</div>
+        <span class="comp-badge ${COMP_COLORS[a.complexity]}">${COMP_LABELS[a.complexity]}</span>
+      </div>
+      <div class="agent-oneliner">${a.oneliner}</div>
+      <div class="agent-chips">
+        <span class="chip chip-dom">${a.domain}</span>
+        <span class="chip chip-mod">${a.module.toUpperCase()}</span>
+        <span class="chip chip-proc">${a.proc}</span>
+      </div>
+      <div class="agent-metrics">
+        ${a.metrics.map(m=>`<div class="metric"><div class="mv">${m}</div></div>`).join('')}
+      </div>
+      <div class="agent-card-footer">
+        <div class="bv-bar-wrap">
+          <span class="bv-label">BV</span>
+          <div class="bv-bar-bg"><div class="bv-bar-fill" style="width:${a.bv/10*100}%"></div></div>
+          <span class="bv-val">${a.bv}/10</span>
+        </div>
+        <button class="btn-view" onclick="openDrawer('${a.id}');event.stopPropagation()">Details →</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── DRAWER ───────────────────────────────────────────────────────────────
+function openDrawer(id){
+  const a = AGENTS.find(x=>x.id===id);
+  if(!a) return;
+  activeAgent = a;
+  document.getElementById('drawer-title').textContent = a.name;
+  document.getElementById('drawer-body').innerHTML = `
+    <div class="persona-highlight">
+      <strong>${getPersonaLabel(currentPersona)} view</strong>
+      ${a.persona[currentPersona]}
+    </div>
+    <div class="drawer-section">
+      <h3>What this agent does</h3>
+      <p style="font-size:14px;color:var(--slate);margin:0">${a.oneliner}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <span class="chip chip-dom">${a.domain}</span>
+        <span class="chip chip-mod">${a.module.toUpperCase()}</span>
+        <span class="chip chip-proc">${a.proc}</span>
+        <span class="comp-badge ${COMP_COLORS[a.complexity]}" style="font-size:12px">${COMP_LABELS[a.complexity]}</span>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h3>8-Asset Delivery Bundle</h3>
+      <div class="bundle-grid">
+        ${a.assets.map((asset,i)=>`
+          <div class="bundle-item">
+            <div class="bundle-icon">${['🏗','📊','🧠','🔗','✅','🧪','🎥','💰'][i]}</div>
+            <div class="bundle-label">${asset}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h3>Key Metrics</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${a.metrics.map(m=>`<div class="metric" style="min-width:100px"><div class="mv">${m}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h3>SAP Integration</h3>
+      <table class="detail-table">
+        <tr><td>APIs / BAdIs</td><td style="font-family:monospace;font-size:12px">${a.integration}</td></tr>
+        <tr><td>Risk</td><td>${a.risk}</td></tr>
+        <tr><td>Delivery Wave</td><td>${a.wave}</td></tr>
+        <tr><td>Business Value</td><td><strong>${a.bv}/10</strong></td></tr>
+      </table>
+    </div>
+    <div class="drawer-actions">
+      <button class="btn-primary" onclick="addToBacklog('${a.id}')">+ Add to Backlog</button>
+      <a href="/backlog.html" class="btn-outline-d">View in Backlog →</a>
+      <button class="btn-outline-d" onclick="copyCard('${a.id}')">📋 Copy Summary</button>
+    </div>
+  `;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  history.replaceState(null,'','#'+id);
+}
+
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  history.replaceState(null,'',window.location.pathname);
+}
+
+function getPersonaLabel(p){
+  const labels={cio:'CIO / Programme Director',sa:'SAP CoE Lead / SA',po:'LoB Process Owner',ea:'Enterprise / AI Architect',si:'SI Partner / Practice Lead'};
+  return labels[p]||p;
+}
+
+function addToBacklog(id){
+  let backlog = JSON.parse(localStorage.getItem('asap_backlog_agents')||'[]');
+  if(!backlog.includes(id)) backlog.push(id);
+  localStorage.setItem('asap_backlog_agents', JSON.stringify(backlog));
+  alert('Added to backlog. Open Agent Backlog Generator to view.');
+}
+
+function copyCard(id){
+  const a = AGENTS.find(x=>x.id===id);
+  if(!a) return;
+  const txt = `${a.name} (${a.domain} · ${a.module.toUpperCase()} · ${COMP_LABELS[a.complexity]})\n\n${a.oneliner}\n\nMetrics: ${a.metrics.join(' · ')}\n\nIntegration: ${a.integration}\n\nRisk: ${a.risk}\n\nWave: ${a.wave}`;
+  navigator.clipboard.writeText(txt).then(()=>alert('Summary copied to clipboard.'));
+}
+
+// ── BOOT ───────────────────────────────────────────────────────────────
+applyFilters();
+
+// Deep-link: open drawer if hash matches agent id
+const hash = window.location.hash.replace('#','');
+if(hash && AGENTS.find(a=>a.id===hash)) openDrawer(hash);
+</script>
+</body>
+</html>

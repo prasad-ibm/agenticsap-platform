@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Backlog Generator — AgenticSAP</title>
+<meta name="description" content="Auto-generate a prioritised SAP agent backlog from your module readiness scores. Score 20+ agents by business value × readiness × complexity." />
+<style>
+  :root {
+    --navy:#0A1F44; --navy-2:#0F2A5C;
+    --sap:#006FE6; --teal:#00B4A6;
+    --coral:#FF6B4A; --gold:#F5B506;
+    --slate:#4A5568; --muted:#8B95A8;
+    --border:#E2E7F0; --card:#FFFFFF; --bg:#F7F9FC;
+    --shadow:0 4px 20px rgba(10,31,68,.06); --radius:12px; --maxw:1240px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--navy);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--sap);text-decoration:none}
+
+  /* NAV */
+  .c-nav{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid #e0e0e0;height:48px;display:flex;align-items:center}
+  .c-nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;width:100%}
+  .c-nav-brand{display:flex;align-items:center;gap:10px;font-size:0.875rem;font-weight:600;color:#161616;text-decoration:none}
+  .c-nav-brand:hover{color:#161616;text-decoration:none}
+  .c-nav-links{display:flex;align-items:center;gap:0}
+  .c-nav-links > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-links > a:hover{background:#f4f4f4;color:#161616}
+  .c-nav-links > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+  .c-nav-dropdown > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-dropdown > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown > a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+  .c-nav-dropdown:hover > a::after{opacity:.85}
+  .c-nav-dropdown-menu{position:absolute;top:48px;left:0;display:flex;flex-direction:column;visibility:hidden;opacity:0;pointer-events:none;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:210px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.12);transition:opacity .12s ease}
+  .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible;opacity:1;pointer-events:auto}
+  .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+  .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+  .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+  .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .btn-nav{display:inline-flex;align-items:center;padding:0 1rem;height:32px;font-size:0.8125rem;font-weight:600;text-decoration:none;background:var(--sap);color:#fff;border-radius:4px}
+  .btn-nav:hover{background:#005bbf;text-decoration:none;color:#fff}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#143b87 100%);color:#fff;padding:64px 24px 52px}
+  .hero-inner{max-width:var(--maxw);margin:0 auto}
+  .eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700;margin-bottom:14px}
+  .hero h1{font-size:clamp(26px,3.6vw,40px);line-height:1.15;margin:0 0 12px;font-weight:700}
+  .hero p.lede{color:#cfd9ee;max-width:780px;font-size:17px;margin:0 0 22px}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;color:#b9c5e0;font-size:13px}
+  .hero-meta span{display:inline-flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block}
+
+  /* WRAP */
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:36px 24px 64px}
+
+  /* CONTROLS */
+  .controls-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px}
+  .controls-bar label{font-size:13px;font-weight:600;color:var(--slate);white-space:nowrap}
+  select,input[type=text]{border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-size:13px;color:var(--navy);background:#fff;font-family:inherit}
+  select:focus,input[type=text]:focus{outline:2px solid var(--sap);outline-offset:1px}
+  .controls-spacer{flex:1}
+
+  /* SOURCE BANNER */
+  .source-banner{background:#edf5ff;border:1px solid #bee3f8;border-radius:8px;padding:10px 16px;font-size:13px;color:#2b6cb0;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .source-banner.warn{background:#fffbeb;border-color:#f6d860;color:#7c5c00}
+
+  /* BACKLOG TABLE */
+  .backlog-table-wrap{overflow-x:auto}
+  .backlog-table{width:100%;border-collapse:collapse;font-size:13px}
+  .backlog-table thead th{padding:10px 14px;background:var(--navy);color:#fff;text-align:left;font-size:12px;font-weight:700;letter-spacing:.4px;white-space:nowrap}
+  .backlog-table thead th:first-child{border-radius:6px 0 0 0}
+  .backlog-table thead th:last-child{border-radius:0 6px 0 0}
+  .backlog-table tbody tr{cursor:pointer;transition:background .12s}
+  .backlog-table tbody tr:hover td{background:#f0f7ff}
+  .backlog-table tbody tr.expanded td{background:#edf5ff}
+  .backlog-table td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+  .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+  .rb-1{background:#c53030}
+  .rb-2{background:#d97706}
+  .rb-3{background:#b7791f}
+  .rb-n{background:#718096}
+  .agent-name{font-weight:700;color:var(--navy);font-size:14px}
+  .agent-oneliner{font-size:12px;color:var(--muted);margin-top:2px}
+  .chip{display:inline-block;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;margin-right:4px}
+  .chip-mod{background:#e0f2fe;color:#0369a1}
+  .chip-domain{background:#fef9c3;color:#713f12}
+  .chip-s{background:#f0fdf4;color:#15803d}
+  .chip-m{background:#fffbeb;color:#92400e}
+  .chip-l{background:#fef2f2;color:#b91c1c}
+  .score-bar-wrap{width:80px}
+  .score-bar-bg{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+  .score-bar-fill{height:6px;border-radius:3px;background:var(--sap);transition:width .4s ease}
+  .score-num{font-size:12px;font-weight:700;color:var(--sap);margin-top:3px;font-variant-numeric:tabular-nums}
+  .bv-cell{font-weight:700;font-variant-numeric:tabular-nums}
+  .rd-cell{font-variant-numeric:tabular-nums}
+  .q-cell{font-weight:700;font-variant-numeric:tabular-nums;color:var(--teal)}
+
+  /* EXPAND ROW */
+  .expand-row td{padding:0!important;border-bottom:1px solid var(--border)!important}
+  .expand-inner{padding:16px 20px;background:#f8faff;display:none}
+  .expand-inner.open{display:block}
+  .expand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:700px){.expand-grid{grid-template-columns:1fr}}
+  .expand-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+  .expand-item h4{margin:0 0 6px;font-size:13px;font-weight:700;color:var(--navy)}
+  .expand-item p{margin:0;font-size:12.5px;color:var(--slate);line-height:1.5}
+  .expand-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .btn-sm{appearance:none;padding:5px 12px;font-size:12px;font-weight:600;border-radius:4px;cursor:pointer;border:none;font-family:inherit}
+  .btn-sm-blue{background:var(--sap);color:#fff}
+  .btn-sm-blue:hover{background:#005bbf}
+  .btn-sm-outline{background:transparent;border:1.5px solid var(--sap);color:var(--sap)}
+  .btn-sm-outline:hover{background:var(--sap);color:#fff}
+
+  /* KPI STRIP */
+  .kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+  @media(max-width:700px){.kpi-strip{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+  .kpi .n{font-size:24px;font-weight:700;color:var(--navy)}
+  .kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+
+  /* ACTIONS */
+  .actions-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+  .btn-primary{appearance:none;background:var(--sap);border:none;color:#fff;border-radius:4px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-primary:hover{background:#005bbf}
+  .btn-outline{appearance:none;background:transparent;border:1.5px solid var(--sap);color:var(--sap);border-radius:4px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-outline:hover{background:var(--sap);color:#fff}
+  .btn-teal{appearance:none;background:var(--teal);border:none;color:#fff;border-radius:4px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-teal:hover{background:#00978b}
+
+  /* EFFORT scale display */
+  .effort-low{color:#166534;font-weight:600}
+  .effort-med{color:#92400e;font-weight:600}
+  .effort-high{color:#b91c1c;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="c-nav">
+  <div class="c-nav-inner">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="4" fill="#006FE6"/><text x="4" y="22" font-family="Arial" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/">Home</a>
+      <div class="c-nav-dropdown">
+        <a href="#" class="active">Platform</a>
+        <div class="c-nav-dropdown-menu">
+          <a href="/compass.html">Maturity Compass</a>
+          <a href="/benchmark.html">Peer Benchmark</a>
+          <a href="/module-deepdive.html">Module Deep-Dive</a>
+          <a href="/backlog.html" class="active">Agent Backlog</a>
+          <a href="/catalogue.html">Agent Catalogue</a>
+          <a href="/platform-fit.html">Platform Fit Wizard</a>
+          <a href="/utilities.html">Utilities Recommender</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a href="/compass-clients.html" class="btn-nav">Admin</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Tool 4 · Ideate · Agent Backlog Generator</div>
+    <h1>Your prioritised agent backlog, auto-generated</h1>
+    <p class="lede">Scores 20+ agents using Business Value × Module Readiness × Complexity. Pre-populated from your Module Deep-Dive results. Every row is a user story ready to drop into Jira or Azure DevOps.</p>
+    <div class="hero-meta">
+      <span><span class="dot"></span>20+ agent archetypes</span>
+      <span><span class="dot" style="background:var(--gold)"></span>BV × Readiness × Complexity scoring</span>
+      <span><span class="dot" style="background:var(--coral)"></span>Story detail expansion</span>
+      <span><span class="dot" style="background:#fff;opacity:.5"></span>CSV / Jira export</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="source-banner" class="source-banner warn">
+    ⚠ No Module Deep-Dive scores found. Readiness scores default to 5/10. <a href="/module-deepdive.html">Complete Module Deep-Dive</a> for accurate prioritisation.
+  </div>
+
+  <!-- KPI strip -->
+  <div class="kpi-strip" id="kpi-strip">
+    <div class="kpi"><div class="n" id="kpi-agents">—</div><div class="l">Agents Scored</div></div>
+    <div class="kpi"><div class="n" id="kpi-quick">—</div><div class="l">Quick Wins (S, BV≥7)</div></div>
+    <div class="kpi"><div class="n" id="kpi-strategic">—</div><div class="l">Strategic Bets</div></div>
+    <div class="kpi"><div class="n" id="kpi-qtr">Q3 2026</div><div class="l">Recommended Launch Wave</div></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls-bar">
+    <label>Domain</label>
+    <select id="filter-domain" onchange="applyFilters()">
+      <option value="">All</option>
+      <option value="Utilities">Utilities</option>
+      <option value="Finance">Finance</option>
+      <option value="HR">HR</option>
+      <option value="Cross-cutting">Cross-cutting</option>
+    </select>
+    <label>Complexity</label>
+    <select id="filter-complexity" onchange="applyFilters()">
+      <option value="">All</option>
+      <option value="S">S — Simple</option>
+      <option value="M">M — Medium</option>
+      <option value="L">L — Large</option>
+    </select>
+    <label>Min BV</label>
+    <select id="filter-bv" onchange="applyFilters()">
+      <option value="0">Any</option>
+      <option value="7">7+</option>
+      <option value="8">8+</option>
+      <option value="9">9+</option>
+    </select>
+    <div class="controls-spacer"></div>
+    <div class="actions-bar" style="margin:0">
+      <button class="btn-teal" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn-outline" onclick="exportJira()">↗ Jira Format</button>
+      <button class="btn-primary" onclick="saveBacklog()">💾 Save Backlog</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="backlog-table-wrap">
+    <table class="backlog-table" id="backlog-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Agent</th>
+          <th>Domain</th>
+          <th>Module</th>
+          <th>Complexity</th>
+          <th>Business Value</th>
+          <th>Readiness</th>
+          <th>Priority Score</th>
+          <th>Quick Qualifier</th>
+        </tr>
+      </thead>
+      <tbody id="backlog-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ── AGENT CATALOGUE ──────────────────────────────────────────────────────
+const AGENTS = [
+  // Utilities
+  { id:'mx-resolver',        name:'MX-Resolver',              domain:'Utilities',    module:'isu',  complexity:'S', bv:9,
+    oneliner:'Closes meter exception workcases end-to-end; zero human touch for 80% of volume.',
+    story:'As a metering analyst, I want the agent to inspect each MR exception, apply root-cause classification rules, auto-correct where safe, and close the workcase — so my team focuses only on edge cases.',
+    value:'35% reduction in exception backlog within 60 days of go-live. €2.4M/yr avoided manual cost.',
+    integration:'ISU_EDM_EXCEPTION_HOOK BAdI · BAPI_METERMEASUREMENT_CHANGE · I_MeterReadingException CDS',
+    risk:'Low — uses existing BPEM infrastructure; all writes are audited via ABAP change docs.',
+    wave:'Wave 1 — Q3 2026' },
+  { id:'bpem-triage',        name:'BPEM-Triage',              domain:'Utilities',    module:'bpem', complexity:'S', bv:8,
+    oneliner:'Classifies, routes, and resolves 70% of BPEM cases without analyst intervention.',
+    story:'As a billing controller, I want inbound BPEM exceptions classified by root cause and routed to the right resolution handler automatically — so case age drops below 48 hours SLA.',
+    value:'48% reduction in average case age. €1.8M/yr avoided cost.',
+    integration:'EMMA_CASE_CHECK BAdI · BAPI_CASE_CLOSE · I_BPEMCase CDS',
+    risk:'Medium — case classification requires golden-set tuning per configuration variant.',
+    wave:'Wave 1 — Q3 2026' },
+  { id:'moveops',            name:'MoveOps',                  domain:'Utilities',    module:'isu',  complexity:'M', bv:8,
+    oneliner:'Orchestrates move-in/move-out from notification through contract creation.',
+    story:'As a customer ops manager, I want new service requests to flow from CRM notification → address validation → contract creation → device assignment without manual re-keying.',
+    value:'4.2 mins/move-in saved × 80K moves/yr = €1.1M/yr.',
+    integration:'ISU_S_MOVEIN_CREATE · BAPI_BUPA_CREATE_FROM_DATA · I_Premise CDS',
+    risk:'Medium — address validation accuracy depends on MDU data quality.',
+    wave:'Wave 1 — Q3 2026' },
+  { id:'edi-recon',          name:'EDI-Recon',                domain:'Utilities',    module:'isu',  complexity:'M', bv:7,
+    oneliner:'Detects and resolves EDI/IDoc mismatches in market communications.',
+    story:'As a market operations analyst, I want incoming IDocs reconciled against expected enrollment state and discrepancies auto-disputed — so market settlement errors are caught before billing.',
+    value:'60% reduction in market settlement disputes. €800K/yr avoided penalties.',
+    integration:'IDOC_INBOUND_ASYNCHRONOUS · ISU_MARKET_COMM_CREATE · I_EDIMessage CDS',
+    risk:'Low-medium — IDoc tolerance rules require tuning per market zone.',
+    wave:'Wave 2 — Q4 2026' },
+  { id:'collections-strat',  name:'Collections-Strategist',   domain:'Utilities',    module:'fica', complexity:'M', bv:9,
+    oneliner:'Selects the optimal contact strategy per debtor and triggers dunning or payment plan.',
+    story:'As a collections manager, I want the agent to score each at-risk account, select the highest-probability contact channel and message, trigger dunning or payment plan creation, and log the outcome.',
+    value:'12% uplift in collections rate × €40M portfolio = €4.8M/yr.',
+    integration:'FKK_DUNNING_TRIGGER BAdI · FKK_S_PPLAN_CREATE · I_ContractAccountPaymentHistory CDS',
+    risk:'Medium — model lift degrades without ongoing retraining on payment outcomes.',
+    wave:'Wave 1 — Q3 2026' },
+  { id:'csr-coagent',        name:'CSR Co-Agent',             domain:'Utilities',    module:'cic',  complexity:'S', bv:8,
+    oneliner:'Real-time CIC0 sidebar: next best action, waiver eligibility, and field dispatch.',
+    story:'As a CSR, I want the agent to surface the account 360 view, suggest the next best action (waiver, plan, dispatch), draft a response, and log the interaction — reducing handle time by 40%.',
+    value:'2.8 min AHT reduction × 180K interactions/yr = €1.6M/yr.',
+    integration:'ISU_CIC0_ADDON_REGISTER · ISU_LATEFEE_WAIVE · I_Account360 CDS',
+    risk:'Low — sidebar pattern; no write path unless CSR explicitly confirms.',
+    wave:'Wave 1 — Q3 2026' },
+  // Finance R2R
+  { id:'gl-reconciler',      name:'GL-Reconciler',            domain:'Finance',      module:'s4fi', complexity:'M', bv:9,
+    oneliner:'Matches intercompany GL items and auto-posts clearing entries at period-end.',
+    story:'As a financial controller, I want intercompany open items matched against counterparty balances nightly and clearing documents posted automatically — so period-end is reduced by 2 days.',
+    value:'2-day period-end reduction. €1.2M/yr avoided overtime and error correction.',
+    integration:'BAPI_ACC_DOCUMENT_POST · BAPI_ACC_GL_POSTING · I_JournalEntry CDS',
+    risk:'Medium — intercompany rules vary by entity; initial rule set requires finance sign-off.',
+    wave:'Wave 2 — Q4 2026' },
+  { id:'period-close',       name:'Period-Close Coordinator', domain:'Finance',      module:'s4fi', complexity:'L', bv:8,
+    oneliner:'Orchestrates month-end close checklist: accruals, provisions, allocations, and sign-off.',
+    story:'As a CFO, I want each period-close step triggered automatically in dependency order, blockers surfaced within the hour, and the close board updated in real time.',
+    value:'3-day reduction in close cycle. 40% reduction in controller hours.',
+    integration:'BAPI_ACC_DOCUMENT_POST · RFC_READ_TABLE · I_FinancialPeriod CDS',
+    risk:'High — orchestration across many ledger steps; rollback design critical.',
+    wave:'Wave 3 — Q1 2027' },
+  { id:'journal-reviewer',   name:'Journal-Entry Reviewer',   domain:'Finance',      module:'s4fi', complexity:'S', bv:7,
+    oneliner:'Flags unusual journal entries for review using statistical anomaly detection.',
+    story:'As an internal auditor, I want all manual journal entries scored for anomaly (amount, timing, user pattern) and high-risk entries escalated before posting.',
+    value:'80% reduction in manual journal review time. Improved audit readiness.',
+    integration:'BAPI_ACC_GL_POSTING · I_JournalEntry CDS · SAP AI Core scoring',
+    risk:'Low — read-only scoring; posts only flags, not blocks.',
+    wave:'Wave 2 — Q4 2026' },
+  // Finance P2P
+  { id:'invoice-matcher',    name:'Invoice-Matcher',          domain:'Finance',      module:'mm',   complexity:'M', bv:9,
+    oneliner:'3-way PO–GR–invoice match and auto-posts approved invoices.',
+    story:'As an AP manager, I want invoices matched against PO and GR, tolerance-checked, and posted automatically — so the team handles only exceptions.',
+    value:'70% touchless invoice rate. €900K/yr processing cost reduction.',
+    integration:'BAPI_INCOMINGINVOICE_CREATE · BAPI_PO_CHANGE · I_SupplierInvoice CDS',
+    risk:'Low — well-understood pattern; configure tolerance per vendor category.',
+    wave:'Wave 1 — Q3 2026' },
+  { id:'gr-chaser',          name:'GR-Chaser',                domain:'Finance',      module:'mm',   complexity:'S', bv:7,
+    oneliner:'Detects uninvoiced PO lines and prompts GR confirmation before period-end.',
+    story:'As a procurement controller, I want open PO commitments without GR to be flagged and requestors notified automatically 5 days before period close.',
+    value:'€500K/yr reduction in accrual estimation errors.',
+    integration:'BAPI_GOODSMVT_CREATE · I_PurchaseOrder CDS · Email/Teams notification',
+    risk:'Low — notification only; no write unless GR is explicitly confirmed.',
+    wave:'Wave 2 — Q4 2026' },
+  { id:'supplier-risk',      name:'Supplier-Risk Monitor',    domain:'Finance',      module:'mm',   complexity:'M', bv:8,
+    oneliner:'Continuously scores supplier financial health and flags concentration risk.',
+    story:'As a CPO, I want each strategic supplier scored weekly on financial stability, delivery, and ESG — and concentration risk alerts surfaced before contract renewals.',
+    value:'Avoided supply disruption risk. 20% reduction in emergency re-sourcing.',
+    integration:'I_SupplierMaster CDS · External credit API · SAP AI Core',
+    risk:'Medium — external data freshness and API cost model must be governed.',
+    wave:'Wave 2 — Q4 2026' },
+  // Finance O2C
+  { id:'credit-gate',        name:'Credit-Gate',              domain:'Finance',      module:'s4fi', complexity:'S', bv:8,
+    oneliner:'Real-time credit limit check and order release recommendation at order creation.',
+    story:'As an order management lead, I want every order above threshold credit-checked and released or escalated automatically — so customer service isn\'t gated by credit team availability.',
+    value:'50% reduction in order hold duration. Improved customer satisfaction.',
+    integration:'BAPI_CREDITMANAGEMENT_GETDETAIL · SD BAPI_SALESORDER_CHANGE · I_CustomerBalance CDS',
+    risk:'Low — recommendation only; final release requires authorised user confirmation.',
+    wave:'Wave 1 — Q3 2026' },
+  { id:'deduction-resolver', name:'Deduction-Resolver',       domain:'Finance',      module:'s4fi', complexity:'M', bv:8,
+    oneliner:'Classifies customer payment deductions and routes to dispute or auto-clear.',
+    story:'As an AR analyst, I want each short payment classified by reason code, matched to open disputes or promos, and resolved or escalated within 24 hours of receipt.',
+    value:'€1.4M/yr reduction in write-off from unresolved deductions.',
+    integration:'BAPI_ACC_DOCUMENT_POST · FI BAPI_DISPUTE_CREATE · I_CustomerPayment CDS',
+    risk:'Medium — classification accuracy requires labelled historical deduction data.',
+    wave:'Wave 2 — Q4 2026' },
+  { id:'cash-applicator',    name:'Cash-Applicator',          domain:'Finance',      module:'s4fi', complexity:'M', bv:9,
+    oneliner:'Matches inbound bank receipts to open receivables and posts automatically.',
+    story:'As a treasury analyst, I want bank statement lines matched to customer invoices via remittance data and confidence scoring — posting confirmed matches automatically.',
+    value:'85% straight-through cash application. €700K/yr analyst time saved.',
+    integration:'BAPI_ACC_DOCUMENT_POST · Bank statement integration · I_CustomerInvoice CDS',
+    risk:'Low-medium — unmatched items park to suspense; no revenue risk.',
+    wave:'Wave 1 — Q3 2026' },
+  // HR
+  { id:'onboarding-orch',    name:'Onboarding-Orchestrator',  domain:'HR',           module:'hr',   complexity:'M', bv:8,
+    oneliner:'Sequences day-1 provisioning: IT, HR, payroll, and manager intro tasks.',
+    story:'As an HR business partner, I want every new hire\'s onboarding checklist triggered automatically on hire date: system access, benefits enrolment, manager welcome, and 30-day check-in scheduled.',
+    value:'4-hour reduction in time-to-productivity per hire × 600 hires/yr = €480K/yr.',
+    integration:'SuccessFactors API · BAPI_HR_PERSONNEL_ACTION · IT ITSM integration',
+    risk:'Medium — cross-system orchestration; failure handling per service must be defined.',
+    wave:'Wave 2 — Q4 2026' },
+  { id:'leave-adjudicator',  name:'Leave-Adjudicator',        domain:'HR',           module:'hr',   complexity:'S', bv:7,
+    oneliner:'Validates leave requests against policy, quota, and coverage rules.',
+    story:'As a line manager, I want leave requests auto-checked against policy and coverage minimums — approved or flagged with a reason — so I review only genuinely complex requests.',
+    value:'70% of leave requests handled touchless. Manager time saved: 1hr/week.',
+    integration:'SuccessFactors Leave API · HR quota RFCs · Calendar service',
+    risk:'Low — approval is advisory; manager can always override.',
+    wave:'Wave 2 — Q4 2026' },
+  // Cross-cutting
+  { id:'contract-monitor',   name:'Contract-Monitor',         domain:'Cross-cutting',module:'mm',   complexity:'M', bv:8,
+    oneliner:'Tracks contract milestones, renewal windows, and obligation compliance.',
+    story:'As a contract manager, I want obligations, renewal dates, and SLA breaches monitored continuously — with alerts 90/60/30 days before key dates and automated escalation.',
+    value:'100% contract coverage vs 40% with manual tracking. Avoided penalty risk.',
+    integration:'SAP CLM · I_PurchaseContract CDS · Email/Teams notification',
+    risk:'Low — read-only monitoring with notification output.',
+    wave:'Wave 2 — Q4 2026' },
+  { id:'compliance-auditor', name:'Compliance-Auditor',       domain:'Cross-cutting',module:'btp',  complexity:'L', bv:8,
+    oneliner:'Continuously audits SAP authorisations, SoD conflicts, and change document trails.',
+    story:'As a CISO, I want SoD conflicts, critical authorisation changes, and sensitive transaction usage flagged in real time — with audit-ready evidence packages.',
+    value:'60% reduction in audit prep time. Avoidance of material control failures.',
+    integration:'SAP GRC APIs · SUIMReport · I_AuthorizationChangeDoc CDS',
+    risk:'High — requires GRC integration and security clearance for data access.',
+    wave:'Wave 3 — Q1 2027' },
+  { id:'change-impact',      name:'Change-Impact Scanner',    domain:'Cross-cutting',module:'btp',  complexity:'L', bv:7,
+    oneliner:'Analyses SAP transport content and predicts impact before release to production.',
+    story:'As a basis lead, I want each transport request scanned for affected objects, downstream dependencies, and historical break patterns — with a risk score before release approval.',
+    value:'40% reduction in production incidents caused by transports.',
+    integration:'STMS APIs · Change Management system · SAP Solution Manager',
+    risk:'High — requires access to all landscape systems and transport history.',
+    wave:'Wave 3 — Q1 2027' },
+];
+
+// ── STATE ───────────────────────────────────────────────────────────────
+let readiness = {}; // modId → overall score 0-3
+let selectedMods = [];
+let scoredAgents = [];
+let expandedRows = new Set();
+
+// ── BOOT ────────────────────────────────────────────────────────────────
+(function init(){
+  try{
+    const raw = localStorage.getItem('asap_deepdive_readiness');
+    const mods = localStorage.getItem('asap_selected_modules');
+    if(raw){
+      const data = JSON.parse(raw);
+      Object.keys(data).forEach(k=>{ readiness[k] = data[k].overall !== null ? data[k].overall : 1.5; });
+      document.getElementById('source-banner').className='source-banner';
+      document.getElementById('source-banner').innerHTML='✅ Module Deep-Dive scores loaded. Readiness adjusted per module.';
+    }
+    if(mods) selectedMods = JSON.parse(mods);
+  }catch(e){}
+  computeScores();
+  renderTable(scoredAgents);
+  updateKPIs();
+})();
+
+function modReadiness(modId){
+  // Convert 0-3 scale to 0-10
+  if(readiness[modId] !== undefined) return Math.round((readiness[modId]/3)*10);
+  return 5; // default
+}
+
+const COMPLEXITY_MULT = { S:1.3, M:1.0, L:0.7 };
+
+function computeScores(){
+  scoredAgents = AGENTS.map(a=>{
+    const rd = modReadiness(a.module);
+    const score = Math.round(a.bv * (rd/10) * COMPLEXITY_MULT[a.complexity] * 10) / 10;
+    return { ...a, readiness:rd, score };
+  }).sort((a,b)=>b.score-a.score);
+}
+
+function applyFilters(){
+  const domain = document.getElementById('filter-domain').value;
+  const comp   = document.getElementById('filter-complexity').value;
+  const minBV  = parseInt(document.getElementById('filter-bv').value)||0;
+  const filtered = scoredAgents.filter(a=>
+    (!domain || a.domain===domain) &&
+    (!comp   || a.complexity===comp) &&
+    a.bv >= minBV
+  );
+  renderTable(filtered);
+}
+
+function renderTable(agents){
+  const tbody = document.getElementById('backlog-body');
+  tbody.innerHTML = agents.map((a,idx)=>{
+    const rank = idx+1;
+    const rbCls = rank===1?'rb-1':rank===2?'rb-2':rank===3?'rb-3':'rb-n';
+    const compChip = `<span class="chip chip-${a.complexity.toLowerCase()}">${a.complexity}</span>`;
+    const pct = Math.min(100, Math.round(a.score/13*100));
+    const quickWin = a.complexity==='S' && a.bv>=7 ? '<span class="chip" style="background:#e0faf8;color:#00736a">⚡ Quick Win</span>' : '';
+    return `
+    <tr onclick="toggleExpand('${a.id}',${idx})" id="row-${a.id}">
+      <td><span class="rank-badge ${rbCls}">${rank}</span></td>
+      <td>
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-oneliner">${a.oneliner}</div>
+      </td>
+      <td><span class="chip chip-domain">${a.domain}</span></td>
+      <td><span class="chip chip-mod">${a.module.toUpperCase()}</span></td>
+      <td>${compChip}</td>
+      <td class="bv-cell">${a.bv}/10</td>
+      <td class="rd-cell">${a.readiness}/10</td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+          <div class="score-num">${a.score.toFixed(1)}</div>
+        </div>
+      </td>
+      <td>${quickWin}</td>
+    </tr>
+    <tr class="expand-row" id="expand-${a.id}">
+      <td colspan="9">
+        <div class="expand-inner" id="ei-${a.id}">
+          <div class="expand-grid">
+            <div class="expand-item"><h4>📋 User Story</h4><p>${a.story}</p></div>
+            <div class="expand-item"><h4>💰 Business Value</h4><p>${a.value}</p></div>
+            <div class="expand-item">
+              <h4>🔗 SAP Integration</h4><p style="font-size:11.5px;font-family:monospace">${a.integration}</p>
+              <h4 style="margin-top:10px">⚠ Risk</h4><p>${a.risk}</p>
+            </div>
+          </div>
+          <div class="expand-actions">
+            <button class="btn-sm btn-sm-blue" onclick="copyStory('${a.id}',event)">📋 Copy Story</button>
+            <button class="btn-sm btn-sm-outline" onclick="viewInCatalogue('${a.id}',event)">→ View in Catalogue</button>
+            <span style="font-size:12px;color:var(--muted);margin-left:4px">${a.wave}</span>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleExpand(id, idx){
+  const ei = document.getElementById('ei-'+id);
+  const row = document.getElementById('row-'+id);
+  if(!ei) return;
+  if(ei.classList.contains('open')){
+    ei.classList.remove('open');
+    row.classList.remove('expanded');
+    expandedRows.delete(id);
+  } else {
+    ei.classList.add('open');
+    row.classList.add('expanded');
+    expandedRows.add(id);
+  }
+}
+
+function copyStory(id, e){
+  e.stopPropagation();
+  const a = AGENTS.find(x=>x.id===id);
+  if(!a) return;
+  const txt = `Title: ${a.name}\n\nUser Story:\n${a.story}\n\nBusiness Value:\n${a.value}\n\nSAP Integration:\n${a.integration}\n\nRisk:\n${a.risk}\n\nDelivery Wave: ${a.wave}`;
+  navigator.clipboard.writeText(txt).then(()=>alert('Story copied to clipboard.'));
+}
+
+function viewInCatalogue(id, e){
+  e.stopPropagation();
+  window.location.href = '/catalogue.html#'+id;
+}
+
+function updateKPIs(){
+  document.getElementById('kpi-agents').textContent = scoredAgents.length;
+  document.getElementById('kpi-quick').textContent  = scoredAgents.filter(a=>a.complexity==='S'&&a.bv>=7).length;
+  document.getElementById('kpi-strategic').textContent = scoredAgents.filter(a=>a.bv>=9).length;
+}
+
+function exportCSV(){
+  const rows = [['Rank','Agent','Domain','Module','Complexity','Business Value','Readiness','Priority Score','Wave','User Story']];
+  scoredAgents.forEach((a,i)=>{
+    rows.push([i+1, a.name, a.domain, a.module.toUpperCase(), a.complexity, a.bv, a.readiness, a.score.toFixed(1), a.wave, `"${a.story.replace(/"/g,'""')}"`]);
+  });
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href=url; link.download='agenticsap-backlog.csv'; link.click();
+}
+
+function exportJira(){
+  const lines = scoredAgents.map((a,i)=>`
+[${a.name}]
+Summary: ${a.name} — Agentic SAP agent
+Story Points: ${a.complexity==='S'?5:a.complexity==='M'?13:21}
+Priority: ${i<5?'Highest':i<10?'High':'Medium'}
+Description: ${a.story}
+Labels: AgenticSAP, ${a.domain}, ${a.module.toUpperCase()}
+---`).join('\n');
+  const blob = new Blob([lines],{type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href=url; link.download='agenticsap-backlog-jira.txt'; link.click();
+}
+
+function saveBacklog(){
+  localStorage.setItem('asap_backlog_agents', JSON.stringify(scoredAgents.map(a=>a.id)));
+  alert('Backlog saved. Agents stored for cross-tool reference.');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Module Deep-Dive — AgenticSAP</title>
+<meta name="description" content="Rate your SAP module readiness across 10 modules and 5 dimensions. Get a RAG heatmap, gap analysis, and readiness scores that feed the Agent Backlog Generator." />
+<style>
+  :root {
+    --navy:#0A1F44; --navy-2:#0F2A5C;
+    --sap:#006FE6; --teal:#00B4A6;
+    --coral:#FF6B4A; --gold:#F5B506;
+    --slate:#4A5568; --muted:#8B95A8;
+    --border:#E2E7F0; --card:#FFFFFF; --bg:#F7F9FC;
+    --shadow:0 4px 20px rgba(10,31,68,.06); --radius:12px; --maxw:1200px;
+    --red-bg:#fef2f2; --red-fg:#c53030;
+    --amber-bg:#fffbeb; --amber-fg:#92400e;
+    --green-bg:#f0fdf4; --green-fg:#166534;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--navy);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--sap);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* NAV */
+  .c-nav{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid #e0e0e0;height:48px;display:flex;align-items:center}
+  .c-nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;width:100%}
+  .c-nav-brand{display:flex;align-items:center;gap:10px;font-size:0.875rem;font-weight:600;color:#161616;text-decoration:none}
+  .c-nav-brand:hover{color:#161616;text-decoration:none}
+  .c-nav-links{display:flex;align-items:center;gap:0}
+  .c-nav-links > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-links > a:hover{background:#f4f4f4;color:#161616}
+  .c-nav-links > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+  .c-nav-dropdown > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-dropdown > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown > a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+  .c-nav-dropdown:hover > a::after{opacity:.85}
+  .c-nav-dropdown-menu{position:absolute;top:48px;left:0;display:flex;flex-direction:column;visibility:hidden;opacity:0;pointer-events:none;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:210px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.12);transition:opacity .12s ease}
+  .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible;opacity:1;pointer-events:auto}
+  .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+  .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+  .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+  .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .btn-nav{display:inline-flex;align-items:center;padding:0 1rem;height:32px;font-size:0.8125rem;font-weight:600;text-decoration:none;background:var(--sap);color:#fff;border-radius:4px}
+  .btn-nav:hover{background:#005bbf;text-decoration:none;color:#fff}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#143b87 100%);color:#fff;padding:64px 24px 52px}
+  .hero-inner{max-width:var(--maxw);margin:0 auto}
+  .eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700;margin-bottom:14px}
+  .hero h1{font-size:clamp(26px,3.6vw,40px);line-height:1.15;margin:0 0 12px;font-weight:700}
+  .hero p.lede{color:#cfd9ee;max-width:780px;font-size:17px;margin:0 0 22px}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;color:#b9c5e0;font-size:13px}
+  .hero-meta span{display:inline-flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block}
+
+  /* MAIN LAYOUT */
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:36px 24px 64px}
+  .step-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .step-num{width:30px;height:30px;border-radius:50%;background:var(--sap);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+  .step-title{font-size:17px;font-weight:700;color:var(--navy)}
+  .step-sub{font-size:13px;color:var(--muted);margin-top:2px}
+
+  /* MODULE GRID SELECTOR */
+  .module-selector{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px}
+  @media(max-width:800px){.module-selector{grid-template-columns:repeat(2,1fr)}}
+  .mod-toggle{border:2px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;text-align:left}
+  .mod-toggle:hover{border-color:var(--sap);background:#f0f7ff}
+  .mod-toggle.selected{border-color:var(--sap);background:#edf5ff}
+  .mod-toggle .mod-icon{font-size:18px;margin-bottom:4px}
+  .mod-toggle .mod-name{font-size:12.5px;font-weight:700;color:var(--navy);display:block}
+  .mod-toggle .mod-code{font-size:11px;color:var(--muted)}
+
+  /* QUESTION SECTIONS */
+  .q-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+  .q-section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;user-select:none;background:linear-gradient(180deg,#fafbfd,#f1f4fa);border-bottom:1px solid var(--border)}
+  .q-section-header h3{margin:0;font-size:14px;font-weight:700;color:var(--navy)}
+  .q-section-header .mod-status{font-size:12px;color:var(--muted)}
+  .q-section-header .chevron{font-size:12px;transition:transform .2s}
+  .q-section-header.open .chevron{transform:rotate(180deg)}
+  .q-section-body{padding:16px 18px;display:none}
+  .q-section-body.open{display:block}
+  .q-row{margin-bottom:16px}
+  .q-text{font-size:13.5px;font-weight:500;color:var(--navy);margin-bottom:8px}
+  .q-text .q-dim{font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;margin-left:8px}
+  .q-options{display:flex;gap:8px;flex-wrap:wrap}
+  .q-opt{border:1.5px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12.5px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;color:var(--slate)}
+  .q-opt:hover{border-color:var(--sap);color:var(--navy)}
+  .q-opt.selected-0{border-color:#e53e3e;background:#fef2f2;color:#c53030}
+  .q-opt.selected-1{border-color:#d97706;background:#fffbeb;color:#92400e}
+  .q-opt.selected-2{border-color:#059669;background:#f0fdf4;color:#166534}
+  .q-opt.selected-3{border-color:var(--teal);background:#e0faf8;color:#00736a}
+
+  /* HEATMAP */
+  .heatmap-wrap{overflow-x:auto}
+  .heatmap{border-collapse:collapse;width:100%;min-width:640px}
+  .heatmap th{padding:8px 12px;font-size:11.5px;font-weight:700;background:var(--navy);color:#fff;text-align:center}
+  .heatmap th:first-child{text-align:left;min-width:140px}
+  .heatmap td{padding:10px 12px;border:1px solid var(--border);text-align:center;font-size:13px;font-weight:600}
+  .heatmap td:first-child{text-align:left;font-weight:500;color:var(--navy);background:#f8f9fc}
+  .rag-r{background:var(--red-bg);color:var(--red-fg)}
+  .rag-a{background:var(--amber-bg);color:var(--amber-fg)}
+  .rag-g{background:var(--green-bg);color:var(--green-fg)}
+  .rag-na{background:#f1f1f1;color:#aaa;font-weight:400;font-size:12px}
+
+  /* GAP LIST */
+  .gap-list{list-style:none;margin:0;padding:0}
+  .gap-list li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13.5px}
+  .gap-list li:last-child{border-bottom:none}
+  .gap-icon{flex-shrink:0;font-size:16px}
+  .gap-desc{color:var(--slate)}
+  .gap-desc strong{color:var(--navy)}
+
+  /* BUTTONS */
+  .btn-primary{appearance:none;background:var(--sap);border:none;color:#fff;border-radius:4px;padding:10px 22px;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .15s}
+  .btn-primary:hover{background:#005bbf}
+  .btn-outline{appearance:none;background:transparent;border:1.5px solid var(--sap);color:var(--sap);border-radius:4px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s}
+  .btn-outline:hover{background:var(--sap);color:#fff}
+  .btn-teal{appearance:none;background:var(--teal);border:none;color:#fff;border-radius:4px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+  .btn-teal:hover{background:#00978b}
+  .actions-bar{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;padding:20px 0;border-top:1px solid var(--border)}
+  .section-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+  .section-card h2{font-size:16px;font-weight:700;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+  /* SCORE STRIP */
+  .score-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+  @media(max-width:700px){.score-strip{grid-template-columns:repeat(2,1fr)}}
+  .score-kpi{background:var(--bg);border-radius:8px;padding:12px 14px;border-left:3px solid var(--sap);text-align:center}
+  .score-kpi .n{font-size:22px;font-weight:700;color:var(--navy)}
+  .score-kpi .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="c-nav">
+  <div class="c-nav-inner">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="4" fill="#006FE6"/><text x="4" y="22" font-family="Arial" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/">Home</a>
+      <div class="c-nav-dropdown">
+        <a href="#" class="active">Platform</a>
+        <div class="c-nav-dropdown-menu">
+          <a href="/compass.html">Maturity Compass</a>
+          <a href="/benchmark.html">Peer Benchmark</a>
+          <a href="/module-deepdive.html" class="active">Module Deep-Dive</a>
+          <a href="/backlog.html">Agent Backlog</a>
+          <a href="/catalogue.html">Agent Catalogue</a>
+          <a href="/platform-fit.html">Platform Fit Wizard</a>
+          <a href="/utilities.html">Utilities Recommender</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a href="/compass-clients.html" class="btn-nav">Admin</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Tool 3 · Assess · Module Deep-Dive</div>
+    <h1>Which SAP modules are agent-ready today?</h1>
+    <p class="lede">Walk through 5–8 readiness questions per module across 5 dimensions: data accessibility, API coverage, platform version, change flexibility, and test environment. Get a RAG heatmap and gap list that feeds directly into the Agent Backlog Generator.</p>
+    <div class="hero-meta">
+      <span><span class="dot"></span>10 SAP modules</span>
+      <span><span class="dot" style="background:var(--gold)"></span>5 readiness dimensions</span>
+      <span><span class="dot" style="background:var(--coral)"></span>RAG heatmap output</span>
+      <span><span class="dot" style="background:#fff;opacity:.5"></span>Feeds Agent Backlog</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- STEP 1: SELECT MODULES -->
+  <div class="step-header">
+    <div class="step-num">1</div>
+    <div>
+      <div class="step-title">Select the modules in scope for your programme</div>
+      <div class="step-sub">Choose all modules your team will configure or has already deployed</div>
+    </div>
+  </div>
+
+  <div class="module-selector" id="module-selector">
+    <div class="mod-toggle selected" data-mod="isu" onclick="toggleModule(this)">
+      <div class="mod-icon">⚡</div>
+      <span class="mod-name">IS-U Core</span>
+      <span class="mod-code">IS-U / EDM / MDUS</span>
+    </div>
+    <div class="mod-toggle selected" data-mod="fica" onclick="toggleModule(this)">
+      <div class="mod-icon">💰</div>
+      <span class="mod-name">FI-CA</span>
+      <span class="mod-code">Collections / Dunning</span>
+    </div>
+    <div class="mod-toggle selected" data-mod="bpem" onclick="toggleModule(this)">
+      <div class="mod-icon">🔧</div>
+      <span class="mod-name">BPEM</span>
+      <span class="mod-code">Exception Mgmt</span>
+    </div>
+    <div class="mod-toggle selected" data-mod="cic" onclick="toggleModule(this)">
+      <div class="mod-icon">🎧</div>
+      <span class="mod-name">CIC / CRM</span>
+      <span class="mod-code">Customer Interaction</span>
+    </div>
+    <div class="mod-toggle" data-mod="mdg" onclick="toggleModule(this)">
+      <div class="mod-icon">🗄️</div>
+      <span class="mod-name">MDG / MDU</span>
+      <span class="mod-code">Master Data Gov.</span>
+    </div>
+    <div class="mod-toggle" data-mod="btp" onclick="toggleModule(this)">
+      <div class="mod-icon">☁️</div>
+      <span class="mod-name">SAP BTP</span>
+      <span class="mod-code">Integration Suite</span>
+    </div>
+    <div class="mod-toggle" data-mod="pm" onclick="toggleModule(this)">
+      <div class="mod-icon">🔩</div>
+      <span class="mod-name">Plant Maintenance</span>
+      <span class="mod-code">PM / EAM</span>
+    </div>
+    <div class="mod-toggle" data-mod="hr" onclick="toggleModule(this)">
+      <div class="mod-icon">👥</div>
+      <span class="mod-name">HCM / SuccessFactors</span>
+      <span class="mod-code">HR Processes</span>
+    </div>
+    <div class="mod-toggle" data-mod="s4fi" onclick="toggleModule(this)">
+      <div class="mod-icon">📊</div>
+      <span class="mod-name">S/4HANA Finance</span>
+      <span class="mod-code">FI / CO / GL</span>
+    </div>
+    <div class="mod-toggle" data-mod="mm" onclick="toggleModule(this)">
+      <div class="mod-icon">📦</div>
+      <span class="mod-name">MM / SCM</span>
+      <span class="mod-code">Procurement / Supply</span>
+    </div>
+  </div>
+
+  <!-- STEP 2: QUESTIONS -->
+  <div class="step-header">
+    <div class="step-num">2</div>
+    <div>
+      <div class="step-title">Rate readiness across 5 dimensions</div>
+      <div class="step-sub">Answer each question honestly — scores are used to rank agent opportunities in the Backlog Generator</div>
+    </div>
+  </div>
+
+  <div id="questions-container"></div>
+
+  <!-- STEP 3: RESULTS -->
+  <div class="step-header" id="results-header" style="display:none">
+    <div class="step-num">3</div>
+    <div>
+      <div class="step-title">Readiness Heatmap &amp; Gap Analysis</div>
+      <div class="step-sub">RAG scores per module per dimension — red = blocker, amber = risk, green = ready</div>
+    </div>
+  </div>
+
+  <div id="results-section" style="display:none">
+    <div class="section-card">
+      <h2>Module Readiness Overview</h2>
+      <div class="score-strip" id="score-strip"></div>
+      <div class="heatmap-wrap">
+        <table class="heatmap" id="heatmap-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Data Access</th>
+              <th>API Coverage</th>
+              <th>Platform Version</th>
+              <th>Change Flexibility</th>
+              <th>Test Environment</th>
+              <th>Overall</th>
+            </tr>
+          </thead>
+          <tbody id="heatmap-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2>🔴 Identified Gaps &amp; Blockers</h2>
+      <ul class="gap-list" id="gap-list"></ul>
+    </div>
+
+    <div class="actions-bar">
+      <button class="btn-primary" onclick="saveAndGoBacklog()">Save &amp; Build Agent Backlog →</button>
+      <button class="btn-teal" onclick="saveReadiness()">💾 Save Readiness Scores</button>
+      <button class="btn-outline" onclick="window.print()">🖨 Print Assessment</button>
+    </div>
+  </div>
+
+  <div style="margin-top:12px" id="run-btn-wrap">
+    <button class="btn-primary" onclick="runAssessment()">Generate Readiness Heatmap →</button>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────
+const DIMS = ['data','api','version','change','test'];
+const DIM_LABELS = ['Data Access','API Coverage','Platform Version','Change Flexibility','Test Environment'];
+const DIM_DESC = [
+  'CDS views, ABAP extractors, and data replication pipelines in place',
+  'BAPIs, BAdIs, OData, and RAP services available and documented',
+  'S/4HANA release level and IS-U add-on versions supported',
+  'Configuration scope and transport landscape flexibility',
+  'Sandbox or quality system for agent dry-run testing',
+];
+
+const MODULES = {
+  isu: {
+    label:'IS-U Core', icon:'⚡',
+    questions:[
+      { text:'EDM meter reading data is available via CDS views or RFC', dim:'data' },
+      { text:'ISU_EDM_EXCEPTION_HOOK and BAPI_METERMEASUREMENT_CHANGE are callable in your landscape', dim:'api' },
+      { text:'IS-U 6.0+ or S/4HANA Utilities 2022+ is installed', dim:'version' },
+      { text:'EDM configuration tables can be extended without basis risk', dim:'change' },
+      { text:'A QA client with real-volume meter reading data is available for agent testing', dim:'test' },
+      { text:'MR exception workload is measurable (e.g. exceptions per day, per route)', dim:'data' },
+    ]
+  },
+  fica: {
+    label:'FI-CA', icon:'💰',
+    questions:[
+      { text:'Contract account payment history is available via CDS (I_ContractAccountPaymentHistory)', dim:'data' },
+      { text:'FKK_DUNNING_TRIGGER BAdI and FKK_S_PPLAN_CREATE BAPI are available', dim:'api' },
+      { text:'FI-CA 6.0+ with dunning-by-business-partner is configured', dim:'version' },
+      { text:'Dunning configuration can be adjusted without full test cycle', dim:'change' },
+      { text:'Dunning test cases exist in QA with clear expected outcomes', dim:'test' },
+      { text:'Collections contact outcome data is logged and accessible', dim:'data' },
+      { text:'Payment plan creation, cancellation, and modification BAPIs are tested', dim:'api' },
+    ]
+  },
+  bpem: {
+    label:'BPEM', icon:'🔧',
+    questions:[
+      { text:'BPEM case data is queryable via I_BPEMCase CDS or RFC', dim:'data' },
+      { text:'EMMA_CASE_CHECK BAdI and BAPI_CASE_CLOSE/UPDATE are available', dim:'api' },
+      { text:'BPEM 6.0+ with case clustering and business process monitoring is active', dim:'version' },
+      { text:'New BPEM case types can be created without a change freeze', dim:'change' },
+      { text:'QA system has a representative volume of open BPEM cases', dim:'test' },
+      { text:'Case-to-agent routing rules are documented or configurable', dim:'change' },
+    ]
+  },
+  cic: {
+    label:'CIC / CRM', icon:'🎧',
+    questions:[
+      { text:'Account 360 view data is accessible via I_Account360 CDS or service call', dim:'data' },
+      { text:'ISU_CIC0_ADDON_REGISTER and ISU_LATEFEE_WAIVE are callable', dim:'api' },
+      { text:'CIC0 transaction or SAP CRM Service Interaction Center is deployed', dim:'version' },
+      { text:'CIC screen can be extended via BAdI or SAPUI5 embedding', dim:'change' },
+      { text:'CSR test scripts exist in QA for common interaction types', dim:'test' },
+      { text:'Interaction log (ISU_INTERACTION_LOG) records are structured and queryable', dim:'data' },
+    ]
+  },
+  mdg: {
+    label:'MDG / MDU', icon:'🗄️',
+    questions:[
+      { text:'Business partner master data is governed via MDG workflows', dim:'data' },
+      { text:'MDG-U APIs for address validation and data change requests are exposed', dim:'api' },
+      { text:'SAP MDG 9.2+ or MDU add-on is installed', dim:'version' },
+      { text:'MDG change request workflow can be triggered via API without UI', dim:'change' },
+      { text:'MDG QA client mirrors production data governance rules', dim:'test' },
+    ]
+  },
+  btp: {
+    label:'SAP BTP', icon:'☁️',
+    questions:[
+      { text:'SAP BTP Integration Suite is subscribed and integration flows are deployed', dim:'data' },
+      { text:'BTP AI Core service is provisioned and accessible from your landscape', dim:'api' },
+      { text:'BTP subaccount targets S/4HANA 2022+ or ECC 6.0 EhP8+', dim:'version' },
+      { text:'BTP CI/CD pipelines exist for transport and promotion', dim:'change' },
+      { text:'BTP sandbox environment with test credentials is available for agent dev', dim:'test' },
+      { text:'Event Mesh or Kafka bridge is configured for real-time event streaming', dim:'api' },
+    ]
+  },
+  pm: {
+    label:'Plant Maintenance', icon:'🔩',
+    questions:[
+      { text:'Equipment and functional location master data is accurate and CDS-queryable', dim:'data' },
+      { text:'Work order creation, scheduling, and closure BAPIs (IW31/IW41) are available', dim:'api' },
+      { text:'PM/EAM on S/4HANA 2022+ with predictive maintenance add-on', dim:'version' },
+      { text:'Maintenance plans can be adjusted by authorised agents without full approval chain', dim:'change' },
+      { text:'PM QA environment contains real equipment hierarchies for testing', dim:'test' },
+    ]
+  },
+  hr: {
+    label:'HCM / SuccessFactors', icon:'👥',
+    questions:[
+      { text:'Employee master data, org structure, and position management data is accessible', dim:'data' },
+      { text:'HR BAPIs for personnel actions, leave, and onboarding tasks are callable', dim:'api' },
+      { text:'SuccessFactors BizX or SAP HCM EhP8+ is deployed', dim:'version' },
+      { text:'HR workflows support API-initiated actions without requiring manager override per step', dim:'change' },
+      { text:'HR QA system contains anonymised employee records for end-to-end testing', dim:'test' },
+    ]
+  },
+  s4fi: {
+    label:'S/4HANA Finance', icon:'📊',
+    questions:[
+      { text:'GL entries, cost centre actuals, and open items are accessible via CDS', dim:'data' },
+      { text:'BAPI_ACC_DOCUMENT_POST, BAPI_ACC_GL_POSTING, and period-close RFCs are available', dim:'api' },
+      { text:'S/4HANA Finance 2022+ with Universal Journal is live', dim:'version' },
+      { text:'Month-end configuration can be updated without a SAP note cycle', dim:'change' },
+      { text:'Finance QA client has a representative period-close journal volume', dim:'test' },
+      { text:'Intercompany clearing and reconciliation rules are documented', dim:'data' },
+    ]
+  },
+  mm: {
+    label:'MM / SCM', icon:'📦',
+    questions:[
+      { text:'Purchase orders, GRs, and supplier invoice data is available via CDS', dim:'data' },
+      { text:'BAPI_PO_CHANGE, BAPI_GOODSMVT_CREATE, and BAPI_INCOMINGINVOICE_CREATE are callable', dim:'api' },
+      { text:'S/4HANA MM 2022+ or ECC 6.0 EhP7+ with MM-SRM is deployed', dim:'version' },
+      { text:'Procurement workflows support programmatic approval routing', dim:'change' },
+      { text:'MM QA has representative supplier and PO master data for testing', dim:'test' },
+    ]
+  },
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let selectedModules = [];
+let answers = {}; // { modId: { qIdx: scoreVal } }
+
+// ── INIT ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.mod-toggle.selected').forEach(el=>{
+  selectedModules.push(el.dataset.mod);
+});
+buildQuestions();
+
+function toggleModule(el){
+  el.classList.toggle('selected');
+  const mod = el.dataset.mod;
+  if(el.classList.contains('selected')){
+    if(!selectedModules.includes(mod)) selectedModules.push(mod);
+  } else {
+    selectedModules = selectedModules.filter(m=>m!==mod);
+  }
+  buildQuestions();
+}
+
+function buildQuestions(){
+  const c = document.getElementById('questions-container');
+  c.innerHTML = selectedModules.map(modId=>{
+    const mod = MODULES[modId];
+    if(!mod) return '';
+    if(!answers[modId]) answers[modId]={};
+    const isOpen = Object.keys(answers[modId]).length === 0;
+    return `
+    <div class="q-section" id="qs-${modId}">
+      <div class="q-section-header ${isOpen?'open':''}" onclick="toggleSection('${modId}',this)">
+        <h3>${mod.icon} ${mod.label}</h3>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="mod-status" id="status-${modId}">0/${mod.questions.length} answered</span>
+          <span class="chevron">▼</span>
+        </div>
+      </div>
+      <div class="q-section-body ${isOpen?'open':''}" id="qb-${modId}">
+        ${mod.questions.map((q,qi)=>`
+          <div class="q-row">
+            <div class="q-text">${q.text}<span class="q-dim">${DIM_LABELS[DIMS.indexOf(q.dim)]}</span></div>
+            <div class="q-options">
+              <span class="q-opt" data-val="0" onclick="selectOpt('${modId}',${qi},0,this)">0 — Not in place</span>
+              <span class="q-opt" data-val="1" onclick="selectOpt('${modId}',${qi},1,this)">1 — Partial / planned</span>
+              <span class="q-opt" data-val="2" onclick="selectOpt('${modId}',${qi},2,this)">2 — Mostly ready</span>
+              <span class="q-opt" data-val="3" onclick="selectOpt('${modId}',${qi},3,this)">3 — Fully ready</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSection(modId, headerEl){
+  headerEl.classList.toggle('open');
+  const body = document.getElementById('qb-'+modId);
+  body.classList.toggle('open');
+}
+
+function selectOpt(modId, qi, val, el){
+  // Deselect siblings
+  const row = el.closest('.q-row');
+  row.querySelectorAll('.q-opt').forEach(o=>{
+    o.classList.remove('selected-0','selected-1','selected-2','selected-3');
+  });
+  el.classList.add('selected-'+val);
+  if(!answers[modId]) answers[modId]={};
+  answers[modId][qi]=val;
+  updateStatus(modId);
+}
+
+function updateStatus(modId){
+  const mod = MODULES[modId];
+  const count = Object.keys(answers[modId]||{}).length;
+  const el = document.getElementById('status-'+modId);
+  if(el) el.textContent = `${count}/${mod.questions.length} answered`;
+}
+
+// ── ASSESSMENT ──────────────────────────────────────────────────────────
+function runAssessment(){
+  if(selectedModules.length === 0){ alert('Please select at least one module.'); return; }
+
+  document.getElementById('results-header').style.display='flex';
+  document.getElementById('results-section').style.display='block';
+  document.getElementById('run-btn-wrap').style.display='none';
+  document.getElementById('results-section').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Compute per-module per-dimension scores
+  const modScores = {}; // { modId: { dim: 0-3, overall: 0-3 } }
+  selectedModules.forEach(modId=>{
+    const mod = MODULES[modId];
+    const dimSums = {};
+    const dimCounts = {};
+    DIMS.forEach(d=>{ dimSums[d]=0; dimCounts[d]=0; });
+    mod.questions.forEach((q,qi)=>{
+      const v = (answers[modId]||{})[qi];
+      if(v !== undefined){
+        dimSums[q.dim] += v;
+        dimCounts[q.dim]++;
+      }
+    });
+    const dimAvgs = {};
+    let overallSum=0, overallCount=0;
+    DIMS.forEach(d=>{
+      if(dimCounts[d]>0){
+        dimAvgs[d]=dimSums[d]/dimCounts[d];
+        overallSum+=dimAvgs[d]; overallCount++;
+      } else { dimAvgs[d]=null; }
+    });
+    modScores[modId]={ dims:dimAvgs, overall: overallCount>0 ? overallSum/overallCount : null };
+  });
+
+  // KPI strip
+  const allOveralls = selectedModules.map(m=>modScores[m].overall).filter(v=>v!==null);
+  const avgOverall = allOveralls.length ? allOveralls.reduce((a,b)=>a+b,0)/allOveralls.length : 0;
+  const redCount   = selectedModules.filter(m=>modScores[m].overall!==null && modScores[m].overall<1).length;
+  const greenCount = selectedModules.filter(m=>modScores[m].overall!==null && modScores[m].overall>=2).length;
+  document.getElementById('score-strip').innerHTML = `
+    <div class="score-kpi"><div class="n">${selectedModules.length}</div><div class="l">Modules In Scope</div></div>
+    <div class="score-kpi" style="border-left-color:var(--gold)"><div class="n">${(avgOverall/3*5).toFixed(1)}/5</div><div class="l">Avg Readiness</div></div>
+    <div class="score-kpi" style="border-left-color:var(--coral)"><div class="n">${redCount}</div><div class="l">🔴 Blockers</div></div>
+    <div class="score-kpi" style="border-left-color:var(--teal)"><div class="n">${greenCount}</div><div class="l">🟢 Ready</div></div>
+    <div class="score-kpi" style="border-left-color:var(--navy)"><div class="n">${selectedModules.length-redCount-greenCount}</div><div class="l">🟡 Partial</div></div>
+  `;
+
+  // Heatmap
+  function rag(val){
+    if(val===null) return '<td class="rag-na">N/A</td>';
+    if(val<1)  return `<td class="rag-r">🔴 ${val.toFixed(1)}</td>`;
+    if(val<2)  return `<td class="rag-a">🟡 ${val.toFixed(1)}</td>`;
+    return           `<td class="rag-g">🟢 ${val.toFixed(1)}</td>`;
+  }
+  document.getElementById('heatmap-body').innerHTML = selectedModules.map(modId=>{
+    const mod = MODULES[modId];
+    const sc = modScores[modId];
+    return `<tr>
+      <td>${mod.icon} ${mod.label}</td>
+      ${DIMS.map(d=>rag(sc.dims[d])).join('')}
+      ${rag(sc.overall)}
+    </tr>`;
+  }).join('');
+
+  // Gap list
+  const gaps = [];
+  selectedModules.forEach(modId=>{
+    const mod = MODULES[modId];
+    const sc = modScores[modId];
+    DIMS.forEach((d,di)=>{
+      if(sc.dims[d]!==null && sc.dims[d]<1){
+        gaps.push({ sev:'🔴', text:`<strong>${mod.label}</strong> — <strong>${DIM_LABELS[di]}</strong>: Score ${sc.dims[d].toFixed(1)}/3. ${DIM_DESC[di]} — this is a hard blocker for agent deployment.` });
+      } else if(sc.dims[d]!==null && sc.dims[d]<2){
+        gaps.push({ sev:'🟡', text:`<strong>${mod.label}</strong> — <strong>${DIM_LABELS[di]}</strong>: Score ${sc.dims[d].toFixed(1)}/3. Partial readiness — mitigate before go-live.` });
+      }
+    });
+  });
+  if(gaps.length===0) gaps.push({ sev:'🟢', text:'No critical gaps detected. All assessed dimensions are at ≥2.0 readiness.' });
+  document.getElementById('gap-list').innerHTML = gaps.map(g=>`
+    <li><span class="gap-icon">${g.sev}</span><span class="gap-desc">${g.text}</span></li>
+  `).join('');
+
+  // Save to localStorage for backlog
+  saveReadiness(true, modScores);
+}
+
+function saveReadiness(silent, modScores){
+  const payload = {};
+  selectedModules.forEach(modId=>{
+    payload[modId] = modScores ? modScores[modId] : { dims:{}, overall:null };
+  });
+  localStorage.setItem('asap_deepdive_readiness', JSON.stringify(payload));
+  localStorage.setItem('asap_selected_modules', JSON.stringify(selectedModules));
+  if(!silent) alert('Readiness scores saved. Open Agent Backlog Generator to continue.');
+}
+
+function saveAndGoBacklog(){
+  // Trigger runAssessment to ensure scores are saved, then navigate
+  localStorage.setItem('asap_selected_modules', JSON.stringify(selectedModules));
+  window.location.href = '/backlog.html';
+}
+</script>
+</body>
+</html>

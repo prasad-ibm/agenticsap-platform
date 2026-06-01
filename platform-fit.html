@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Platform Fit Wizard — AgenticSAP</title>
+<meta name="description" content="Answer 6 questions and get a scored platform recommendation: Joule + AI Core, BTP + Azure OpenAI, open-source, or third-party. Includes architecture diagram and readiness checklist." />
+<style>
+  :root {
+    --navy:#0A1F44; --navy-2:#0F2A5C;
+    --sap:#006FE6; --teal:#00B4A6;
+    --coral:#FF6B4A; --gold:#F5B506;
+    --slate:#4A5568; --muted:#8B95A8;
+    --border:#E2E7F0; --card:#FFFFFF; --bg:#F7F9FC;
+    --shadow:0 4px 20px rgba(10,31,68,.06); --radius:12px; --maxw:1100px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--navy);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--sap);text-decoration:none}
+
+  /* NAV */
+  .c-nav{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid #e0e0e0;height:48px;display:flex;align-items:center}
+  .c-nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;width:100%}
+  .c-nav-brand{display:flex;align-items:center;gap:10px;font-size:0.875rem;font-weight:600;color:#161616;text-decoration:none}
+  .c-nav-brand:hover{color:#161616;text-decoration:none}
+  .c-nav-links{display:flex;align-items:center;gap:0}
+  .c-nav-links > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-links > a:hover{background:#f4f4f4;color:#161616}
+  .c-nav-links > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown{position:relative;display:flex;align-items:center;height:48px}
+  .c-nav-dropdown > a{display:flex;align-items:center;height:48px;padding:0 1rem;font-size:0.875rem;color:#525252;text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .c-nav-dropdown > a.active{color:#161616;border-bottom-color:#0f62fe}
+  .c-nav-dropdown > a::after{content:'';display:inline-block;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid currentColor;margin-left:5px;opacity:.55}
+  .c-nav-dropdown:hover > a::after{opacity:.85}
+  .c-nav-dropdown-menu{position:absolute;top:48px;left:0;display:flex;flex-direction:column;visibility:hidden;opacity:0;pointer-events:none;background:#fff;border:1px solid #e0e0e0;border-top:2px solid #0f62fe;min-width:210px;z-index:1010;box-shadow:0 4px 12px rgba(0,0,0,.12);transition:opacity .12s ease}
+  .c-nav-dropdown:hover .c-nav-dropdown-menu{visibility:visible;opacity:1;pointer-events:auto}
+  .c-nav-dropdown-menu a{display:flex!important;align-items:center!important;height:40px!important;padding:0 1rem!important;border-bottom:1px solid #e0e0e0!important;border-left:2px solid transparent!important;font-size:.8125rem!important;white-space:nowrap!important;color:#525252;text-decoration:none}
+  .c-nav-dropdown-menu a:last-child{border-bottom:none!important}
+  .c-nav-dropdown-menu a:hover{background:#f4f4f4;border-left-color:#0f62fe!important;color:#161616}
+  .c-nav-dropdown-menu a.active{color:#0f62fe;background:#edf5ff;border-left-color:#0f62fe!important}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .btn-nav{display:inline-flex;align-items:center;padding:0 1rem;height:32px;font-size:0.8125rem;font-weight:600;text-decoration:none;background:var(--sap);color:#fff;border-radius:4px}
+  .btn-nav:hover{background:#005bbf;text-decoration:none;color:#fff}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#143b87 100%);color:#fff;padding:64px 24px 52px}
+  .hero-inner{max-width:var(--maxw);margin:0 auto}
+  .eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700;margin-bottom:14px}
+  .hero h1{font-size:clamp(26px,3.6vw,40px);line-height:1.15;margin:0 0 12px;font-weight:700}
+  .hero p.lede{color:#cfd9ee;max-width:780px;font-size:17px;margin:0 0 22px}
+  .hero-meta{display:flex;gap:18px;flex-wrap:wrap;color:#b9c5e0;font-size:13px}
+  .hero-meta span{display:inline-flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block}
+
+  /* WIZARD */
+  .wizard-wrap{max-width:var(--maxw);margin:0 auto;padding:36px 24px 64px}
+
+  /* PROGRESS BAR */
+  .progress-bar{display:flex;align-items:center;gap:0;margin-bottom:36px}
+  .progress-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+  .progress-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+  .progress-step.done::after,.progress-step.current::after{background:var(--sap)}
+  .ps-circle{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);z-index:1;position:relative;transition:all .2s}
+  .progress-step.done .ps-circle{background:var(--sap);border-color:var(--sap);color:#fff}
+  .progress-step.current .ps-circle{background:var(--sap);border-color:var(--sap);color:#fff;box-shadow:0 0 0 4px rgba(0,111,230,.2)}
+  .ps-label{font-size:11px;color:var(--muted);margin-top:6px;text-align:center;white-space:nowrap}
+  .progress-step.current .ps-label{color:var(--navy);font-weight:600}
+
+  /* QUESTION CARD */
+  .q-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 32px;max-width:700px;margin:0 auto}
+  .q-eyebrow{font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+  .q-title{font-size:22px;font-weight:700;color:var(--navy);margin:0 0 8px;line-height:1.3}
+  .q-subtitle{font-size:14px;color:var(--slate);margin:0 0 24px}
+  .option-list{display:flex;flex-direction:column;gap:10px}
+  .option-item{border:2px solid var(--border);border-radius:10px;padding:14px 18px;cursor:pointer;transition:border-color .15s,background .15s;display:flex;align-items:flex-start;gap:14px}
+  .option-item:hover{border-color:var(--sap);background:#f0f7ff}
+  .option-item.selected{border-color:var(--sap);background:#edf5ff}
+  .option-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;transition:border-color .15s;position:relative}
+  .option-item.selected .option-radio{border-color:var(--sap)}
+  .option-item.selected .option-radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--sap)}
+  .option-content{}
+  .option-label{font-weight:600;color:var(--navy);font-size:14px}
+  .option-desc{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .q-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
+  .btn-back{appearance:none;background:transparent;border:1.5px solid var(--border);color:var(--slate);border-radius:4px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
+  .btn-back:hover{border-color:var(--navy);color:var(--navy)}
+  .btn-next{appearance:none;background:var(--sap);border:none;color:#fff;border-radius:4px;padding:9px 22px;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .15s}
+  .btn-next:hover{background:#005bbf}
+  .btn-next:disabled{background:var(--border);cursor:not-allowed}
+  .q-counter{font-size:13px;color:var(--muted)}
+
+  /* RESULT */
+  .result-wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px 64px;display:none}
+  .result-hero{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 32px;margin-bottom:24px}
+  .result-eyebrow{font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+  .result-title{font-size:24px;font-weight:700;color:var(--navy);margin:0 0 6px}
+  .result-sub{font-size:14px;color:var(--slate);margin:0 0 20px;max-width:640px}
+  .result-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+  @media(max-width:800px){.result-grid{grid-template-columns:repeat(2,1fr)}}
+  .platform-card{border:2px solid var(--border);border-radius:10px;padding:14px;text-align:center;transition:border-color .2s}
+  .platform-card.winner{border-color:var(--sap);background:#edf5ff}
+  .platform-card .pname{font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:6px;line-height:1.3}
+  .platform-card .picon{font-size:20px;margin-bottom:6px}
+  .score-ring{width:52px;height:52px;margin:0 auto 6px;position:relative}
+  .score-ring svg{transform:rotate(-90deg)}
+  .score-ring .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--navy)}
+  .winner-badge{display:inline-block;background:var(--sap);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:4px}
+
+  /* ARCH DIAGRAM */
+  .arch-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:24px}
+  .arch-wrap h2{font-size:16px;font-weight:700;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+  .arch-layers{display:flex;flex-direction:column;gap:10px}
+  .arch-layer{border-radius:8px;padding:14px 18px}
+  .arch-layer-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;opacity:.7}
+  .arch-comps{display:flex;gap:8px;flex-wrap:wrap}
+  .arch-comp{padding:6px 12px;border-radius:6px;font-size:12.5px;font-weight:600;background:rgba(255,255,255,.65);border:1px solid rgba(0,0,0,.08)}
+  .layer-sap{background:#E6F1FE}
+  .layer-btp{background:#E0F7F4}
+  .layer-ai{background:#FDF3D1}
+  .layer-data{background:#FFF0EB}
+  .layer-out{background:#F0F4FF}
+  .arch-arrows{display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 0;color:var(--muted);font-size:12px}
+
+  /* CHECKLIST */
+  .checklist-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:24px}
+  .checklist-wrap h2{font-size:16px;font-weight:700;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+  .checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:600px){.checklist{grid-template-columns:1fr}}
+  .checklist li{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--bg);border-radius:6px;font-size:13px}
+  .checklist li .ci-icon{flex-shrink:0;font-size:15px}
+  .checklist li .ci-text{color:var(--slate);line-height:1.4}
+  .checklist li.blocker{background:var(--bg);border-left:3px solid var(--coral)}
+  .checklist li.action{background:var(--bg);border-left:3px solid var(--gold)}
+  .checklist li.done{background:var(--bg);border-left:3px solid var(--teal)}
+
+  /* ACTIONS */
+  .result-actions{display:flex;gap:12px;flex-wrap:wrap}
+  .btn-primary{appearance:none;background:var(--sap);border:none;color:#fff;border-radius:4px;padding:10px 22px;font-size:13.5px;font-weight:600;cursor:pointer}
+  .btn-primary:hover{background:#005bbf}
+  .btn-teal{appearance:none;background:var(--teal);border:none;color:#fff;border-radius:4px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-teal:hover{background:#00978b}
+  .btn-outline-r{appearance:none;background:transparent;border:1.5px solid var(--sap);color:var(--sap);border-radius:4px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-outline-r:hover{background:var(--sap);color:#fff}
+
+  @media print{
+    .c-nav,.hero,.wizard-wrap,.result-actions,.btn-primary,.btn-teal,.btn-outline-r{display:none!important}
+    .result-wrap{display:block!important;padding:0}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="c-nav">
+  <div class="c-nav-inner">
+    <a href="/" class="c-nav-brand">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="4" fill="#006FE6"/><text x="4" y="22" font-family="Arial" font-size="12" font-weight="700" fill="white">SAP</text></svg>
+      AgenticSAP
+    </a>
+    <div class="c-nav-links">
+      <a href="/">Home</a>
+      <div class="c-nav-dropdown">
+        <a href="#" class="active">Platform</a>
+        <div class="c-nav-dropdown-menu">
+          <a href="/compass.html">Maturity Compass</a>
+          <a href="/benchmark.html">Peer Benchmark</a>
+          <a href="/module-deepdive.html">Module Deep-Dive</a>
+          <a href="/backlog.html">Agent Backlog</a>
+          <a href="/catalogue.html">Agent Catalogue</a>
+          <a href="/platform-fit.html" class="active">Platform Fit Wizard</a>
+          <a href="/utilities.html">Utilities Recommender</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a href="/compass-clients.html" class="btn-nav">Admin</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Tool 6 · Fit · Platform Fit Wizard</div>
+    <h1>Which AI platform is right for your SAP landscape?</h1>
+    <p class="lede">Answer 6 questions about your SAP version, BTP subscription, cloud strategy, AI investment, governance posture, and timeline. Get a scored recommendation across 5 platform paths — with an architecture diagram and a 12-item readiness checklist.</p>
+    <div class="hero-meta">
+      <span><span class="dot"></span>6 scored questions</span>
+      <span><span class="dot" style="background:var(--gold)"></span>5 platform paths</span>
+      <span><span class="dot" style="background:var(--coral)"></span>Architecture diagram</span>
+      <span><span class="dot" style="background:#fff;opacity:.5"></span>Readiness checklist</span>
+    </div>
+  </div>
+</header>
+
+<!-- WIZARD -->
+<div class="wizard-wrap" id="wizard-wrap">
+  <!-- PROGRESS -->
+  <div class="progress-bar" id="progress-bar"></div>
+
+  <!-- QUESTION CARD -->
+  <div class="q-card" id="q-card">
+    <div class="q-eyebrow" id="q-eyebrow"></div>
+    <div class="q-title" id="q-title"></div>
+    <div class="q-subtitle" id="q-subtitle"></div>
+    <div class="option-list" id="option-list"></div>
+    <div class="q-nav">
+      <button class="btn-back" id="btn-back" onclick="prevQ()">← Back</button>
+      <span class="q-counter" id="q-counter"></span>
+      <button class="btn-next" id="btn-next" onclick="nextQ()" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="result-wrap" id="result-wrap">
+  <div class="result-hero">
+    <div class="result-eyebrow">Platform Fit Wizard · Your Recommendation</div>
+    <h1 class="result-title" id="result-title"></h1>
+    <p class="result-sub" id="result-sub"></p>
+    <div class="result-grid" id="result-grid"></div>
+    <div class="result-actions">
+      <button class="btn-primary" onclick="window.print()">🖨 Print / Export PDF</button>
+      <a href="/backlog.html" class="btn-teal">Build Agent Backlog →</a>
+      <button class="btn-outline-r" onclick="resetWizard()">↺ Retake Wizard</button>
+    </div>
+  </div>
+
+  <div class="arch-wrap">
+    <h2>Recommended Architecture — <span id="arch-title"></span></h2>
+    <div class="arch-layers" id="arch-layers"></div>
+  </div>
+
+  <div class="checklist-wrap">
+    <h2>Your 12-Item Readiness Checklist</h2>
+    <ul class="checklist" id="checklist"></ul>
+  </div>
+</div>
+
+<script>
+// ── QUESTIONS ──────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    eyebrow:'Question 1 of 6 · SAP Landscape',
+    title:'What is your current SAP deployment?',
+    subtitle:'This determines which native AI capabilities are available without additional infrastructure.',
+    key:'sap_version',
+    options:[
+      { label:'S/4HANA Cloud Public Edition (GROW)', desc:'Latest SAP managed cloud — Joule natively embedded, AI Core included.',
+        scores:{ joule:5, aicore_only:3, btp_azure:2, btp_oss:1, third_party:1 } },
+      { label:'S/4HANA Cloud Private Edition or On-Prem 2022+', desc:'Modern S/4 — BTP connectivity straightforward, Joule available via BTP.',
+        scores:{ joule:4, aicore_only:4, btp_azure:3, btp_oss:2, third_party:2 } },
+      { label:'S/4HANA On-Prem 2020 or earlier / ECC 6.0', desc:'Legacy landscape — BTP integration layer required; some Joule features unavailable.',
+        scores:{ joule:2, aicore_only:3, btp_azure:4, btp_oss:3, third_party:3 } },
+      { label:'SAP ECC 6.0 with IS-U/IS-H add-ons (no S/4 roadmap yet)', desc:'Industry-specific core — BTP or third-party path required; Joule not viable.',
+        scores:{ joule:0, aicore_only:2, btp_azure:4, btp_oss:3, third_party:4 } },
+    ]
+  },
+  {
+    eyebrow:'Question 2 of 6 · BTP Subscription',
+    title:'What is your current SAP BTP footprint?',
+    subtitle:'BTP is the integration and AI platform for most SAP AI paths.',
+    key:'btp_subscription',
+    options:[
+      { label:'BTP Enterprise Agreement — Integration Suite + AI Core subscribed',
+        desc:'Full BTP capability available. AI Core is ready for agent deployment.',
+        scores:{ joule:5, aicore_only:5, btp_azure:4, btp_oss:3, third_party:2 } },
+      { label:'BTP Integration Suite subscribed — AI Core not yet subscribed',
+        desc:'Integration layer ready; AI Core subscription needed (€/month add-on).',
+        scores:{ joule:4, aicore_only:3, btp_azure:4, btp_oss:3, third_party:2 } },
+      { label:'BTP pilot or trial only',
+        desc:'BTP path needs EA or CPEA contract before production use.',
+        scores:{ joule:2, aicore_only:2, btp_azure:3, btp_oss:3, third_party:4 } },
+      { label:'No BTP subscription — Azure/AWS native preferred',
+        desc:'Non-BTP path required; BTP-native options score lower.',
+        scores:{ joule:0, aicore_only:1, btp_azure:5, btp_oss:3, third_party:4 } },
+    ]
+  },
+  {
+    eyebrow:'Question 3 of 6 · Data Platform',
+    title:'Where does your enterprise data platform live?',
+    subtitle:'Agent memory, RAG context, and analytics grounding require a data layer choice.',
+    key:'data_platform',
+    options:[
+      { label:'SAP Datasphere or SAP Analytics Cloud is the analytics hub',
+        desc:'Native SAP data path aligns best with Joule and AI Core.',
+        scores:{ joule:5, aicore_only:4, btp_azure:2, btp_oss:2, third_party:2 } },
+      { label:'Azure Synapse / Microsoft Fabric or Databricks on Azure',
+        desc:'Azure-native data estate favours BTP + Azure OpenAI path.',
+        scores:{ joule:2, aicore_only:2, btp_azure:5, btp_oss:3, third_party:3 } },
+      { label:'AWS (Redshift, SageMaker, Bedrock)',
+        desc:'AWS-native estate suits open-source or third-party connector paths.',
+        scores:{ joule:1, aicore_only:2, btp_azure:2, btp_oss:4, third_party:4 } },
+      { label:'On-premises data warehouse (BW on HANA or similar)',
+        desc:'On-prem data — BTP integration layer bridges to any AI platform.',
+        scores:{ joule:3, aicore_only:3, btp_azure:3, btp_oss:3, third_party:3 } },
+    ]
+  },
+  {
+    eyebrow:'Question 4 of 6 · AI Investment',
+    title:'What is your current AI platform investment?',
+    subtitle:'Existing AI infrastructure affects which path adds most marginal value.',
+    key:'ai_investment',
+    options:[
+      { label:'SAP AI Core is already licensed or in the BTP EA bundle',
+        desc:'Path of least resistance — build on existing AI Core investment.',
+        scores:{ joule:4, aicore_only:5, btp_azure:2, btp_oss:2, third_party:1 } },
+      { label:'Microsoft Azure OpenAI Service is active and in use',
+        desc:'Azure AI already adopted — BTP + Azure OpenAI extends it to SAP.',
+        scores:{ joule:2, aicore_only:2, btp_azure:5, btp_oss:3, third_party:2 } },
+      { label:'Open-source models (LLaMA, Mistral) on internal infrastructure',
+        desc:'Open-source preference — BTP + OSS deployment maintains model control.',
+        scores:{ joule:1, aicore_only:2, btp_azure:2, btp_oss:5, third_party:3 } },
+      { label:'Third-party AI vendor already selected (not SAP or Microsoft)',
+        desc:'Existing vendor — third-party connector path is lowest-friction.',
+        scores:{ joule:1, aicore_only:1, btp_azure:2, btp_oss:3, third_party:5 } },
+    ]
+  },
+  {
+    eyebrow:'Question 5 of 6 · Governance & Sovereignty',
+    title:'What are your data governance and sovereignty requirements?',
+    subtitle:'Some paths require data to stay within certain boundaries.',
+    key:'governance',
+    options:[
+      { label:'Data must remain in SAP-managed infrastructure only',
+        desc:'Joule + AI Core keeps everything within SAP\'s compliance boundary.',
+        scores:{ joule:5, aicore_only:4, btp_azure:2, btp_oss:2, third_party:1 } },
+      { label:'Microsoft Azure region compliance is acceptable (EU Data Boundary etc.)',
+        desc:'Azure sovereign regions satisfy most European compliance requirements.',
+        scores:{ joule:3, aicore_only:3, btp_azure:5, btp_oss:3, third_party:2 } },
+      { label:'On-premises or private cloud only — no public LLM API calls',
+        desc:'Strict sovereignty — open-source self-hosted models required.',
+        scores:{ joule:1, aicore_only:2, btp_azure:1, btp_oss:5, third_party:3 } },
+      { label:'Flexible — performance and cost are the primary criteria',
+        desc:'No hard constraints — best-fit recommendation without restriction.',
+        scores:{ joule:4, aicore_only:4, btp_azure:4, btp_oss:4, third_party:4 } },
+    ]
+  },
+  {
+    eyebrow:'Question 6 of 6 · Timeline',
+    title:'What is your target time-to-first-agent?',
+    subtitle:'Some paths require longer procurement, integration, or model tuning cycles.',
+    key:'timeline',
+    options:[
+      { label:'< 3 months — first agent in production this quarter',
+        desc:'Shortest path: Joule preview features or AI Core with pre-built skill.',
+        scores:{ joule:5, aicore_only:4, btp_azure:3, btp_oss:2, third_party:3 } },
+      { label:'3–6 months — one delivery wave this year',
+        desc:'Standard sprint cadence — most paths viable with good readiness.',
+        scores:{ joule:4, aicore_only:5, btp_azure:4, btp_oss:4, third_party:3 } },
+      { label:'6–12 months — programme planned for next year',
+        desc:'Longer timeline allows procurement, integration, and tuning.',
+        scores:{ joule:3, aicore_only:4, btp_azure:5, btp_oss:5, third_party:4 } },
+      { label:'12+ months — multi-year transformation programme',
+        desc:'Full platform evaluation justifiable; total cost of ownership drives choice.',
+        scores:{ joule:3, aicore_only:3, btp_azure:5, btp_oss:5, third_party:5 } },
+    ]
+  },
+];
+
+// ── PLATFORMS ──────────────────────────────────────────────────────────────
+const PLATFORMS = {
+  joule: {
+    name:'Joule + AI Core + GenAI Hub',
+    icon:'🏆',
+    short:'Full SAP native stack',
+    desc:'Deepest SAP context awareness, embedded in SAP UI, governed by SAP data boundary. Best for organisations on S/4HANA Cloud with BTP EA.',
+    arch: {
+      sap: ['S/4HANA Cloud', 'IS-U Core', 'FI-CA', 'BPEM', 'BW/4HANA'],
+      btp: ['BTP Integration Suite', 'SAP AI Core', 'GenAI Hub', 'BTP Workflow Management'],
+      ai:  ['Joule Foundation Model', 'SAP HANA Vector Engine', 'SAP AI Launchpad'],
+      data:['SAP Datasphere', 'SAP Analytics Cloud', 'HANA Cloud'],
+      out: ['Fiori UX', 'SAP Build', 'CIC0 / Joule Sidebar', 'MS Teams connector'],
+    },
+    checklist:[
+      { type:'done',    text:'S/4HANA Cloud or S/4HANA 2022+ is the core ERP' },
+      { type:'done',    text:'BTP Enterprise Agreement or CPEA contract in place' },
+      { type:'action',  text:'Subscribe AI Core service in BTP subaccount' },
+      { type:'action',  text:'Subscribe GenAI Hub and configure model deployment' },
+      { type:'action',  text:'Enable Joule in SAP Build or Fiori launchpad' },
+      { type:'action',  text:'Configure BTP Integration Suite iFlow for agent data access' },
+      { type:'blocker', text:'Validate SAP data boundary compliance for your jurisdiction' },
+      { type:'action',  text:'Provision SAP Datasphere or HANA Cloud for vector store' },
+      { type:'action',  text:'Define authorisation scope for Joule user access' },
+      { type:'action',  text:'Build eval golden set for first agent use case (≥500 examples)' },
+      { type:'action',  text:'Align SAP CoE and Basis on transport strategy for AI artefacts' },
+      { type:'blocker', text:'Confirm SAP AI Core model access (GPT-4o via GenAI Hub or HANA ML)' },
+    ],
+  },
+  aicore_only: {
+    name:'SAP AI Core (standalone)',
+    icon:'🔵',
+    short:'BTP AI without Joule',
+    desc:'AI Core as the model serving layer with BTP Integration Suite for SAP connectivity. Works with S/4HANA On-Prem, ECC, and IS-U landscapes.',
+    arch: {
+      sap: ['ECC 6.0 + IS-U', 'S/4HANA On-Prem', 'FI-CA', 'BPEM', 'RFC / BAPI layer'],
+      btp: ['BTP Integration Suite', 'SAP AI Core', 'BTP Event Mesh', 'BTP Workflow'],
+      ai:  ['AI Core Model Serving (GPT-4o or HANA ML)', 'Prompt Engineering Studio', 'AI Launchpad'],
+      data:['SAP HANA Cloud (vector store)', 'BTP Data Ingestion', 'CDS view extraction'],
+      out: ['Custom SAPUI5 / Fiori extension', 'BTP Build portal', 'Email / Teams notification'],
+    },
+    checklist:[
+      { type:'action',  text:'Subscribe SAP AI Core in BTP — confirm licence model (CPEA or Pay-per-use)' },
+      { type:'action',  text:'Deploy AI Core runtime and configure resource groups' },
+      { type:'done',    text:'BTP Integration Suite iFlows for SAP BAPI/RFC connectivity' },
+      { type:'action',  text:'Configure BTP Event Mesh for real-time event consumption' },
+      { type:'action',  text:'Provision HANA Cloud for vector store (RAG context)' },
+      { type:'action',  text:'Create CDS views for each agent data domain (meter, billing, etc.)' },
+      { type:'blocker', text:'Validate RFC/BAPI whitelist with Basis — no open RFC ports' },
+      { type:'action',  text:'Build SAPUI5 agent sidebar extension per SAP transaction' },
+      { type:'action',  text:'Define AI Core deployment pipeline (training + serving lifecycle)' },
+      { type:'action',  text:'Build eval golden set for first agent (≥500 labelled examples)' },
+      { type:'action',  text:'Set up AI Launchpad monitoring for model drift and cost' },
+      { type:'blocker', text:'Confirm network route from BTP to on-prem SAP (Cloud Connector required)' },
+    ],
+  },
+  btp_azure: {
+    name:'BTP + Azure OpenAI Service',
+    icon:'☁️',
+    short:'SAP integration + Microsoft AI',
+    desc:'Uses BTP as the SAP integration layer and Azure OpenAI as the model backend. Ideal for organisations with Microsoft 365 and Azure already in use.',
+    arch: {
+      sap: ['S/4HANA or ECC', 'IS-U / FI-CA', 'RFC / OData / BAdI', 'BTP Cloud Connector'],
+      btp: ['BTP Integration Suite', 'BTP Event Mesh', 'BTP Workflow Management'],
+      ai:  ['Azure OpenAI Service (GPT-4o)', 'Azure AI Search (vector)', 'Azure Logic Apps or Functions'],
+      data:['Azure Synapse / Fabric', 'Azure Blob (document store)', 'BTP Data Ingestion pipeline'],
+      out: ['Power Automate / Power Apps', 'MS Teams Adaptive Cards', 'Custom web portal'],
+    },
+    checklist:[
+      { type:'done',    text:'Azure OpenAI Service active in an approved Azure subscription' },
+      { type:'action',  text:'Subscribe BTP Integration Suite for SAP-to-Azure connectivity' },
+      { type:'action',  text:'Configure BTP Cloud Connector for on-prem SAP RFC access' },
+      { type:'action',  text:'Deploy Azure AI Search with SAP data index for RAG' },
+      { type:'action',  text:'Configure Azure Private Endpoint for OpenAI (data residency)' },
+      { type:'blocker', text:'Validate Microsoft EU Data Boundary compliance for SAP data' },
+      { type:'action',  text:'Build Power Automate flow or Azure Function for agent orchestration' },
+      { type:'action',  text:'Create BTP iFlow for BAPI/RFC → Azure event bridge' },
+      { type:'action',  text:'Set up Azure Monitor for model usage, latency, and cost' },
+      { type:'action',  text:'Build eval golden set (≥500 examples) in Azure AI Studio' },
+      { type:'action',  text:'Align SAP Basis on Cloud Connector port whitelist' },
+      { type:'action',  text:'Design Azure RBAC model for agent service principal access' },
+    ],
+  },
+  btp_oss: {
+    name:'BTP + Open-Source Models',
+    icon:'🔓',
+    short:'Sovereign AI on private infra',
+    desc:'Self-hosted open-source LLMs (LLaMA 3, Mistral) on BTP or private cloud. Full data sovereignty. Higher operational overhead — suitable for strict compliance environments.',
+    arch: {
+      sap: ['S/4HANA or ECC', 'IS-U / FI-CA', 'RFC / BAdI / OData', 'BTP Cloud Connector'],
+      btp: ['BTP Integration Suite', 'BTP Kyma Runtime (container hosting)', 'BTP Event Mesh'],
+      ai:  ['LLaMA 3 / Mistral 7B (self-hosted on Kyma or on-prem GPU)', 'vLLM inference server', 'LangChain / LlamaIndex orchestration'],
+      data:['ChromaDB or pgvector (self-hosted)', 'HANA Cloud (optional)', 'On-prem document store'],
+      out: ['Custom SAPUI5 extension', 'BTP Build portal', 'Internal Slack / Teams bot'],
+    },
+    checklist:[
+      { type:'action',  text:'Procure GPU infrastructure (on-prem) or Kyma compute units on BTP' },
+      { type:'action',  text:'Deploy vLLM or Ollama inference server with LLaMA 3 or Mistral' },
+      { type:'action',  text:'Subscribe BTP Kyma Runtime for containerised agent services' },
+      { type:'action',  text:'Configure BTP Integration Suite for SAP connectivity' },
+      { type:'blocker', text:'GPU infrastructure sizing: minimum A100 40GB for LLaMA-70B inference' },
+      { type:'action',  text:'Deploy ChromaDB or pgvector for RAG vector store' },
+      { type:'action',  text:'Build LangChain or LlamaIndex orchestration layer' },
+      { type:'action',  text:'Configure model quantisation (GGUF Q4/Q8) if GPU budget is constrained' },
+      { type:'action',  text:'Set up BTP Cloud Connector for on-prem SAP RFC access' },
+      { type:'action',  text:'Build eval golden set (≥500 examples) — no external API dependency' },
+      { type:'blocker', text:'Establish MLOps pipeline for model updates and fine-tuning' },
+      { type:'action',  text:'Define model governance policy: version control, bias testing, rollback' },
+    ],
+  },
+  third_party: {
+    name:'Third-Party + SAP Integration',
+    icon:'🔌',
+    short:'Existing vendor extended to SAP',
+    desc:'Extend your existing AI vendor (Salesforce Einstein, ServiceNow Now Assist, etc.) to SAP via BTP or direct API. Avoids new platform procurement — lowest-friction for non-SAP-native teams.',
+    arch: {
+      sap: ['ECC or S/4HANA', 'IS-U / CRM', 'RFC / BAPI / OData', 'Direct REST gateway'],
+      btp: ['BTP Integration Suite (optional — API proxy only)', 'BTP Cloud Connector'],
+      ai:  ['Third-party AI platform (vendor-specific)', 'Vendor agent orchestration layer', 'Vendor model (GPT-4o, Claude, Gemini, or custom)'],
+      data:['Vendor data platform', 'SAP OData service as data source', 'Replicated data warehouse'],
+      out: ['Vendor UX (embedded in existing tool)', 'Salesforce / ServiceNow / Jira portal', 'Email / Teams via vendor connector'],
+    },
+    checklist:[
+      { type:'done',    text:'Third-party AI vendor is contracted and actively used' },
+      { type:'action',  text:'Assess vendor SAP connector: OData or BTP-native integration available?' },
+      { type:'action',  text:'Expose required SAP data via OData services or REST APIs' },
+      { type:'action',  text:'Configure BTP Cloud Connector or direct API gateway for SAP access' },
+      { type:'blocker', text:'Validate that vendor data processing terms cover SAP financial / personal data' },
+      { type:'action',  text:'Map SAP authorisation model to vendor service account / API key' },
+      { type:'action',  text:'Build vendor-native agent workflow for first SAP use case' },
+      { type:'action',  text:'Test write-back path: vendor → SAP BAPI / RFC round-trip' },
+      { type:'action',  text:'Set up vendor audit log capture for SAP data access' },
+      { type:'action',  text:'Build eval golden set within vendor tooling (≥500 examples)' },
+      { type:'blocker', text:'Confirm vendor SLA meets SAP production system latency requirements (<2s)' },
+      { type:'action',  text:'Define rollback plan if vendor changes API or pricing model' },
+    ],
+  },
+};
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let currentQ = 0;
+let answers = {}; // key → option index
+const PLATFORM_KEYS = ['joule','aicore_only','btp_azure','btp_oss','third_party'];
+
+// ── WIZARD ─────────────────────────────────────────────────────────────────
+function renderQuestion(){
+  const q = QUESTIONS[currentQ];
+  document.getElementById('q-eyebrow').textContent = q.eyebrow;
+  document.getElementById('q-title').textContent   = q.title;
+  document.getElementById('q-subtitle').textContent = q.subtitle;
+  document.getElementById('q-counter').textContent = `${currentQ+1} of ${QUESTIONS.length}`;
+
+  const ol = document.getElementById('option-list');
+  ol.innerHTML = q.options.map((o,i)=>`
+    <div class="option-item${answers[q.key]===i?' selected':''}" onclick="selectOption(${i})">
+      <div class="option-radio"></div>
+      <div class="option-content">
+        <div class="option-label">${o.label}</div>
+        <div class="option-desc">${o.desc}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('btn-back').style.visibility = currentQ===0 ? 'hidden' : 'visible';
+  document.getElementById('btn-next').textContent = currentQ===QUESTIONS.length-1 ? 'See Results →' : 'Next →';
+  document.getElementById('btn-next').disabled = answers[q.key] === undefined;
+
+  renderProgress();
+}
+
+function renderProgress(){
+  const pb = document.getElementById('progress-bar');
+  pb.innerHTML = QUESTIONS.map((q,i)=>`
+    <div class="progress-step ${i<currentQ?'done':i===currentQ?'current':''}">
+      <div class="ps-circle">${i<currentQ?'✓':i+1}</div>
+      <div class="ps-label">${q.key.replace(/_/g,' ')}</div>
+    </div>
+  `).join('');
+}
+
+function selectOption(idx){
+  const q = QUESTIONS[currentQ];
+  answers[q.key] = idx;
+  document.querySelectorAll('.option-item').forEach((el,i)=>{
+    el.classList.toggle('selected', i===idx);
+  });
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQ(){
+  if(answers[QUESTIONS[currentQ].key] === undefined) return;
+  if(currentQ < QUESTIONS.length-1){
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQ(){
+  if(currentQ > 0){ currentQ--; renderQuestion(); }
+}
+
+// ── RESULTS ────────────────────────────────────────────────────────────────
+function showResults(){
+  // Score each platform
+  const totals = {};
+  PLATFORM_KEYS.forEach(k=>totals[k]=0);
+
+  QUESTIONS.forEach(q=>{
+    const sel = answers[q.key];
+    if(sel !== undefined){
+      const s = q.options[sel].scores;
+      PLATFORM_KEYS.forEach(k=>totals[k]+=(s[k]||0));
+    }
+  });
+
+  // Find winner
+  const maxScore = Math.max(...PLATFORM_KEYS.map(k=>totals[k]));
+  const winner = PLATFORM_KEYS.find(k=>totals[k]===maxScore);
+  const maxPossible = QUESTIONS.length * 5;
+
+  document.getElementById('wizard-wrap').style.display='none';
+  document.getElementById('result-wrap').style.display='block';
+
+  const wp = PLATFORMS[winner];
+  document.getElementById('result-title').textContent = `Recommended: ${wp.name}`;
+  document.getElementById('result-sub').textContent   = wp.desc;
+  document.getElementById('arch-title').textContent   = wp.name;
+
+  // Platform score grid
+  const sorted = [...PLATFORM_KEYS].sort((a,b)=>totals[b]-totals[a]);
+  document.getElementById('result-grid').innerHTML = sorted.map(k=>{
+    const p = PLATFORMS[k];
+    const pct = Math.round(totals[k]/maxPossible*100);
+    const isWinner = k===winner;
+    const circumference = 2*Math.PI*20;
+    const dash = circumference*(1-pct/100);
+    return `
+    <div class="platform-card${isWinner?' winner':''}">
+      <div class="picon">${p.icon}</div>
+      <div class="score-ring">
+        <svg width="52" height="52" viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r="20" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+          <circle cx="26" cy="26" r="20" fill="none" stroke="${isWinner?'#006FE6':'#00B4A6'}" stroke-width="4"
+            stroke-dasharray="${circumference.toFixed(1)}" stroke-dashoffset="${dash.toFixed(1)}" stroke-linecap="round"/>
+        </svg>
+        <div class="score-text">${pct}%</div>
+      </div>
+      <div class="pname">${p.name}</div>
+      <div style="font-size:11px;color:var(--muted)">${p.short}</div>
+      ${isWinner?'<div class="winner-badge">✓ Recommended</div>':''}
+    </div>`;
+  }).join('');
+
+  // Architecture layers
+  const arch = wp.arch;
+  const layerConfig = [
+    { key:'sap',  title:'SAP Core Systems', cls:'layer-sap' },
+    { key:'btp',  title:'SAP BTP Layer', cls:'layer-btp' },
+    { key:'ai',   title:'AI / LLM Layer', cls:'layer-ai' },
+    { key:'data', title:'Data & Vector Store', cls:'layer-data' },
+    { key:'out',  title:'Orchestration & Output', cls:'layer-out' },
+  ];
+  document.getElementById('arch-layers').innerHTML = layerConfig.map((lc,i)=>`
+    ${i>0?'<div class="arch-arrows">↕ API / Event / RFC</div>':''}
+    <div class="arch-layer ${lc.cls}">
+      <div class="arch-layer-title">${lc.title}</div>
+      <div class="arch-comps">
+        ${(arch[lc.key]||[]).map(c=>`<span class="arch-comp">${c}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Checklist
+  const iconMap = { done:'✅', action:'🔵', blocker:'🔴' };
+  document.getElementById('checklist').innerHTML = wp.checklist.map(item=>`
+    <li class="${item.type}"><span class="ci-icon">${iconMap[item.type]}</span><span class="ci-text">${item.text}</span></li>
+  `).join('');
+
+  // Save to localStorage
+  localStorage.setItem('asap_platform_fit', JSON.stringify({ winner, scores:totals, ts:Date.now() }));
+
+  document.getElementById('result-wrap').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function resetWizard(){
+  currentQ=0; answers={};
+  document.getElementById('wizard-wrap').style.display='block';
+  document.getElementById('result-wrap').style.display='none';
+  renderQuestion();
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────
+renderQuestion();
+</script>
+</body>
+</html>
